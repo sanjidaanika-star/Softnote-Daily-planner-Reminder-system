@@ -442,3 +442,122 @@ th:first-child {
     text-align: center;
   }
 }
+
+.public-home main {
+  padding-top: 32px;
+}
+
+.public-home .hero {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 64px 48px;
+  min-height: 560px;
+  margin-bottom: 48px;
+  background: #14324f;
+  color: white;
+}
+
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.public-home .hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 48% 0 0;
+  background: rgba(20,50,79,0.35);
+  z-index: -1;
+}
+
+.public-home .hero > div {
+  max-width: 440px;
+}
+
+.public-home .hero h1 {
+  font-size: 48px;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+}
+
+.public-home .hero .sign-in-link a {
+  color: white;
+}
+
+.public-home .plan-preview {
+  margin-bottom: 48px;
+  padding: 32px;
+  background: #fafbfb;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pill.planned {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.status-pill.missed {
+  background: #f8eded;
+  color: #924343;
+}
+
+.status-pill.rescheduled {
+  background: var(--accent);
+  color: white;
+}
+
+@media (max-width: 719px) {
+  .public-home .hero {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+    background: white;
+    color: var(--ink);
+    overflow: visible;
+  }
+
+  .hero-photo {
+    position: static;
+    order: -1;
+    height: 220px;
+    object-position: 75% center;
+    border-radius: 16px;
+  }
+
+  .public-home .hero::before {
+    display: none;
+  }
+
+  .public-home .hero h1 {
+    font-size: 36px;
+  }
+
+  .public-home .hero .sign-in-link a {
+    color: var(--accent);
+  }
+
+  .public-home .plan-preview {
+    padding: 16px 8px;
+  }
+
+  .status-pill {
+    padding: 3px 4px;
+    font-size: 10px;
+    overflow-wrap: normal;
+  }
+}

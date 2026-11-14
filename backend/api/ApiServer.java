@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 public final class ApiServer {
     private static final Map<String, String> ASSETS = Map.ofEntries(
             Map.entry("/assets/bg-study.svg", "image/svg+xml"),
+            Map.entry("/assets/hero-study.png", "image/png"),
             Map.entry("/index.html", "text/html"),
             Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
             Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),
