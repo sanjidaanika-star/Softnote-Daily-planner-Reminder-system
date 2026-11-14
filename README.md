@@ -24,3 +24,23 @@ $sources = Get-ChildItem -LiteralPath backend -Recurse -File -Filter '*.java'
 javac -d out $sources.FullName
 java -cp "out;$connectorJar" backend.test.AuthServiceIntegrationTest
 ```
+
+## Local HTTP API
+
+Compile the backend with the commands above, then run the scheduler test and start the server.
+
+```powershell
+java -cp out backend.test.DifficultyPlanStrategyTest
+java -cp "out;$connectorJar" backend.api.ApiServer
+```
+
+The server listens on `127.0.0.1:8080`. Pass a port and an optional properties file path as command-line arguments to override the defaults.
+
+| Endpoint | JSON request or query | Success |
+| --- | --- | --- |
+| `POST /register` | `name`, `email`, `password` | `201` with user ID |
+| `POST /login` | `email`, `password` | `200` with user profile and token |
+| `POST /exams` | `title`, ISO `examDate`, integer `dailyMinutes`, and a `chapters` array of objects with `name`, `difficulty`, and integer `estimatedMinutes` | `201` with exam ID |
+| `GET /plan?examId=...` | Exam ID from the creation response | `200` with a JSON array of saved sessions. The first request generates the plan. |
+
+Send JSON bodies with `Content-Type: application/json`. Send the login token in `Authorization: Bearer <token>` for exam creation and plan requests. Tokens are held in memory for up to eight hours and are cleared when the server stops.

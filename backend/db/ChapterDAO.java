@@ -18,12 +18,19 @@ public final class ChapterDAO {
     }
 
     public long insert(Chapter item) {
+        try (Connection connection = database.getConnection()) {
+            return insert(connection, item);
+        } catch (SQLException exception) {
+            throw new DataAccessException("Could not create chapter", exception);
+        }
+    }
+
+    static long insert(Connection connection, Chapter item) throws SQLException {
         String sql = """
                 INSERT INTO chapters (exam_id, name, difficulty, estimated_minutes)
                 VALUES (?, ?, ?, ?)
                 """;
-        try (Connection connection = database.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setLong(1, item.getExamId());
             statement.setString(2, item.getName());
             statement.setString(3, item.getDifficulty().name().toLowerCase(Locale.ROOT));
@@ -35,8 +42,6 @@ public final class ChapterDAO {
                 }
                 throw new SQLException("Insert returned no chapter ID");
             }
-        } catch (SQLException exception) {
-            throw new DataAccessException("Could not create chapter", exception);
         }
     }
 
