@@ -1,0 +1,1 @@
+-- Softnote MySQL schema placeholder.
