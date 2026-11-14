@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study plan | Softnote</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/pages.js"></script>
+</head>
+<body>
+  <header>
+    <a href="/dashboard.html">Softnote</a>
+    <button type="button" id="sign-out">Sign out</button>
+  </header>
+  <main>
+    <h1>Study plan</h1>
+    <p id="error" role="alert" hidden></p>
+    <p><a href="/dashboard.html">Back to exams</a></p>
+    <p id="plan-status" role="status">Loading sessions…</p>
+    <table id="plan-table" hidden>
+      <caption>Study sessions</caption>
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Chapter</th>
+          <th scope="col">Planned minutes</th>
+          <th scope="col">Status</th>
+          <th scope="col">Revision</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+</body>
+</html>

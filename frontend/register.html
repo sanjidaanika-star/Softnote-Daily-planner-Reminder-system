@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create an account | Softnote</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/pages.js"></script>
+</head>
+<body>
+  <header>
+    <a href="/login.html">Softnote</a>
+  </header>
+  <main>
+    <h1>Create an account</h1>
+    <p id="error" role="alert" hidden></p>
+    <form id="register-form" method="post">
+      <label>Name <input name="name" autocomplete="name" maxlength="255" required></label>
+      <label>Email <input name="email" type="email" maxlength="254" autocomplete="email" required></label>
+      <label>Password <input name="password" type="password" autocomplete="new-password" required></label>
+      <button type="submit">Register</button>
+    </form>
+    <p><a href="/login.html">Back to sign in</a></p>
+  </main>
+</body>
+</html>

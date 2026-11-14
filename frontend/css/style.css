@@ -1,0 +1,94 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font: 1rem/1.5 system-ui, sans-serif;
+  overflow-wrap: anywhere;
+}
+
+header, main {
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-block: 16px;
+  border-bottom: 1px solid;
+}
+
+main {
+  padding-bottom: 2rem;
+}
+
+form {
+  max-width: 28rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.85rem;
+}
+
+input, select, button {
+  font: inherit;
+}
+
+input, select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem;
+}
+
+button {
+  padding: 0.3rem 0.65rem;
+}
+
+fieldset {
+  min-width: 0;
+  margin: 0 0 0.85rem;
+  padding: 0.65rem;
+}
+
+#error {
+  border: 1px solid;
+  padding: 0.65rem;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+caption, th, td {
+  padding: 0.35rem;
+  text-align: left;
+}
+
+th, td {
+  vertical-align: top;
+  border-bottom: 1px solid;
+}
+
+th:first-child {
+  width: 25%;
+}
+
+@media (max-width: 28rem) {
+  table {
+    font-size: 0.875rem;
+  }
+
+  th, td {
+    padding-inline: 0.2rem;
+  }
+}

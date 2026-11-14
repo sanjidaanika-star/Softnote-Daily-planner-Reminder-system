@@ -36,10 +36,13 @@ java -cp "out;$connectorJar" backend.api.ApiServer
 
 The server listens on `127.0.0.1:8080`. Pass a port and an optional properties file path as command-line arguments to override the defaults.
 
+Run the server from the project root and open http://127.0.0.1:8080/ to use the frontend.
+
 | Endpoint | JSON request or query | Success |
 | --- | --- | --- |
 | `POST /register` | `name`, `email`, `password` | `201` with user ID |
 | `POST /login` | `email`, `password` | `200` with user profile and token |
+| `GET /exams` | Bearer token | `200` with the signed-in user's exams |
 | `POST /exams` | `title`, ISO `examDate`, integer `dailyMinutes`, and a `chapters` array of objects with `name`, `difficulty`, and integer `estimatedMinutes` | `201` with exam ID |
 | `GET /plan?examId=...` | Exam ID from the creation response | `200` with a JSON array of saved sessions. The first request generates the plan. |
 

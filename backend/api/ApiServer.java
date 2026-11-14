@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.sql.SQLException;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +43,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public final class ApiServer {
+    private static final Map<String, String> ASSETS = Map.of(
+            "/login.html", "text/html", "/register.html", "text/html",
+            "/dashboard.html", "text/html", "/new-exam.html", "text/html",
+            "/plan.html", "text/html", "/css/style.css", "text/css",
+            "/js/api.js", "text/javascript", "/js/pages.js", "text/javascript");
     private static final int MAX_BODY_BYTES = 65_536;
     private static final int MAX_LOGIN_SESSIONS = 4096;
     private static final long LOGIN_SESSION_NANOS = TimeUnit.HOURS.toNanos(8);
@@ -49,6 +56,7 @@ public final class ApiServer {
     private final ExecutorService requests = Executors.newFixedThreadPool(4);
     private final AuthService auth;
     private final ExamDAO exams;
+    private final ChapterDAO chapters;
     private final PlanService plans;
     private final Clock clock;
     private final SecureRandom random = new SecureRandom();
@@ -60,17 +68,15 @@ public final class ApiServer {
         server.setExecutor(requests);
         auth = new AuthService(new UserDAO(database));
         exams = new ExamDAO(database);
-        plans = new PlanService(exams, new ChapterDAO(database), new SessionDAO(database),
+        chapters = new ChapterDAO(database);
+        plans = new PlanService(exams, chapters, new SessionDAO(database),
                 new DifficultyPlanStrategy(), clock);
         route("/register", "POST", this::register);
         route("/login", "POST", this::login);
-        route("/exams", "POST", this::createExam);
+        route("/exams", "GET, POST", this::handleExams);
         route("/plan", "GET", this::plan);
-        server.createContext("/", exchange -> {
-            try (exchange) {
-                error(exchange, 404, "Endpoint not found");
-            }
-        });
+        ASSETS.keySet().forEach(path -> server.createContext(path, this::serveFrontend));
+        server.createContext("/", this::serveFrontend);
     }
 
     public static void main(String[] args) throws IOException {
@@ -99,7 +105,7 @@ public final class ApiServer {
                     if (!path.equals(exchange.getRequestURI().getPath())) {
                         throw new HttpError(404, "Endpoint not found");
                     }
-                    if (!method.equals(exchange.getRequestMethod())) {
+                    if (!List.of(method.split(", ")).contains(exchange.getRequestMethod())) {
                         exchange.getResponseHeaders().set("Allow", method);
                         throw new HttpError(405, "Method not allowed");
                     }
@@ -120,6 +126,59 @@ public final class ApiServer {
                 }
             }
         });
+    }
+
+    private void serveFrontend(HttpExchange exchange) throws IOException {
+        try (exchange) {
+            String path = exchange.getRequestURI().getPath();
+            if ("/".equals(path)) {
+                path = "/login.html";
+            }
+            String contentType = ASSETS.getOrDefault(path == null ? "" : path, "");
+            if (contentType.isEmpty()) {
+                error(exchange, 404, "Page not found");
+                return;
+            }
+            boolean head = "HEAD".equals(exchange.getRequestMethod());
+            if (!head && !"GET".equals(exchange.getRequestMethod())) {
+                exchange.getResponseHeaders().set("Allow", "GET, HEAD");
+                error(exchange, 405, "Method not allowed");
+                return;
+            }
+            Path file;
+            try {
+                Path root = Path.of("frontend").toRealPath();
+                file = root.resolve(path.substring(1)).toRealPath();
+                if (!file.startsWith(root) || !Files.isRegularFile(file)) {
+                    error(exchange, 404, "Page not found");
+                    return;
+                }
+            } catch (IOException exception) {
+                error(exchange, 404, "Page not found");
+                return;
+            }
+            exchange.getResponseHeaders().set("Content-Type", contentType + "; charset=utf-8");
+            exchange.getResponseHeaders().set("X-Content-Type-Options", "nosniff");
+            byte[] body = Files.readAllBytes(file);
+            exchange.getResponseHeaders().set("Content-Length", String.valueOf(body.length));
+            exchange.sendResponseHeaders(200, head || body.length == 0 ? -1 : body.length);
+            if (!head && body.length != 0) {
+                exchange.getResponseBody().write(body);
+            }
+        }
+    }
+
+    private void handleExams(HttpExchange exchange) throws IOException {
+        if ("POST".equals(exchange.getRequestMethod())) {
+            createExam(exchange);
+            return;
+        }
+        String json = exams.findByUserId(requireUser(exchange)).stream()
+                .map(exam -> "{\"id\":" + exam.getId() + ",\"title\":" + Json.quote(exam.getTitle())
+                        + ",\"examDate\":" + Json.quote(exam.getExamDate().toString())
+                        + ",\"dailyMinutes\":" + exam.getDailyMinutes() + "}")
+                .collect(Collectors.joining(",", "[", "]"));
+        reply(exchange, 200, json);
     }
 
     private void register(HttpExchange exchange) throws IOException {
@@ -233,7 +292,13 @@ public final class ApiServer {
         Future<List<StudySession>> generation = plans.generatePlan(examId);
         try {
             List<StudySession> sessions = generation.get(10, TimeUnit.SECONDS);
-            String json = sessions.stream().map(ApiServer::sessionJson).collect(Collectors.joining(",", "[", "]"));
+            Map<Long, String> names = new HashMap<>();
+            if (!sessions.isEmpty()) {
+                chapters.findByExamId(examId).forEach(chapter -> names.put(chapter.getId(), chapter.getName()));
+            }
+            String json = sessions.stream()
+                    .map(session -> sessionJson(session, names.getOrDefault(session.getChapterId(), "Unknown chapter")))
+                    .collect(Collectors.joining(",", "[", "]"));
             reply(exchange, 200, json);
         } catch (ExecutionException exception) {
             if (exception.getCause() instanceof java.util.NoSuchElementException) {
@@ -249,9 +314,10 @@ public final class ApiServer {
         }
     }
 
-    private static String sessionJson(StudySession session) {
+    private static String sessionJson(StudySession session, String chapterName) {
         return "{\"id\":" + session.getId() + ",\"examId\":" + session.getExamId()
                 + ",\"chapterId\":" + session.getChapterId()
+                + ",\"chapterName\":" + Json.quote(chapterName)
                 + ",\"sessionDate\":" + Json.quote(session.getSessionDate().toString())
                 + ",\"plannedMinutes\":" + session.getPlannedMinutes()
                 + ",\"status\":" + Json.quote(session.getStatus().name().toLowerCase(Locale.ROOT))

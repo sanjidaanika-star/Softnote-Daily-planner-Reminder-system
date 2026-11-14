@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add an exam | Softnote</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/pages.js"></script>
+</head>
+<body>
+  <header>
+    <a href="/dashboard.html">Softnote</a>
+    <button type="button" id="sign-out">Sign out</button>
+  </header>
+  <main>
+    <h1>Add an exam</h1>
+    <p id="error" role="alert" hidden></p>
+    <form id="exam-form" method="post">
+      <label>Exam title <input name="title" maxlength="255" required></label>
+      <label>Exam date <input name="examDate" type="date" required></label>
+      <label>Daily minutes <input name="dailyMinutes" type="number" min="1" max="2147483647" required></label>
+      <fieldset>
+        <legend>Chapters</legend>
+        <div id="chapters"></div>
+        <button type="button" id="add-chapter">Add chapter</button>
+      </fieldset>
+      <button type="submit">Save exam</button>
+    </form>
+    <p><a href="/dashboard.html">Cancel</a></p>
+    <template id="chapter-template">
+      <fieldset class="chapter">
+        <legend>Chapter</legend>
+        <label>Chapter name <input name="chapterName" maxlength="255" required></label>
+        <label>Difficulty <select name="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select></label>
+        <label>Estimated minutes <input name="estimatedMinutes" type="number" min="1" max="2147483647" required></label>
+        <button type="button" class="remove-chapter">Remove chapter</button>
+      </fieldset>
+    </template>
+  </main>
+</body>
+</html>
