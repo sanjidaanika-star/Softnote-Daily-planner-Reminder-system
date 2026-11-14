@@ -120,3 +120,141 @@ th:first-child {
   padding-inline: 0.2rem;
   margin-bottom: 0.3rem;
 }
+
+.public-page {
+  --page-bg: #f3f6fa;
+  --card-bg: #fff;
+  --page-text: #27364a;
+  --page-heading: #14263a;
+  --accent: #1f4e79;
+  --accent-hover: #173d60;
+  --accent-wash: #edf4fa;
+  --card-border: #dce4ed;
+  --input-border: #8192a6;
+  --card-shadow: 0 14px 40px rgb(20 38 58 / 9%);
+  background: var(--page-bg);
+  color: var(--page-text);
+  min-height: 100vh;
+  font-family: Inter, system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+.public-page header {
+  max-width: 752px;
+  padding-block: 1.5rem;
+  border: 0;
+}
+
+.public-page a {
+  color: var(--accent);
+}
+
+.public-page header a {
+  font-size: 1.125rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.public-page header a:hover {
+  text-decoration: underline;
+}
+
+.public-page main {
+  width: calc(100% - 32px);
+  max-width: 720px;
+  margin-block: clamp(0.25rem, 4vw, 3rem) 2rem;
+  padding: clamp(1.25rem, 6vw, 3.5rem);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+}
+
+.public-page h1,
+.public-page h2 {
+  color: var(--page-heading);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.public-page h1 {
+  font-size: clamp(1.875rem, 5vw, 2.75rem);
+}
+
+.public-home h1 {
+  font-size: clamp(2.5rem, 7vw, 4rem);
+}
+
+.public-page h2 {
+  font-size: 1.375rem;
+}
+
+.public-home main > p {
+  max-width: 52ch;
+}
+
+.public-home ul {
+  padding-inline-start: 1.25rem;
+  margin-bottom: 0;
+}
+
+.public-home li + li {
+  margin-top: 0.45rem;
+}
+
+.public-page form {
+  max-width: 100%;
+}
+
+.public-page label {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.public-page input {
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+  font-weight: 400;
+}
+
+.public-page form button,
+.public-page .home-links a,
+.public-page form + p a {
+  display: inline-block;
+  padding: 0.65rem 1.05rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  font-weight: 650;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.public-page form button,
+.public-page .home-links a:first-child {
+  background: var(--accent);
+  color: var(--card-bg);
+}
+
+.public-page form button:not(:disabled):hover,
+.public-page .home-links a:first-child:hover {
+  background: var(--accent-hover);
+}
+
+.public-page .home-links a:last-child:hover,
+.public-page form + p a:hover {
+  background: var(--accent-wash);
+}
+
+.public-page form button:disabled {
+  opacity: 0.65;
+}
+
+.public-page :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.public-page form + p {
+  margin: 1.25rem 0 0;
+}
