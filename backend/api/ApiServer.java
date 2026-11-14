@@ -43,12 +43,13 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public final class ApiServer {
-    private static final Map<String, String> ASSETS = Map.of(
-            "/index.html", "text/html",
-            "/login.html", "text/html", "/register.html", "text/html",
-            "/dashboard.html", "text/html", "/new-exam.html", "text/html",
-            "/plan.html", "text/html", "/progress.html", "text/html", "/css/style.css", "text/css",
-            "/js/api.js", "text/javascript", "/js/pages.js", "text/javascript");
+    private static final Map<String, String> ASSETS = Map.ofEntries(
+            Map.entry("/assets/bg-study.svg", "image/svg+xml"),
+            Map.entry("/index.html", "text/html"),
+            Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
+            Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),
+            Map.entry("/plan.html", "text/html"), Map.entry("/progress.html", "text/html"), Map.entry("/css/style.css", "text/css"),
+            Map.entry("/js/api.js", "text/javascript"), Map.entry("/js/pages.js", "text/javascript"));
     private static final int MAX_BODY_BYTES = 65_536;
     private static final int MAX_LOGIN_SESSIONS = 4096;
     private static final long LOGIN_SESSION_NANOS = TimeUnit.HOURS.toNanos(8);
