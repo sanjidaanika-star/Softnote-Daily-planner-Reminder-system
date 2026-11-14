@@ -1,4 +1,4 @@
-import { clearToken, createExam, getPlan, listExams, login, register, requireLogin } from "./api.js";
+import { changeStatus, clearToken, createExam, getHistory, getPlan, getProgress, listExams, login, register, requireLogin } from "./api.js";
 
 const byId = (id) => document.getElementById(id);
 const error = byId("error");
@@ -96,26 +96,90 @@ function setupExam(form) {
   });
 }
 
-async function loadPlan() {
-  const status = byId("plan-status");
-  try {
-    const examId = new URLSearchParams(location.search).get("examId");
-    if (!examId || !/^[1-9][0-9]*$/.test(examId)) throw new Error("Choose an exam from the dashboard.");
-    const sessions = await getPlan(examId);
-    status.textContent = sessions.length === 0 ? "There are no study sessions for this exam." : "";
-    if (sessions.length === 0) return;
+function selectedExam() {
+  const examId = new URLSearchParams(location.search).get("examId");
+  if (!examId || !/^[1-9][0-9]*$/.test(examId)) throw new Error("Choose an exam from the dashboard.");
+  return examId;
+}
 
-    const table = byId("plan-table");
+function addCells(row, values) {
+  for (const value of values) row.insertCell().textContent = value;
+}
+
+async function loadPlan(focusSessionId) {
+  const status = byId("plan-status");
+  const table = byId("plan-table");
+  try {
+    const examId = selectedExam();
+    byId("progress-link").href = "/progress.html?examId=" + encodeURIComponent(examId);
+    const { sessions, unscheduled } = await getPlan(examId);
+    status.textContent = sessions.length === 0 ? "There are no study sessions for this exam." : "";
     const rows = table.tBodies[0];
+    rows.replaceChildren();
+    const list = byId("unscheduled-list");
+    list.replaceChildren();
+    for (const item of unscheduled) {
+      const line = document.createElement("li");
+      line.textContent = item.chapterName + " · " + item.minutes + " min";
+      list.append(line);
+    }
+    byId("unscheduled-status").textContent = unscheduled.length ? "" : "All work is scheduled.";
+
     for (const session of sessions) {
       const row = rows.insertRow();
-      const cells = [session.sessionDate, session.chapterName, session.plannedMinutes,
-        session.status, session.isRevision ? "Yes" : "No"];
-      for (const value of cells) row.insertCell().textContent = value;
+      addCells(row, [session.sessionDate, session.chapterName, session.plannedMinutes,
+        session.status, session.isRevision ? "Yes" : "No"]);
+      const actions = row.insertCell();
+      if (session.status === "planned") {
+        for (const [label, value] of [["Completed", "completed"], ["Missed", "missed"]]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = label;
+          button.addEventListener("click", async () => {
+            error.hidden = true;
+            const buttons = table.querySelectorAll("button");
+            buttons.forEach((item) => { item.disabled = true; });
+            try {
+              await changeStatus(session.id, value);
+              await loadPlan(session.id);
+            } catch (failure) {
+              showError(failure);
+            } finally {
+              buttons.forEach((item) => { item.disabled = false; });
+            }
+          });
+          actions.append(button);
+        }
+      }
+      if (session.id === focusSessionId) row.tabIndex = -1;
     }
-    table.hidden = false;
+    table.hidden = sessions.length === 0;
+    rows.querySelector('[tabindex="-1"]')?.focus();
   } catch (failure) {
     status.textContent = "";
+    showError(failure);
+  }
+}
+
+async function loadProgress() {
+  const progressStatus = byId("progress-status");
+  try {
+    const examId = selectedExam();
+    const back = byId("back-to-plan");
+    back.href = "/plan.html?examId=" + encodeURIComponent(examId);
+    back.textContent = "Back to plan";
+    const [progress, history] = await Promise.all([getProgress(examId), getHistory()]);
+    progressStatus.textContent = progress.percentage + "% complete (" + progress.completedMinutes
+      + " of " + progress.totalPlannedMinutes + " min)";
+    const table = byId("history-table");
+    for (const session of history) {
+      addCells(table.tBodies[0].insertRow(), [session.sessionDate, session.examTitle,
+        session.chapterName, session.plannedMinutes, session.status]);
+    }
+    table.hidden = history.length === 0;
+    byId("history-status").textContent = history.length ? "" : "No completed or missed sessions yet.";
+  } catch (failure) {
+    progressStatus.textContent = "";
     showError(failure);
   }
 }
@@ -132,6 +196,7 @@ if (signOut && requireLogin()) {
   if (byId("exam-list")) loadDashboard();
   if (byId("exam-form")) setupExam(byId("exam-form"));
   if (byId("plan-table")) loadPlan();
+  if (byId("history-table")) loadProgress();
 }
 
 if (byId("login-form")) setupLogin(byId("login-form"));

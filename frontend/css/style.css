@@ -92,3 +92,14 @@ th:first-child {
     padding-inline: 0.2rem;
   }
 }
+
+#plan-table th:last-child {
+  width: 26%;
+}
+
+#plan-table td button {
+  display: block;
+  max-width: 100%;
+  padding-inline: 0.2rem;
+  margin-bottom: 0.3rem;
+}

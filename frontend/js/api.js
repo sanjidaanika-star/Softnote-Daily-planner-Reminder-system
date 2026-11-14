@@ -79,3 +79,17 @@ export function createExam(exam) {
 export function getPlan(examId) {
   return request("/plan?examId=" + encodeURIComponent(examId), { protectedCall: true });
 }
+
+export function changeStatus(sessionId, status) {
+  return request("/sessions/" + encodeURIComponent(sessionId) + "/status", {
+    method: "PATCH", body: { status }, protectedCall: true,
+  });
+}
+
+export function getProgress(examId) {
+  return request("/progress?examId=" + encodeURIComponent(examId), { protectedCall: true });
+}
+
+export function getHistory() {
+  return request("/history", { protectedCall: true });
+}

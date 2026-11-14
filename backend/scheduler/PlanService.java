@@ -21,6 +21,7 @@ public final class PlanService {
     private final SessionDAO sessions;
     private final SchedulingStrategy strategy;
     private final Clock clock;
+    private final Rescheduler rescheduler = new Rescheduler();
 
     public PlanService(ExamDAO exams, ChapterDAO chapters, SessionDAO sessions,
                        SchedulingStrategy strategy, Clock clock) {
@@ -53,6 +54,11 @@ public final class PlanService {
             cancelPendingTasks();
             Thread.currentThread().interrupt();
         }
+    }
+
+    public Future<StudySession> changeStatus(long sessionId, long userId, StudySession.Status status) {
+        return executor.submit(() -> sessions.changeStatus(sessionId, userId, status,
+                (exam, plan, missed) -> rescheduler.reschedule(exam, plan, missed, LocalDate.now(clock))));
     }
 
     private void cancelPendingTasks() {

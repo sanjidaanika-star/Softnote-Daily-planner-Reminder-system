@@ -46,7 +46,7 @@ public final class ApiServer {
     private static final Map<String, String> ASSETS = Map.of(
             "/login.html", "text/html", "/register.html", "text/html",
             "/dashboard.html", "text/html", "/new-exam.html", "text/html",
-            "/plan.html", "text/html", "/css/style.css", "text/css",
+            "/plan.html", "text/html", "/progress.html", "text/html", "/css/style.css", "text/css",
             "/js/api.js", "text/javascript", "/js/pages.js", "text/javascript");
     private static final int MAX_BODY_BYTES = 65_536;
     private static final int MAX_LOGIN_SESSIONS = 4096;
@@ -58,6 +58,7 @@ public final class ApiServer {
     private final ExamDAO exams;
     private final ChapterDAO chapters;
     private final PlanService plans;
+    private final SessionDAO sessions;
     private final Clock clock;
     private final SecureRandom random = new SecureRandom();
     private final LinkedHashMap<String, LoginSession> loginSessions = new LinkedHashMap<>();
@@ -69,12 +70,16 @@ public final class ApiServer {
         auth = new AuthService(new UserDAO(database));
         exams = new ExamDAO(database);
         chapters = new ChapterDAO(database);
-        plans = new PlanService(exams, chapters, new SessionDAO(database),
+        sessions = new SessionDAO(database);
+        plans = new PlanService(exams, chapters, sessions,
                 new DifficultyPlanStrategy(), clock);
         route("/register", "POST", this::register);
         route("/login", "POST", this::login);
         route("/exams", "GET, POST", this::handleExams);
         route("/plan", "GET", this::plan);
+        route("/progress", "GET", this::progress);
+        route("/history", "GET", this::history);
+        route("/sessions/", "PATCH", this::changeStatus);
         ASSETS.keySet().forEach(path -> server.createContext(path, this::serveFrontend));
         server.createContext("/", this::serveFrontend);
     }
@@ -102,7 +107,8 @@ public final class ApiServer {
         server.createContext(path, exchange -> {
             try (exchange) {
                 try {
-                    if (!path.equals(exchange.getRequestURI().getPath())) {
+                    String requestPath = exchange.getRequestURI().getPath();
+                    if (!(path.endsWith("/") ? requestPath.startsWith(path) : path.equals(requestPath))) {
                         throw new HttpError(404, "Endpoint not found");
                     }
                     if (!List.of(method.split(", ")).contains(exchange.getRequestMethod())) {
@@ -271,7 +277,7 @@ public final class ApiServer {
         reply(exchange, 201, "{\"id\":" + examId + "}");
     }
 
-    private void plan(HttpExchange exchange) throws IOException {
+    private long ownedExamId(HttpExchange exchange) {
         long userId = requireUser(exchange);
         String query = exchange.getRequestURI().getRawQuery();
         long examId;
@@ -289,28 +295,91 @@ public final class ApiServer {
         if (exams.findById(examId).filter(exam -> exam.getUserId() == userId).isEmpty()) {
             throw new HttpError(404, "Exam not found");
         }
-        Future<List<StudySession>> generation = plans.generatePlan(examId);
+        return examId;
+    }
+
+    private void plan(HttpExchange exchange) throws IOException {
+        long examId = ownedExamId(exchange);
+        await(plans.generatePlan(examId));
+        SessionDAO.Plan plan = sessions.readPlan(examId);
+        Map<Long, String> names = new HashMap<>();
+        chapters.findByExamId(examId).forEach(chapter -> names.put(chapter.getId(), chapter.getName()));
+        String items = plan.sessions().stream()
+                .map(session -> sessionJson(session, names.getOrDefault(session.getChapterId(), "Unknown chapter")))
+                .collect(Collectors.joining(",", "[", "]"));
+        String unscheduled = plan.unscheduled().stream()
+                .map(item -> "{\"chapterName\":" + Json.quote(item.chapterName()) + ",\"minutes\":" + item.minutes() + "}")
+                .collect(Collectors.joining(",", "[", "]"));
+        reply(exchange, 200, "{\"sessions\":" + items + ",\"unscheduled\":" + unscheduled + "}");
+    }
+
+    private void changeStatus(HttpExchange exchange) throws IOException {
+        long userId = requireUser(exchange);
+        String path = exchange.getRequestURI().getPath();
+        if (!path.matches("/sessions/[0-9]+/status")) {
+            throw new HttpError(404, "Endpoint not found");
+        }
+        long sessionId = Long.parseLong(path.substring(10, path.length() - 7));
+        if (sessionId <= 0) {
+            throw new IllegalArgumentException("Session ID must be positive");
+        }
+        StudySession.Status status = switch (text(requestBody(exchange), "status")) {
+            case "completed" -> StudySession.Status.COMPLETED;
+            case "missed" -> StudySession.Status.MISSED;
+            default -> throw new IllegalArgumentException("Status must be completed or missed");
+        };
+        StudySession updated = await(plans.changeStatus(sessionId, userId, status));
+        String name = chapters.findByExamId(updated.getExamId()).stream()
+                .filter(chapter -> chapter.getId() == updated.getChapterId()).map(Chapter::getName)
+                .findFirst().orElse("Unknown chapter");
+        reply(exchange, 200, sessionJson(updated, name));
+    }
+
+    private void progress(HttpExchange exchange) throws IOException {
+        long examId = ownedExamId(exchange);
+        await(plans.generatePlan(examId));
+        SessionDAO.Plan plan = sessions.readPlan(examId);
+        long total = plan.unscheduled().stream().mapToLong(SessionDAO.Unscheduled::minutes).sum();
+        long completed = 0;
+        for (StudySession session : plan.sessions()) {
+            if (session.getStatus() != StudySession.Status.MISSED) {
+                total += session.getPlannedMinutes();
+            }
+            if (session.getStatus() == StudySession.Status.COMPLETED) {
+                completed += session.getPlannedMinutes();
+            }
+        }
+        double percentage = total == 0 ? 0 : Math.round(10000.0 * completed / total) / 100.0;
+        reply(exchange, 200, "{\"totalPlannedMinutes\":" + total + ",\"completedMinutes\":" + completed
+                + ",\"percentage\":" + percentage + "}");
+    }
+
+    private void history(HttpExchange exchange) throws IOException {
+        String json = sessions.findHistory(requireUser(exchange)).stream()
+                .map(entry -> "{\"examTitle\":" + Json.quote(entry.examTitle()) + ","
+                        + sessionJson(entry.session(), entry.chapterName()).substring(1))
+                .collect(Collectors.joining(",", "[", "]"));
+        reply(exchange, 200, json);
+    }
+
+    private static <T> T await(Future<T> task) {
         try {
-            List<StudySession> sessions = generation.get(10, TimeUnit.SECONDS);
-            Map<Long, String> names = new HashMap<>();
-            if (!sessions.isEmpty()) {
-                chapters.findByExamId(examId).forEach(chapter -> names.put(chapter.getId(), chapter.getName()));
-            }
-            String json = sessions.stream()
-                    .map(session -> sessionJson(session, names.getOrDefault(session.getChapterId(), "Unknown chapter")))
-                    .collect(Collectors.joining(",", "[", "]"));
-            reply(exchange, 200, json);
+            return task.get(10, TimeUnit.SECONDS);
         } catch (ExecutionException exception) {
-            if (exception.getCause() instanceof java.util.NoSuchElementException) {
-                throw new HttpError(404, "Exam not found");
+            Throwable cause = exception.getCause();
+            if (cause instanceof java.util.NoSuchElementException) {
+                throw new HttpError(404, cause.getMessage());
             }
-            System.err.println(exception.getCause());
-            throw new HttpError(500, "Could not generate study plan");
+            if (cause instanceof IllegalStateException) {
+                throw new HttpError(409, cause.getMessage());
+            }
+            System.err.println(cause);
+            throw new HttpError(500, "Could not save or load the study plan");
         } catch (TimeoutException exception) {
-            throw new HttpError(503, "Plan generation is still running. Try again shortly.");
+            throw new HttpError(503, "The request is still running. Try again shortly.");
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new HttpError(503, "Plan generation was interrupted");
+            throw new HttpError(503, "The request was interrupted");
         }
     }
 

@@ -14,6 +14,8 @@ Softnote is an adaptive exam study planner. Its goal is to help students organiz
 2. Copy `config/database.example.properties` to `config/database.properties`. Set the JDBC URL, database user, and password for your local database.
 3. Include the MySQL Connector/J JAR on the Java runtime classpath.
 
+For an existing Phase 5 database, apply `database/phase6.sql` once to add storage for unscheduled work.
+
 ## Authentication integration tests
 
 Create a separate MySQL database named `softnote_test` and run `database/schema.sql` in it. Copy the example configuration to `config/database.test.properties` and point it at `softnote_test` with a user that can read, insert, and delete test rows. Run these PowerShell commands from the project root after setting `$connectorJar` to the path of your Connector/J JAR.
@@ -31,6 +33,7 @@ Compile the backend with the commands above, then run the scheduler test and sta
 
 ```powershell
 java -cp out backend.test.DifficultyPlanStrategyTest
+java -cp out backend.test.ReschedulerTest
 java -cp "out;$connectorJar" backend.api.ApiServer
 ```
 
@@ -44,6 +47,11 @@ Run the server from the project root and open http://127.0.0.1:8080/ to use the 
 | `POST /login` | `email`, `password` | `200` with user profile and token |
 | `GET /exams` | Bearer token | `200` with the signed-in user's exams |
 | `POST /exams` | `title`, ISO `examDate`, integer `dailyMinutes`, and a `chapters` array of objects with `name`, `difficulty`, and integer `estimatedMinutes` | `201` with exam ID |
-| `GET /plan?examId=...` | Exam ID from the creation response | `200` with a JSON array of saved sessions. The first request generates the plan. |
+| `GET /plan?examId=...` | Exam ID from the creation response | `200` with `sessions` and `unscheduled` arrays. The first request generates the plan. |
+| `PATCH /sessions/{id}/status` | `status` set to `completed` or `missed` | `200` with the updated session |
+| `GET /progress?examId=...` | Exam ID | `200` with total planned minutes, completed minutes, and percentage |
+| `GET /history` | Bearer token | `200` with completed and missed sessions, newest session date first |
 
-Send JSON bodies with `Content-Type: application/json`. Send the login token in `Authorization: Bearer <token>` for exam creation and plan requests. Tokens are held in memory for up to eight hours and are cleared when the server stops.
+Send JSON bodies with `Content-Type: application/json`. Send the login token in `Authorization: Bearer <token>` for exam, plan, status, progress, and history requests. Tokens are held in memory for up to eight hours and are cleared when the server stops.
+
+Marking a session missed preserves the original row for history. Replacement sessions use free time starting today. Progress counts replacement and unscheduled minutes once, so a missed session does not inflate the total.

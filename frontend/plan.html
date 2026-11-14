@@ -16,6 +16,7 @@
     <h1>Study plan</h1>
     <p id="error" role="alert" hidden></p>
     <p><a href="/dashboard.html">Back to exams</a></p>
+    <p><a id="progress-link" href="/progress.html">Progress and history</a></p>
     <p id="plan-status" role="status">Loading sessions…</p>
     <table id="plan-table" hidden>
       <caption>Study sessions</caption>
@@ -26,10 +27,16 @@
           <th scope="col">Planned minutes</th>
           <th scope="col">Status</th>
           <th scope="col">Revision</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
+    <section aria-labelledby="unscheduled-heading">
+      <h2 id="unscheduled-heading">Unscheduled work</h2>
+      <p id="unscheduled-status"></p>
+      <ul id="unscheduled-list"></ul>
+    </section>
   </main>
 </body>
 </html>

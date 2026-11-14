@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Progress and history | Softnote</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/pages.js"></script>
+</head>
+<body>
+  <header>
+    <a href="/dashboard.html">Softnote</a>
+    <button type="button" id="sign-out">Sign out</button>
+  </header>
+  <main>
+    <h1>Progress and history</h1>
+    <p id="error" role="alert" hidden></p>
+    <p><a id="back-to-plan" href="/dashboard.html">Back to exams</a></p>
+    <p id="progress-status" role="status">Loading progress…</p>
+    <p id="history-status" role="status"></p>
+    <table id="history-table" hidden>
+      <caption>Study history</caption>
+      <thead><tr>
+        <th scope="col">Date</th><th scope="col">Exam</th><th scope="col">Chapter</th>
+        <th scope="col">Minutes</th><th scope="col">Status</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </main>
+</body>
+</html>
