@@ -2,7 +2,7 @@
 
 Softnote is an adaptive exam study planner. Its goal is to help students organize exam preparation, track their progress, and adjust what they study next based on that progress.
 
-## Planned tech stack
+## Tech stack
 
 - Backend: Java
 - Frontend: HTML, CSS, and JavaScript
@@ -10,11 +10,32 @@ Softnote is an adaptive exam study planner. Its goal is to help students organiz
 
 ## Local database setup
 
-1. Create a MySQL database named `softnote_dev` and run `database/schema.sql` in it.
-2. Copy `config/database.example.properties` to `config/database.properties`. Set the JDBC URL, database user, and password for your local database.
-3. Include the MySQL Connector/J JAR on the Java runtime classpath.
+Run these PowerShell commands from the project root. Install JDK 17 or later, start MySQL 8.4, and have the MySQL client and Connector/J JAR available. Replace `root` with your MySQL administrator account if needed.
 
-For an existing Phase 5 database, apply `database/phase6.sql` once to add storage for unscheduled work.
+```powershell
+mysql --user=root --password --execute="CREATE DATABASE softnote_dev CHARACTER SET utf8mb4"
+Get-Content -Raw database/schema.sql | mysql --user=root --password --database=softnote_dev
+Copy-Item config/database.example.properties config/database.properties
+notepad config/database.properties
+```
+
+In the properties file, keep `db.url=jdbc:mysql://localhost:3306/softnote_dev` if MySQL uses the default port. Set `db.user` and `db.password` to your local MySQL account. The account needs SELECT, INSERT, and UPDATE on `softnote_dev`. Save the file, then replace the example Connector/J path below with your absolute path.
+
+```powershell
+$connectorJar = 'C:\path\to\mysql-connector-j.jar'
+New-Item -ItemType Directory -Path out -Force | Out-Null
+$sources = Get-ChildItem -LiteralPath backend -Recurse -File -Filter '*.java'
+javac -d out $sources.FullName
+java -cp "out;$connectorJar" backend.api.ApiServer
+```
+
+Keep the server running and open [Softnote](http://127.0.0.1:8080/). Use **Create an account** to open registration, sign in to reach the dashboard, and use **Add an exam** to create an exam and open its plan. The plan links to **Progress and history**. Press Ctrl+C in PowerShell to stop the server.
+
+For an existing Phase 5 database, run the migration once in place of loading the fresh schema into that database.
+
+```powershell
+Get-Content -Raw database/phase6.sql | mysql --user=root --password --database=softnote_dev
+```
 
 ## Authentication integration tests
 
@@ -29,17 +50,14 @@ java -cp "out;$connectorJar" backend.test.AuthServiceIntegrationTest
 
 ## Local HTTP API
 
-Compile the backend with the commands above, then run the scheduler test and start the server.
+After compiling, run the scheduler tests with:
 
 ```powershell
 java -cp out backend.test.DifficultyPlanStrategyTest
 java -cp out backend.test.ReschedulerTest
-java -cp "out;$connectorJar" backend.api.ApiServer
 ```
 
 The server listens on `127.0.0.1:8080`. Pass a port and an optional properties file path as command-line arguments to override the defaults.
-
-Run the server from the project root and open http://127.0.0.1:8080/ to use the frontend.
 
 | Endpoint | JSON request or query | Success |
 | --- | --- | --- |
