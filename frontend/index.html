@@ -8,35 +8,54 @@
 </head>
 <body class="public-page public-home">
   <header>
-    <a class="wordmark" href="/"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="4" fill="currentColor"/></svg>Softnote</a>
+    <a class="wordmark" href="/">Softnote</a>
     <nav aria-label="Account navigation">
       <a href="/login.html">Sign in</a>
-      <a href="/register.html">Create an account</a>
+      <a class="primary-button" href="/register.html">Create account</a>
     </nav>
   </header>
   <main>
-    <h1>Softnote</h1>
-    <p class="tagline">A clearer path to exam day.</p>
-    <p>Softnote builds a daily study plan for your exams, and reschedules missed sessions automatically.</p>
-    <nav class="home-links" aria-label="Account">
-      <a href="/login.html">Sign in</a>
-      <a href="/register.html">Create an account</a>
-    </nav>
+    <section class="hero" aria-labelledby="hero-heading">
+      <div>
+        <h1 id="hero-heading">Turn your exam date into a daily study plan.</h1>
+        <p class="hero-description">Softnote spreads your chapters across the days left and reschedules missed sessions automatically.</p>
+        <a class="primary-button" href="/register.html">Create account</a>
+        <p class="sign-in-link"><a href="/login.html">Already have an account? Sign in</a></p>
+      </div>
+      <div class="plan-preview">
+        <table>
+          <caption>Sample plan</caption>
+          <thead><tr><th scope="col">Date</th><th scope="col">Chapter</th><th scope="col">Minutes</th><th scope="col">Status</th></tr></thead>
+          <tbody>
+            <tr><td>Mon 16 Nov</td><td>Cells</td><td>40 min</td><td>Planned</td></tr>
+            <tr><td>Tue 17 Nov</td><td>Genetics</td><td>30 min</td><td>Missed</td></tr>
+            <tr><td>Thu 19 Nov</td><td>Genetics</td><td>30 min</td><td>Rescheduled to Thu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
     <section class="how-it-works" aria-labelledby="how-heading">
       <h2 id="how-heading">How it works</h2>
       <ol>
         <li>Add your exam date and chapters</li>
-        <li>Get a daily plan that gives harder chapters more time</li>
-        <li>Missed sessions are rescheduled automatically</li>
+        <li>Set the difficulty and your daily study minutes</li>
+        <li>Get a daily plan, and let Softnote reschedule missed sessions</li>
       </ol>
     </section>
-    <h2>Features</h2>
-    <ul class="feature-grid">
-      <li><svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2"/></svg><h3>Daily plans</h3><p>Plan by exam date and chapter difficulty.</p></li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 8a9 9 0 0 0-15-3L2 8m0-6v6h6m-4 8a9 9 0 0 0 15 3l3-3m0 6v-6h-6"/></svg><h3>Rescheduling</h3><p>Fit missed sessions into your remaining days.</p></li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="13" y="8" width="3" height="10"/><path d="M20 4v14"/></svg><h3>Progress</h3><p>Track completed study time and session history.</p></li>
-    </ul>
+    <section class="missed-block" aria-labelledby="missed-heading">
+      <h2 id="missed-heading">Missed a session?</h2>
+      <p>Softnote moves it into the free days before your exam. Completed work stays unchanged. If the remaining work does not fit, you see exactly what is left.</p>
+    </section>
+    <dl class="feature-rows">
+      <div><dt>Plans by difficulty</dt><dd>Harder chapters receive more study time.</dd></div>
+      <div><dt>Automatic rescheduling</dt><dd>Missed sessions are moved into free days.</dd></div>
+      <div><dt>Progress and history</dt><dd>See completed minutes and past sessions.</dd></div>
+    </dl>
+    <section class="closing-band">
+      <h2>Plan your next exam in a few minutes.</h2>
+      <a class="primary-button" href="/register.html">Create account</a>
+    </section>
   </main>
-  <footer>Softnote · Adaptive exam study planner · BUBT CSE 332</footer>
+  <footer>Softnote · An adaptive exam study planner · BUBT CSE 332</footer>
 </body>
 </html>
