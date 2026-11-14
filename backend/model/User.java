@@ -1,9 +1,9 @@
-package backend;
+package backend.model;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-public class User {
+public final class User {
 
     private String fullName;
     private String studentId;
@@ -14,11 +14,6 @@ public class User {
 
     private int currentStreak;
     private String lastStudyDate;
-
-    // Default Constructor
-    public User() {
-
-    }
 
     // Parameterized Constructor
     public User(String fullName, String studentId, String department,
@@ -127,5 +122,11 @@ public class User {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " cannot be blank");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "User{fullName=" + fullName + ", username=" + username
+                + ", currentStreak=" + currentStreak + '}';
     }
 }
