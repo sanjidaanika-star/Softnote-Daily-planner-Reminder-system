@@ -1,132 +1,66 @@
 package backend.model;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.time.LocalDateTime;
 
 public final class User {
-
-    private String fullName;
-    private String studentId;
-    private String department;
+    private long id;
+    private String name;
     private String email;
-    private String username;
-    private String password;
+    private LocalDateTime createdAt;
 
-    private int currentStreak;
-    private String lastStudyDate;
-
-    // Parameterized Constructor
-    public User(String fullName, String studentId, String department,
-                String email, String username, String password,
-                int currentStreak, String lastStudyDate) {
-
-        setFullName(fullName);
-        setStudentId(studentId);
-        setDepartment(department);
+    public User(long id, String name, String email, LocalDateTime createdAt) {
+        setId(id);
+        setName(name);
         setEmail(email);
-        setUsername(username);
-        setPassword(password);
-        setCurrentStreak(currentStreak);
-        setLastStudyDate(lastStudyDate);
+        setCreatedAt(createdAt);
     }
 
-    // Getters
-
-    public String getFullName() {
-        return fullName;
+    public long getId() {
+        return id;
     }
 
-    public String getStudentId() {
-        return studentId;
+    public void setId(long id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("User ID must be positive");
+        }
+        this.id = id;
     }
 
-    public String getDepartment() {
-        return department;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name == null || name.isBlank() || name.codePointCount(0, name.length()) > 255) {
+            throw new IllegalArgumentException("Name must contain 1 to 255 characters");
+        }
+        this.name = name;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public int getCurrentStreak() {
-        return currentStreak;
-    }
-
-    public String getLastStudyDate() {
-        return lastStudyDate;
-    }
-
-    // Setters
-
-    public void setFullName(String fullName) {
-        requireNonBlank(fullName, "Full name");
-        this.fullName = fullName;
-    }
-
-    public void setStudentId(String studentId) {
-        requireNonBlank(studentId, "Student ID");
-        this.studentId = studentId;
-    }
-
-    public void setDepartment(String department) {
-        requireNonBlank(department, "Department");
-        this.department = department;
-    }
-
     public void setEmail(String email) {
-        requireNonBlank(email, "Email");
-        if (!email.matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")) {
+        if (email == null || email.length() > 254 || !email.matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")) {
             throw new IllegalArgumentException("Email must have a valid address format");
         }
         this.email = email;
     }
 
-    public void setUsername(String username) {
-        requireNonBlank(username, "Username");
-        this.username = username;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setPassword(String password) {
-        requireNonBlank(password, "Password");
-        this.password = password;
-    }
-
-    public void setCurrentStreak(int currentStreak) {
-        if (currentStreak < 0) {
-            throw new IllegalArgumentException("Current streak cannot be negative");
+    public void setCreatedAt(LocalDateTime createdAt) {
+        if (createdAt == null) {
+            throw new IllegalArgumentException("Creation timestamp is required");
         }
-        this.currentStreak = currentStreak;
-    }
-
-    public void setLastStudyDate(String lastStudyDate) {
-        requireNonBlank(lastStudyDate, "Last study date");
-        if (!"Not Started".equals(lastStudyDate)) {
-            try {
-                LocalDate.parse(lastStudyDate);
-            } catch (DateTimeParseException exception) {
-                throw new IllegalArgumentException("Last study date must be an ISO date or Not Started", exception);
-            }
-        }
-        this.lastStudyDate = lastStudyDate;
-    }
-
-    private static void requireNonBlank(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank");
-        }
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
-        return "User{fullName=" + fullName + ", username=" + username
-                + ", currentStreak=" + currentStreak + '}';
+        return "User{id=" + id + ", name=" + name + ", createdAt=" + createdAt + '}';
     }
 }

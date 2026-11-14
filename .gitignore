@@ -5,3 +5,5 @@
 out/
 
 bin/
+/config/database.properties
+/config/database.test.properties
