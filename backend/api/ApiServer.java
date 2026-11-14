@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 public final class ApiServer {
     private static final Map<String, String> ASSETS = Map.of(
+            "/index.html", "text/html",
             "/login.html", "text/html", "/register.html", "text/html",
             "/dashboard.html", "text/html", "/new-exam.html", "text/html",
             "/plan.html", "text/html", "/progress.html", "text/html", "/css/style.css", "text/css",
@@ -138,7 +139,7 @@ public final class ApiServer {
         try (exchange) {
             String path = exchange.getRequestURI().getPath();
             if ("/".equals(path)) {
-                path = "/login.html";
+                path = "/index.html";
             }
             String contentType = ASSETS.getOrDefault(path == null ? "" : path, "");
             if (contentType.isEmpty()) {
