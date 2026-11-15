@@ -896,3 +896,55 @@ th:first-child {
 @media (prefers-reduced-motion: reduce) {
   .dashboard-page *, .dashboard-page *::before, .dashboard-page *::after { transition: none !important; }
 }
+
+.quiz-page main {
+  max-width: 62rem;
+}
+
+.quiz-page form + form {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.quiz-page form input,
+.quiz-page form select {
+  background: var(--card);
+  color: var(--text);
+}
+
+.quiz-options {
+  display: grid;
+  gap: 8px;
+}
+
+.quiz-options .dash-secondary {
+  justify-content: start;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.quiz-options button:disabled {
+  cursor: default;
+}
+
+.quiz-options .quiz-correct {
+  border-color: var(--emerald);
+}
+
+.quiz-options .quiz-wrong {
+  border-color: var(--rose);
+  background: var(--missed-bg);
+  color: var(--missed-text);
+}
+
+.quiz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#wrong-answers li + li {
+  margin-top: 12px;
+}

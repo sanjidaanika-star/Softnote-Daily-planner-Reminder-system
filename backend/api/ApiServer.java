@@ -1,5 +1,9 @@
 package backend.api;
 
+import backend.ai.GeminiClient;
+import backend.ai.QuestionGenerator;
+import backend.ai.QuizService;
+import backend.db.QuizDAO;
 import backend.db.ChapterDAO;
 import backend.db.DBConnection;
 import backend.db.DataAccessException;
@@ -47,6 +51,7 @@ public final class ApiServer {
             Map.entry("/assets/bg-study.svg", "image/svg+xml"),
             Map.entry("/assets/hero-study.png", "image/png"),
             Map.entry("/index.html", "text/html"),
+            Map.entry("/quiz.html", "text/html"), Map.entry("/js/quiz.js", "text/javascript"),
             Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
             Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),
             Map.entry("/plan.html", "text/html"), Map.entry("/progress.html", "text/html"), Map.entry("/css/style.css", "text/css"),
@@ -67,6 +72,10 @@ public final class ApiServer {
     private final LinkedHashMap<String, LoginSession> loginSessions = new LinkedHashMap<>();
 
     public ApiServer(DBConnection database, int port, Clock clock) throws IOException {
+        this(database, port, clock, new GeminiClient(Path.of("config", "gemini.properties")));
+    }
+
+    public ApiServer(DBConnection database, int port, Clock clock, QuestionGenerator generator) throws IOException {
         this.clock = clock;
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
         server.setExecutor(requests);
@@ -76,6 +85,11 @@ public final class ApiServer {
         sessions = new SessionDAO(database);
         plans = new PlanService(sessions,
                 new DifficultyPlanStrategy(), clock);
+        QuizDAO quizDao = new QuizDAO(database);
+        QuizRoutes quizzes = new QuizRoutes(quizDao, new QuizService(quizDao, generator, plans::executeBackground));
+        route("/notes", "GET, POST", exchange -> quizzes.notes(exchange, requireUser(exchange)));
+        route("/notes/", "POST", exchange -> quizzes.start(exchange, requireUser(exchange)));
+        route("/quizzes/", "GET, POST", exchange -> quizzes.quiz(exchange, requireUser(exchange)));
         route("/register", "POST", this::register);
         route("/login", "POST", this::login);
         route("/exams", "GET, POST", this::handleExams);
@@ -453,7 +467,7 @@ public final class ApiServer {
                 + ",\"isRevision\":" + session.isRevision() + "}";
     }
 
-    private static Map<?, ?> requestBody(HttpExchange exchange) throws IOException {
+    static Map<?, ?> requestBody(HttpExchange exchange) throws IOException {
         String type = exchange.getRequestHeaders().getFirst("Content-Type");
         if (type == null || !"application/json".equalsIgnoreCase(type.split(";", 2)[0].trim())) {
             throw new HttpError(415, "Content-Type must be application/json");
@@ -495,7 +509,7 @@ public final class ApiServer {
         reply(exchange, status, "{\"error\":" + Json.quote(message) + "}");
     }
 
-    private static void reply(HttpExchange exchange, int status, String json) throws IOException {
+    static void reply(HttpExchange exchange, int status, String json) throws IOException {
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
         exchange.getResponseHeaders().set("Cache-Control", "no-store");
@@ -510,11 +524,11 @@ public final class ApiServer {
 
     private record LoginSession(long userId, long startedAt) {}
 
-    private static final class HttpError extends RuntimeException {
+    static final class HttpError extends RuntimeException {
         private static final long serialVersionUID = 1L;
         private final int status;
 
-        private HttpError(int status, String message) {
+        HttpError(int status, String message) {
             super(message);
             this.status = status;
         }

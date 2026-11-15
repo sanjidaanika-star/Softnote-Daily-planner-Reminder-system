@@ -32,7 +32,7 @@ export function requireLogin() {
   return false;
 }
 
-async function request(path, { method = "GET", body, protectedCall = false } = {}) {
+async function request(path, { method = "GET", body, protectedCall = false, raw, signal } = {}) {
   const headers = { Accept: "application/json" };
   if (protectedCall) {
     const token = getToken();
@@ -43,10 +43,14 @@ async function request(path, { method = "GET", body, protectedCall = false } = {
     headers.Authorization = "Bearer " + token;
   }
   if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (raw) {
+    headers["Content-Type"] = "application/pdf";
+    headers["X-Note-Title"] = encodeURIComponent(raw.name.replace(/\.pdf$/i, ""));
+  }
 
   let response;
   try {
-    response = await fetch(path, { method, headers, body: JSON.stringify(body) });
+    response = await fetch(path, { method, headers, body: raw ?? JSON.stringify(body), signal });
   } catch {
     throw new Error("Could not reach Softnote. Try again.");
   }
@@ -62,6 +66,32 @@ async function request(path, { method = "GET", body, protectedCall = false } = {
   }
   if (data === null) throw new Error("Softnote returned an unreadable response.");
   return data;
+}
+
+export function listNotes() {
+  return request("/notes", { protectedCall: true });
+}
+
+export function uploadNote(file) {
+  return request("/notes", { method: "POST", protectedCall: true, raw: file });
+}
+
+export function createQuiz(noteId, count) {
+  return request("/notes/" + encodeURIComponent(noteId) + "/quizzes",
+    { method: "POST", body: { count }, protectedCall: true });
+}
+
+export function getQuiz(id, signal) {
+  return request("/quizzes/" + encodeURIComponent(id), { protectedCall: true, signal });
+}
+
+export function answerQuestion(id, questionId, chosenIndex) {
+  return request("/quizzes/" + encodeURIComponent(id) + "/questions/" + encodeURIComponent(questionId) + "/answer",
+    { method: "POST", body: { chosenIndex }, protectedCall: true });
+}
+
+export function getQuizScore(id) {
+  return request("/quizzes/" + encodeURIComponent(id) + "/score", { protectedCall: true });
 }
 
 export function register(details) {

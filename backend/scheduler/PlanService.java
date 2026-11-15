@@ -33,6 +33,10 @@ public final class PlanService {
         });
     }
 
+    public void executeBackground(Runnable work) {
+        executor.execute(work);
+    }
+
     public void shutdown() {
         executor.shutdown();
         try {

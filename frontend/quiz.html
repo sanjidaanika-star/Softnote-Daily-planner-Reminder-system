@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notes &amp; quizzes | Softnote</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/quiz.js"></script>
+</head>
+<body class="dashboard-page quiz-page">
+  <aside class="dash-sidebar">
+    <a class="dash-brand" href="/dashboard.html">Softnote</a>
+    <nav aria-label="Study navigation">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/quiz.html" aria-current="page">Notes &amp; quizzes</a>
+    </nav>
+  </aside>
+  <main>
+    <div class="dash-top"><h1>Notes &amp; quizzes</h1></div>
+    <p id="quiz-error" role="alert" hidden></p>
+    <section class="dash-card" aria-labelledby="notes-heading">
+      <h2 id="notes-heading">Upload a note</h2>
+      <form id="note-upload">
+        <label>PDF note <input type="file" name="note" accept=".pdf,application/pdf" required></label>
+        <button class="dash-secondary" type="submit">Upload PDF</button>
+      </form>
+      <form id="quiz-start">
+        <label>Note <select name="note" required></select></label>
+        <label>Number of questions
+          <select name="count">
+            <option>15</option><option>16</option><option>17</option>
+            <option>18</option><option>19</option><option>20</option>
+          </select>
+        </label>
+        <p class="dash-muted">Softnote sends extracted note text to Google Gemini to create your quiz.</p>
+        <button class="dash-primary" type="submit" disabled>Create 15 questions</button>
+      </form>
+    </section>
+    <p id="quiz-status" role="status"></p>
+    <button id="quiz-retry" type="button" class="dash-secondary" hidden>Retry</button>
+    <section id="question-panel" class="dash-card dash-section" aria-labelledby="question-title" hidden>
+      <p id="question-position" class="dash-muted"></p>
+      <h2 id="question-title" tabindex="-1"></h2>
+      <div id="question-options" class="quiz-options"></div>
+      <p id="question-feedback" role="status"></p>
+      <div class="quiz-controls">
+        <button id="question-next" class="dash-primary" type="button" hidden>Next</button>
+        <button id="quiz-finish" class="dash-secondary" type="button" hidden>See current score</button>
+      </div>
+    </section>
+    <section id="score-panel" class="dash-card dash-section" aria-labelledby="score-heading" hidden>
+      <h2 id="score-heading" tabindex="-1">Your score</h2>
+      <p id="quiz-score"></p>
+      <button id="quiz-resume" type="button" class="dash-primary" hidden>Continue quiz</button>
+      <h3>Wrong answers</h3>
+      <ol id="wrong-answers"></ol>
+    </section>
+  </main>
+</body>
+</html>
