@@ -52,6 +52,7 @@ public final class ApiServer {
             Map.entry("/assets/hero-study.png", "image/png"),
             Map.entry("/index.html", "text/html"),
             Map.entry("/quiz.html", "text/html"), Map.entry("/js/quiz.js", "text/javascript"),
+            Map.entry("/js/courses.js", "text/javascript"),
             Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
             Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),
             Map.entry("/plan.html", "text/html"), Map.entry("/progress.html", "text/html"), Map.entry("/css/style.css", "text/css"),

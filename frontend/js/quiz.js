@@ -1,4 +1,5 @@
 import { answerQuestion, createQuiz, getQuiz, getQuizScore, listNotes, requireLogin, uploadNote } from "./api.js";
+import { populateCourses } from "./courses.js";
 
 const element = (id) => document.getElementById(id);
 const start = element("quiz-start");
@@ -11,6 +12,8 @@ const next = element("question-next");
 const finish = element("quiz-finish");
 const resume = element("quiz-resume");
 const upload = element("note-upload");
+const uploadCourse = upload.elements.namedItem("course");
+populateCourses(uploadCourse);
 let quiz;
 let pendingId;
 let busy = false;
@@ -193,7 +196,7 @@ upload.addEventListener("submit", async (event) => {
   button.disabled = true;
   showError("");
   try {
-    const result = await uploadNote(upload.elements.namedItem("note").files[0]);
+    const result = await uploadNote(upload.elements.namedItem("note").files[0], uploadCourse.value);
     await refreshNotes(result.id);
     upload.reset();
     if (!busy) status.textContent = "Note uploaded.";

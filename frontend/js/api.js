@@ -32,7 +32,7 @@ export function requireLogin() {
   return false;
 }
 
-async function request(path, { method = "GET", body, protectedCall = false, raw, signal } = {}) {
+async function request(path, { method = "GET", body, protectedCall = false, raw, noteTitle, signal } = {}) {
   const headers = { Accept: "application/json" };
   if (protectedCall) {
     const token = getToken();
@@ -45,7 +45,7 @@ async function request(path, { method = "GET", body, protectedCall = false, raw,
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (raw) {
     headers["Content-Type"] = "application/pdf";
-    headers["X-Note-Title"] = encodeURIComponent(raw.name.replace(/\.pdf$/i, ""));
+    headers["X-Note-Title"] = encodeURIComponent(noteTitle);
   }
 
   let response;
@@ -72,8 +72,10 @@ export function listNotes() {
   return request("/notes", { protectedCall: true });
 }
 
-export function uploadNote(file) {
-  return request("/notes", { method: "POST", protectedCall: true, raw: file });
+export function uploadNote(file, course = "") {
+  const filename = file.name.replace(/\.pdf$/i, "").trim() || "PDF note";
+  const title = course ? course + " — " + filename : filename;
+  return request("/notes", { method: "POST", protectedCall: true, raw: file, noteTitle: title });
 }
 
 export function createQuiz(noteId, count) {

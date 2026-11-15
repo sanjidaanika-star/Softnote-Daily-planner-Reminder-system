@@ -1,5 +1,7 @@
 import { clearToken, createExam, getDisplayName, getExam, getHistory, getPlan, getProgress, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
 
+import { populateCourses } from "./courses.js";
+
 const byId = (id) => document.getElementById(id);
 const error = byId("error");
 
@@ -299,6 +301,12 @@ async function loadDashboard(message = "") {
 
 async function setupExam(form) {
   const chapters = byId("chapters");
+  const course = byId("exam-course");
+  const title = form.elements.namedItem("title");
+  populateCourses(course);
+  course.addEventListener("change", () => {
+    if (course.value) title.value = course.value;
+  });
   const editing = new URLSearchParams(location.search).has("examId");
   let examId;
   function updateRemoveButtons() {
@@ -333,6 +341,7 @@ async function setupExam(form) {
       examId = selectedExam();
       const exam = await getExam(examId);
       for (const key of ["title", "examDate", "dailyMinutes"]) form.elements.namedItem(key).value = exam[key];
+      course.value = Array.from(course.options).some((option) => option.value === exam.title) ? exam.title : "";
       exam.chapters.forEach((chapter) => addChapter(false, chapter));
       form.querySelector('[type="submit"]').textContent = "Save changes";
       form.hidden = false;

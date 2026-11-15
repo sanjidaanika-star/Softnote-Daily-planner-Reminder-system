@@ -32,7 +32,7 @@ public final class QuizTest {
 
     public static void main(String[] args) throws Exception {
         if (args.length > 0 && "serve".equals(args[0])) {
-            Files.write(Path.of(args[3]), pdf("Biology revision: cells and photosynthesis"));
+            Files.write(Path.of(args[3]), pdf("Algorithms revision: binary search halves the search range in a sorted array."));
             ApiServer server = server(Path.of(args[1]), Integer.parseInt(args[2]));
             Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
             server.start();
@@ -64,7 +64,7 @@ public final class QuizTest {
             String url = "http://127.0.0.1:" + port;
             String owner = account(url);
             String other = account(url);
-            long note = upload(url, owner, "Biology revision");
+            long note = upload(url, owner, "Algorithms revision: binary search halves the search range in a sorted array.");
             long failedNote = upload(url, owner, "FAIL FIXTURE");
             long failedId = invoke(url, "/notes/" + failedNote + "/quizzes", "POST", owner,
                     Map.of("count", 15), 202).get("id").getAsLong();
@@ -105,7 +105,7 @@ public final class QuizTest {
         }
         return new ApiServer(database, port, Clock.systemDefaultZone(), (text, count) -> {
             if (text.contains("FAIL FIXTURE")) throw new GenerationException("Fixture generator failed.");
-            if (!text.contains("Biology revision")) throw new AssertionError("Expected selectable PDF text");
+            if (!text.contains("Algorithms revision")) throw new AssertionError("Expected selectable PDF text");
             return json(sampleQuestions());
         });
     }
@@ -113,9 +113,9 @@ public final class QuizTest {
     private static List<Map<String, Object>> sampleQuestions() {
         List<Map<String, Object>> questions = new ArrayList<>();
         for (int index = 1; index <= 15; index++) {
-            questions.add(new java.util.HashMap<>(Map.of("question", "Biology revision question " + index,
-                    "options", List.of("Chloroplast", "Nucleus", "Ribosome", "Mitochondrion"),
-                    "correctIndex", 0, "explanation", "Photosynthesis takes place in chloroplasts.")));
+            questions.add(new java.util.HashMap<>(Map.of("question", "Algorithms fixture question " + index,
+                    "options", List.of("Binary search", "Bubble sort", "Merge sort", "Linear search"),
+                    "correctIndex", 0, "explanation", "Binary search halves the search range at each step.")));
         }
         return questions;
     }

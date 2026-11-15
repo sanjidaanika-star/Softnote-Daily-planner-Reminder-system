@@ -16,6 +16,7 @@
     <div class="workspace-banner"><h1>Add an exam</h1></div>
     <p id="error" role="alert" hidden></p>
     <form id="exam-form" method="post">
+      <label>Course <select id="exam-course"><option value="">Choose a course (optional)</option></select></label>
       <label>Exam title <input name="title" maxlength="255" required></label>
       <label>Exam date <input name="examDate" type="date" required></label>
       <label>Daily minutes <input name="dailyMinutes" type="number" min="1" max="2147483647" required></label>
