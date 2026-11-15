@@ -1,4 +1,13 @@
 const tokenKey = "softnote.token";
+const nameKey = "softnote.name";
+
+export function getDisplayName() {
+  try {
+    return sessionStorage.getItem(nameKey) ?? "";
+  } catch {
+    return "";
+  }
+}
 
 export function getToken() {
   try {
@@ -11,6 +20,7 @@ export function getToken() {
 export function clearToken() {
   try {
     sessionStorage.removeItem(tokenKey);
+    sessionStorage.removeItem(nameKey);
   } catch {
     // Storage can be unavailable in some browser settings.
   }
@@ -64,6 +74,11 @@ export async function login(credentials) {
     sessionStorage.setItem(tokenKey, result.token);
   } catch {
     throw new Error("Allow session storage in your browser to sign in.");
+  }
+  try {
+    sessionStorage.setItem(nameKey, result.name ?? "");
+  } catch {
+    // The dashboard can still greet the user without a stored name.
   }
   return result;
 }

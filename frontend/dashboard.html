@@ -7,30 +7,68 @@
   <link rel="stylesheet" href="/css/style.css">
   <script type="module" src="/js/pages.js"></script>
 </head>
-<body class="public-page workspace-page dashboard-page">
-  <header>
-    <a class="wordmark" href="/dashboard.html">Softnote</a>
-    <button type="button" id="sign-out">Sign out</button>
-  </header>
-  <main>
-    <section class="dashboard-hero" aria-labelledby="dashboard-heading">
-      <div>
-        <h1 id="dashboard-heading">Study dashboard</h1>
-        <p>See what’s coming up and open your study plans.</p>
-        <a class="primary-button" href="/new-exam.html">+ Add an exam</a>
+<body class="dashboard-page" id="dashboard-top">
+  <a class="dash-skip" href="#dashboard-main">Skip to content</a>
+  <aside class="dash-sidebar">
+    <a class="dash-brand" href="/dashboard.html">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg>
+      Softnote
+    </a>
+    <nav aria-label="Dashboard navigation">
+      <a href="#dashboard-top" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a href="#exams-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg>Exams</a>
+      <a href="#progress-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M9 16v-4m5 4V8m5 8V5"/></svg>Progress</a>
+    </nav>
+    <button type="button" id="sign-out" class="dash-secondary">Sign out</button>
+  </aside>
+  <main id="dashboard-main">
+    <div class="dash-top">
+      <div><p id="dashboard-date"></p><h1 id="dashboard-greeting">Study dashboard</h1></div>
+      <a class="dash-primary" href="/new-exam.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New exam</a>
+    </div>
+    <p id="dashboard-status" role="status">Loading your dashboard…</p>
+    <div id="dashboard-error" class="dash-card" hidden>
+      <p id="error" role="alert" hidden></p>
+      <button id="dashboard-retry" class="dash-secondary" type="button">Retry</button>
+    </div>
+    <div id="dashboard-content" hidden>
+      <dl class="dash-stats" aria-label="Study overview">
+        <div class="dash-card" data-accent="0"><dt>Total exams</dt><dd id="exam-total"></dd></div>
+        <div class="dash-card" data-accent="1"><dt>Upcoming exams</dt><dd id="exam-upcoming"></dd><small>Next 14 days</small></div>
+        <div class="dash-card" data-accent="2"><dt>Next exam in</dt><dd id="exam-countdown"></dd><small>Until midnight on exam day</small></div>
+        <div class="dash-card" data-accent="3"><dt>Overall completion</dt><dd id="exam-completion"></dd><small id="overall-minutes"></small></div>
+      </dl>
+      <div class="dash-focus">
+        <section class="dash-card" data-accent="0" aria-labelledby="today-heading">
+          <h2 id="today-heading" tabindex="-1">Today’s study</h2>
+          <ul id="today-sessions" class="dash-list"></ul>
+        </section>
+        <section class="dash-card" data-accent="1" aria-labelledby="next-heading">
+          <h2 id="next-heading">Next exam</h2>
+          <div id="next-exam"></div>
+        </section>
       </div>
-    </section>
-    <p id="error" role="alert" hidden></p>
-    <dl class="dashboard-summary" id="exam-summary" hidden>
-      <div><dt>Total exams</dt><dd id="exam-total"></dd></div>
-      <div><dt>Upcoming exams</dt><dd id="exam-upcoming"></dd></div>
-      <div><dt>Next exam</dt><dd id="next-exam"></dd></div>
-    </dl>
-    <section aria-labelledby="exams-heading">
-      <h2 id="exams-heading">Your exams</h2>
-      <p id="exam-status" role="status">Loading exams…</p>
-      <ul id="exam-list"></ul>
-    </section>
+      <section class="dash-card dash-section" data-accent="4" aria-labelledby="week-heading">
+        <h2 id="week-heading">This week</h2>
+        <ol id="week-days" class="dash-week"></ol>
+      </section>
+      <div class="dash-focus dash-section">
+        <section class="dash-card" data-accent="3" aria-labelledby="catch-heading">
+          <h2 id="catch-heading">Catch-up</h2>
+          <p id="catch-count" class="dash-muted"></p>
+          <ul id="catch-list" class="dash-list"></ul>
+        </section>
+        <section class="dash-card" data-accent="5" aria-labelledby="progress-heading">
+          <h2 id="progress-heading" tabindex="-1">Progress</h2>
+          <ul id="dashboard-progress" class="dash-list"></ul>
+        </section>
+      </div>
+      <section class="dash-section" aria-labelledby="exams-heading">
+        <h2 id="exams-heading" tabindex="-1">Your exams</h2>
+        <p id="exam-empty" class="dash-muted" hidden>Add your first exam to create a study plan.</p>
+        <ul id="exam-list" class="dash-exams"></ul>
+      </section>
+    </div>
   </main>
 </body>
 </html>
