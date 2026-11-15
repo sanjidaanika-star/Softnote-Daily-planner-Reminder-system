@@ -7,13 +7,13 @@
   <link rel="stylesheet" href="/css/style.css">
   <script type="module" src="/js/pages.js"></script>
 </head>
-<body>
+<body class="public-page workspace-page">
   <header>
-    <a href="/dashboard.html">Softnote</a>
+    <a class="wordmark" href="/dashboard.html">Softnote</a>
     <button type="button" id="sign-out">Sign out</button>
   </header>
   <main>
-    <h1>Add an exam</h1>
+    <div class="workspace-banner"><h1>Add an exam</h1></div>
     <p id="error" role="alert" hidden></p>
     <form id="exam-form" method="post">
       <label>Exam title <input name="title" maxlength="255" required></label>

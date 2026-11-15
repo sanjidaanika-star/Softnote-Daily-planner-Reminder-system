@@ -74,11 +74,12 @@ public final class ApiServer {
         exams = new ExamDAO(database);
         chapters = new ChapterDAO(database);
         sessions = new SessionDAO(database);
-        plans = new PlanService(exams, chapters, sessions,
+        plans = new PlanService(sessions,
                 new DifficultyPlanStrategy(), clock);
         route("/register", "POST", this::register);
         route("/login", "POST", this::login);
         route("/exams", "GET, POST", this::handleExams);
+        route("/exams/", "GET, PUT", this::handleExam);
         route("/plan", "GET", this::plan);
         route("/progress", "GET", this::progress);
         route("/history", "GET", this::history);
@@ -248,17 +249,61 @@ public final class ApiServer {
     private void createExam(HttpExchange exchange) throws IOException {
         long userId = requireUser(exchange);
         Map<?, ?> body = requestBody(exchange);
+        Exam exam = readExamInput(body, 0, userId);
+        if (!exam.getExamDate().isAfter(LocalDate.now(clock))) {
+            throw new IllegalArgumentException("examDate must be after today");
+        }
+        long examId = exams.insertWithChapters(exam, readChapterInputs(body).stream()
+                .map(ExamDAO.ChapterEdit::details).toList());
+        reply(exchange, 201, "{\"id\":" + examId + "}");
+    }
+
+    private void handleExam(HttpExchange exchange) throws IOException {
+        long userId = requireUser(exchange);
+        String path = exchange.getRequestURI().getPath();
+        if (!path.matches("/exams/[1-9][0-9]*")) {
+            throw new HttpError(404, "Exam not found");
+        }
+        long examId = Long.parseLong(path.substring("/exams/".length()));
+        try {
+            if ("PUT".equals(exchange.getRequestMethod())) {
+                Map<?, ?> body = requestBody(exchange);
+                exams.update(readExamInput(body, examId, userId), readChapterInputs(body), LocalDate.now(clock));
+                reply(exchange, 200, "{\"id\":" + examId + "}");
+                return;
+            }
+            ExamDAO.ExamDetails details = exams.details(examId, userId);
+            Exam exam = details.exam();
+            String chaptersJson = details.chapters().stream()
+                    .map(chapter -> "{\"id\":" + chapter.getId() + ",\"name\":" + Json.quote(chapter.getName())
+                            + ",\"difficulty\":" + Json.quote(chapter.getDifficulty().name().toLowerCase(Locale.ROOT))
+                            + ",\"estimatedMinutes\":" + chapter.getEstimatedMinutes() + "}")
+                    .collect(Collectors.joining(",", "[", "]"));
+            reply(exchange, 200, "{\"id\":" + examId + ",\"title\":" + Json.quote(exam.getTitle())
+                    + ",\"examDate\":" + Json.quote(exam.getExamDate().toString())
+                    + ",\"dailyMinutes\":" + exam.getDailyMinutes() + ",\"chapters\":" + chaptersJson + "}");
+        } catch (java.util.NoSuchElementException exception) {
+            throw new HttpError(404, exception.getMessage());
+        } catch (IllegalStateException exception) {
+            throw new HttpError(409, exception.getMessage());
+        }
+    }
+
+    private static Exam readExamInput(Map<?, ?> body, long id, long userId) {
         LocalDate examDate;
         try {
             examDate = LocalDate.parse(text(body, "examDate"));
         } catch (DateTimeParseException exception) {
             throw new IllegalArgumentException("examDate must be a valid ISO date");
         }
-        if (!examDate.isAfter(LocalDate.now(clock)) || examDate.getYear() > 9999) {
-            throw new IllegalArgumentException("examDate must be after today and within MySQL's date range");
+        if (examDate.getYear() < 1000 || examDate.getYear() > 9999) {
+            throw new IllegalArgumentException("examDate must be within MySQL's date range");
         }
-        Exam exam = new Exam(0, userId, boundedText(body, "title"), examDate, positiveInt(body, "dailyMinutes"));
-        List<ExamDAO.NewChapter> chapters = new ArrayList<>();
+        return new Exam(id, userId, boundedText(body, "title"), examDate, positiveInt(body, "dailyMinutes"));
+    }
+
+    private static List<ExamDAO.ChapterEdit> readChapterInputs(Map<?, ?> body) {
+        List<ExamDAO.ChapterEdit> chapters = new ArrayList<>();
         if (!(body.get("chapters") instanceof List<?> items) || items.isEmpty()) {
             throw new IllegalArgumentException("chapters must be a nonempty array");
         }
@@ -273,11 +318,15 @@ public final class ApiServer {
             } catch (IllegalArgumentException exception) {
                 throw new IllegalArgumentException("difficulty must be easy, medium, or hard");
             }
-            chapters.add(new ExamDAO.NewChapter(boundedText(chapter, "name"), difficulty,
-                    positiveInt(chapter, "estimatedMinutes")));
+            Object chapterId = chapter.get("id");
+            if (chapterId != null && (!(chapterId instanceof Long id) || id <= 0)) {
+                throw new IllegalArgumentException("Chapter ID must be positive");
+            }
+            chapters.add(new ExamDAO.ChapterEdit(chapterId == null ? 0 : (Long) chapterId,
+                    new ExamDAO.NewChapter(boundedText(chapter, "name"), difficulty,
+                            positiveInt(chapter, "estimatedMinutes"))));
         }
-        long examId = exams.insertWithChapters(exam, chapters);
-        reply(exchange, 201, "{\"id\":" + examId + "}");
+        return chapters;
     }
 
     private long ownedExamId(HttpExchange exchange) {
@@ -326,12 +375,20 @@ public final class ApiServer {
         if (sessionId <= 0) {
             throw new IllegalArgumentException("Session ID must be positive");
         }
-        StudySession.Status status = switch (text(requestBody(exchange), "status")) {
+        Map<?, ?> body = requestBody(exchange);
+        StudySession.Status status = body.containsKey("status") ? switch (text(body, "status")) {
             case "completed" -> StudySession.Status.COMPLETED;
             case "missed" -> StudySession.Status.MISSED;
             default -> throw new IllegalArgumentException("Status must be completed or missed");
-        };
-        StudySession updated = await(plans.changeStatus(sessionId, userId, status));
+        } : null;
+        Object revision = body.get("isRevision");
+        if (body.containsKey("isRevision") && !(revision instanceof Boolean)) {
+            throw new IllegalArgumentException("isRevision must be true or false");
+        }
+        if (status == null && revision == null) {
+            throw new IllegalArgumentException("Provide a status or revision value");
+        }
+        StudySession updated = await(plans.changeStatus(sessionId, userId, status, (Boolean) revision));
         String name = chapters.findByExamId(updated.getExamId()).stream()
                 .filter(chapter -> chapter.getId() == updated.getChapterId()).map(Chapter::getName)
                 .findFirst().orElse("Unknown chapter");

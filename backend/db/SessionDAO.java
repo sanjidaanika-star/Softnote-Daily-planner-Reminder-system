@@ -3,6 +3,7 @@ package backend.db;
 import backend.model.Exam;
 import backend.model.StudySession;
 import backend.scheduler.Rescheduler;
+import backend.scheduler.SchedulingStrategy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,7 +30,7 @@ public final class SessionDAO {
         }
     }
 
-    private static long insert(Connection connection, StudySession item) throws SQLException {
+    static long insert(Connection connection, StudySession item) throws SQLException {
         String sql = """
                 INSERT INTO study_sessions (exam_id, chapter_id, session_date, planned_minutes, status, is_revision)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -51,23 +52,25 @@ public final class SessionDAO {
         }
     }
 
-    public List<StudySession> saveIfAbsent(long examId, List<StudySession> plan) {
-        String lockExam = "SELECT id FROM exams WHERE id = ? FOR UPDATE";
+    public List<StudySession> saveIfAbsent(long examId, SchedulingStrategy strategy, LocalDate today) {
+        String lockExam = "SELECT id, user_id, title, exam_date, daily_minutes FROM exams WHERE id = ? FOR UPDATE";
         try (Connection connection = database.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement lock = connection.prepareStatement(lockExam)) {
                 lock.setLong(1, examId);
+                Exam exam;
                 try (ResultSet rows = lock.executeQuery()) {
                     if (!rows.next()) {
                         throw new SQLException("Exam no longer exists");
                     }
+                    exam = ExamDAO.readExam(rows);
                 }
                 List<StudySession> existing = findByExamId(connection, examId);
                 if (!existing.isEmpty()) {
                     connection.commit();
                     return existing;
                 }
-                for (StudySession session : plan) {
+                for (StudySession session : strategy.generate(exam, ChapterDAO.findByExamId(connection, examId), today)) {
                     insert(connection, session);
                 }
                 List<StudySession> saved = findByExamId(connection, examId);
@@ -95,8 +98,9 @@ public final class SessionDAO {
         Rescheduler.Result apply(Exam exam, List<StudySession> plan, StudySession missed);
     }
 
-    public StudySession changeStatus(long sessionId, long userId, StudySession.Status status, Reschedule reschedule) {
-        if (status != StudySession.Status.COMPLETED && status != StudySession.Status.MISSED) {
+    public StudySession changeStatus(long sessionId, long userId, StudySession.Status status, Boolean revision,
+                                     Reschedule reschedule) {
+        if (status != null && status != StudySession.Status.COMPLETED && status != StudySession.Status.MISSED) {
             throw new IllegalArgumentException("Status must be completed or missed");
         }
         String findExam = """
@@ -123,18 +127,22 @@ public final class SessionDAO {
                 List<StudySession> plan = findByExamId(connection, exam.getId());
                 StudySession session = plan.stream().filter(item -> item.getId() == sessionId)
                         .findFirst().orElseThrow(() -> new NoSuchElementException("Session not found"));
-                if (session.getStatus() != status) {
+                StudySession.Status nextStatus = status == null ? session.getStatus() : status;
+                boolean nextRevision = revision == null ? session.isRevision() : revision;
+                if (session.getStatus() != nextStatus || session.isRevision() != nextRevision) {
                     if (session.getStatus() != StudySession.Status.PLANNED) {
-                        throw new IllegalStateException("Only planned sessions can change status");
+                        throw new IllegalStateException("Only planned sessions can be edited");
                     }
                     try (PreparedStatement statement = connection.prepareStatement(
-                            "UPDATE study_sessions SET status = ? WHERE id = ?")) {
-                        statement.setString(1, status.name().toLowerCase(Locale.ROOT));
-                        statement.setLong(2, sessionId);
+                            "UPDATE study_sessions SET status = ?, is_revision = ? WHERE id = ?")) {
+                        statement.setString(1, nextStatus.name().toLowerCase(Locale.ROOT));
+                        statement.setBoolean(2, nextRevision);
+                        statement.setLong(3, sessionId);
                         statement.executeUpdate();
                     }
-                    session.setStatus(status);
-                    if (status == StudySession.Status.MISSED) {
+                    session.setStatus(nextStatus);
+                    session.setRevision(nextRevision);
+                    if (nextStatus == StudySession.Status.MISSED) {
                         saveReschedule(connection, sessionId, reschedule.apply(exam, plan, session));
                     }
                 }
@@ -234,7 +242,7 @@ public final class SessionDAO {
         }
     }
 
-    private static List<StudySession> findByExamId(Connection connection, long examId) throws SQLException {
+    static List<StudySession> findByExamId(Connection connection, long examId) throws SQLException {
         String sql = """
                 SELECT id, exam_id, chapter_id, session_date, planned_minutes, status, is_revision
                 FROM study_sessions WHERE exam_id = ? ORDER BY session_date, id

@@ -51,8 +51,16 @@ final class Json {
             case '{' -> readObject(depth);
             case '[' -> readArray(depth);
             case '"' -> readString();
+            case 't' -> readBoolean("true", true);
+            case 'f' -> readBoolean("false", false);
             default -> readInteger();
         };
+    }
+
+    private boolean readBoolean(String literal, boolean value) {
+        if (!input.startsWith(literal, offset)) throw invalid();
+        offset += literal.length();
+        return value;
     }
 
     private Map<String, Object> readObject(int depth) {

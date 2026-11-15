@@ -7,24 +7,34 @@
   <link rel="stylesheet" href="/css/style.css">
   <script type="module" src="/js/pages.js"></script>
 </head>
-<body class="public-page">
+<body class="public-page sign-in-page">
   <header>
-    <a class="wordmark" href="/">Softnote</a>
+    <a class="wordmark" href="/">
+      <svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="9"/>
+        <path d="M9 9h10a4 4 0 0 1 4 4v10H13a4 4 0 0 1-4-4V9zm4 5h6m-6 4h6"/>
+      </svg>
+      Softnote
+    </a>
     <nav aria-label="Account navigation">
-      <a href="/login.html">Sign in</a>
+      <a href="/login.html" aria-current="page">Sign in</a>
       <a class="primary-button" href="/register.html">Create account</a>
     </nav>
   </header>
   <main>
-    <h1>Sign in</h1>
-    <p id="error" role="alert" hidden></p>
-    <p id="notice" role="status" hidden></p>
-    <form id="login-form" method="post">
-      <label>Email <input name="email" type="email" maxlength="254" autocomplete="email" required></label>
-      <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
-      <button type="submit">Sign in</button>
-    </form>
-    <p><a href="/register.html">Create an account</a></p>
+    <div class="sign-in-visual"></div>
+    <section class="sign-in-card" aria-labelledby="sign-in-heading">
+      <h1 id="sign-in-heading">Sign in</h1>
+      <p class="sign-in-intro">Pick up where you left off with your study plan.</p>
+      <p id="error" role="alert" hidden></p>
+      <p id="notice" role="status" hidden></p>
+      <form id="login-form" method="post">
+        <label>Email <input name="email" type="email" maxlength="254" autocomplete="email" required></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">Sign in</button>
+      </form>
+      <p>New to Softnote? <a href="/register.html">Create an account</a></p>
+    </section>
   </main>
   <footer>Softnote · An adaptive exam study planner · BUBT CSE 332</footer>
 </body>

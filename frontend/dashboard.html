@@ -3,21 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Your exams | Softnote</title>
+  <title>Dashboard | Softnote</title>
   <link rel="stylesheet" href="/css/style.css">
   <script type="module" src="/js/pages.js"></script>
 </head>
-<body>
+<body class="public-page workspace-page dashboard-page">
   <header>
-    <a href="/dashboard.html">Softnote</a>
+    <a class="wordmark" href="/dashboard.html">Softnote</a>
     <button type="button" id="sign-out">Sign out</button>
   </header>
   <main>
-    <h1>Your exams</h1>
+    <section class="dashboard-hero" aria-labelledby="dashboard-heading">
+      <div>
+        <h1 id="dashboard-heading">Study dashboard</h1>
+        <p>See what’s coming up and open your study plans.</p>
+        <a class="primary-button" href="/new-exam.html">+ Add an exam</a>
+      </div>
+    </section>
     <p id="error" role="alert" hidden></p>
-    <p><a href="/new-exam.html">Add an exam</a></p>
-    <p id="exam-status" role="status">Loading exams…</p>
-    <ul id="exam-list"></ul>
+    <dl class="dashboard-summary" id="exam-summary" hidden>
+      <div><dt>Total exams</dt><dd id="exam-total"></dd></div>
+      <div><dt>Upcoming exams</dt><dd id="exam-upcoming"></dd></div>
+      <div><dt>Next exam</dt><dd id="next-exam"></dd></div>
+    </dl>
+    <section aria-labelledby="exams-heading">
+      <h2 id="exams-heading">Your exams</h2>
+      <p id="exam-status" role="status">Loading exams…</p>
+      <ul id="exam-list"></ul>
+    </section>
   </main>
 </body>
 </html>

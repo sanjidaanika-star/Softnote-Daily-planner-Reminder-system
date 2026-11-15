@@ -46,13 +46,20 @@ public final class ChapterDAO {
     }
 
     public List<Chapter> findByExamId(long examId) {
+        try (Connection connection = database.getConnection()) {
+            return findByExamId(connection, examId);
+        } catch (SQLException exception) {
+            throw new DataAccessException("Could not list chapters", exception);
+        }
+    }
+
+    static List<Chapter> findByExamId(Connection connection, long examId) throws SQLException {
         String sql = """
                 SELECT id, exam_id, name, difficulty, estimated_minutes
                 FROM chapters WHERE exam_id = ? ORDER BY id
                 """;
         List<Chapter> items = new ArrayList<>();
-        try (Connection connection = database.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, examId);
             try (ResultSet rows = statement.executeQuery()) {
                 while (rows.next()) {
@@ -64,8 +71,6 @@ public final class ChapterDAO {
                 }
             }
             return items;
-        } catch (SQLException exception) {
-            throw new DataAccessException("Could not list chapters", exception);
         }
     }
 }

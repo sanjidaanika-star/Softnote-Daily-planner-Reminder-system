@@ -7,54 +7,19 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="public-page public-home">
-  <header>
-    <a class="wordmark" href="/">Softnote</a>
-    <nav aria-label="Account navigation">
+  <header class="landing-header">
+    <a class="wordmark" href="/" aria-label="Softnote home"><svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9"/><path d="M9 9h10a4 4 0 0 1 4 4v10H13a4 4 0 0 1-4-4V9zm4 5h6m-6 4h6"/></svg>Softnote</a>
+    <nav class="account-nav" aria-label="Account navigation">
       <a href="/login.html">Sign in</a>
       <a class="primary-button" href="/register.html">Create account</a>
     </nav>
   </header>
   <main>
     <section class="hero" aria-labelledby="hero-heading">
-      <div>
-        <h1 id="hero-heading">Turn your exam date into a daily study plan.</h1>
-        <p class="hero-description">Softnote spreads your chapters across the days left and reschedules missed sessions automatically.</p>
-        <a class="primary-button" href="/register.html">Create account</a>
-        <p class="sign-in-link"><a href="/login.html">Already have an account? Sign in</a></p>
+      <div class="hero-copy">
+        <h1 id="hero-heading">A daily study plan for your next exam.</h1>
+        <p>Split your chapters into daily sessions. Softnote reschedules the ones you miss.</p>
       </div>
-      <img class="hero-photo" src="/assets/hero-study.png" alt="Students studying at a desk with notes">
-    </section>
-    <section class="plan-preview">
-        <table>
-          <caption>Sample plan</caption>
-          <thead><tr><th scope="col">Date</th><th scope="col">Chapter</th><th scope="col">Minutes</th><th scope="col">Status</th></tr></thead>
-          <tbody>
-            <tr><td>Mon 16 Nov</td><td>Cells</td><td>40 min</td><td><span class="status-pill planned">Planned</span></td></tr>
-            <tr><td>Tue 17 Nov</td><td>Genetics</td><td>30 min</td><td><span class="status-pill missed">Missed</span></td></tr>
-            <tr><td>Thu 19 Nov</td><td>Genetics</td><td>30 min</td><td><span class="status-pill rescheduled">Rescheduled</span><br>to Thu</td></tr>
-          </tbody>
-        </table>
-    </section>
-    <section class="how-it-works" aria-labelledby="how-heading">
-      <h2 id="how-heading">How it works</h2>
-      <ol>
-        <li>Add your exam date and chapters</li>
-        <li>Set the difficulty and your daily study minutes</li>
-        <li>Get a daily plan, and let Softnote reschedule missed sessions</li>
-      </ol>
-    </section>
-    <section class="missed-block" aria-labelledby="missed-heading">
-      <h2 id="missed-heading">Missed a session?</h2>
-      <p>Softnote moves it into the free days before your exam. Completed work stays unchanged. If the remaining work does not fit, you see exactly what is left.</p>
-    </section>
-    <dl class="feature-rows">
-      <div><dt>Plans by difficulty</dt><dd>Harder chapters receive more study time.</dd></div>
-      <div><dt>Automatic rescheduling</dt><dd>Missed sessions are moved into free days.</dd></div>
-      <div><dt>Progress and history</dt><dd>See completed minutes and past sessions.</dd></div>
-    </dl>
-    <section class="closing-band">
-      <h2>Plan your next exam in a few minutes.</h2>
-      <a class="primary-button" href="/register.html">Create account</a>
     </section>
   </main>
   <footer>Softnote · An adaptive exam study planner · BUBT CSE 332</footer>

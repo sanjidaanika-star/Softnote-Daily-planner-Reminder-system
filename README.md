@@ -19,7 +19,7 @@ Copy-Item config/database.example.properties config/database.properties
 notepad config/database.properties
 ```
 
-In the properties file, keep `db.url=jdbc:mysql://localhost:3306/softnote_dev` if MySQL uses the default port. Set `db.user` and `db.password` to your local MySQL account. The account needs SELECT, INSERT, and UPDATE on `softnote_dev`. Save the file, then replace the example Connector/J path below with your absolute path.
+In the properties file, keep `db.url=jdbc:mysql://localhost:3306/softnote_dev` if MySQL uses the default port. Set `db.user` and `db.password` to your local MySQL account. The account needs SELECT, INSERT, and UPDATE on `softnote_dev`, plus DELETE on `chapters` and `study_sessions` for exam edits. Save the file, then replace the example Connector/J path below with your absolute path.
 
 ```powershell
 $connectorJar = 'C:\path\to\mysql-connector-j.jar'

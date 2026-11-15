@@ -1,14 +1,10 @@
 package backend.scheduler;
 
-import backend.db.ChapterDAO;
-import backend.db.ExamDAO;
 import backend.db.SessionDAO;
-import backend.model.Exam;
 import backend.model.StudySession;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -16,17 +12,12 @@ import java.util.concurrent.TimeUnit;
 
 public final class PlanService {
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
-    private final ExamDAO exams;
-    private final ChapterDAO chapters;
     private final SessionDAO sessions;
     private final SchedulingStrategy strategy;
     private final Clock clock;
     private final Rescheduler rescheduler = new Rescheduler();
 
-    public PlanService(ExamDAO exams, ChapterDAO chapters, SessionDAO sessions,
-                       SchedulingStrategy strategy, Clock clock) {
-        this.exams = exams;
-        this.chapters = chapters;
+    public PlanService(SessionDAO sessions, SchedulingStrategy strategy, Clock clock) {
         this.sessions = sessions;
         this.strategy = strategy;
         this.clock = clock;
@@ -34,13 +25,11 @@ public final class PlanService {
 
     public Future<List<StudySession>> generatePlan(long examId) {
         return executor.submit(() -> {
-            Exam exam = exams.findById(examId).orElseThrow(() -> new NoSuchElementException("Exam not found"));
             List<StudySession> existing = sessions.findByExamId(examId);
             if (!existing.isEmpty()) {
                 return existing;
             }
-            List<StudySession> plan = strategy.generate(exam, chapters.findByExamId(examId), LocalDate.now(clock));
-            return sessions.saveIfAbsent(examId, plan);
+            return sessions.saveIfAbsent(examId, strategy, LocalDate.now(clock));
         });
     }
 
@@ -56,8 +45,8 @@ public final class PlanService {
         }
     }
 
-    public Future<StudySession> changeStatus(long sessionId, long userId, StudySession.Status status) {
-        return executor.submit(() -> sessions.changeStatus(sessionId, userId, status,
+    public Future<StudySession> changeStatus(long sessionId, long userId, StudySession.Status status, Boolean revision) {
+        return executor.submit(() -> sessions.changeStatus(sessionId, userId, status, revision,
                 (exam, plan, missed) -> rescheduler.reschedule(exam, plan, missed, LocalDate.now(clock))));
     }
 

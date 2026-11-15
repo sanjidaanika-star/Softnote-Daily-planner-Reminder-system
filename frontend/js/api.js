@@ -76,13 +76,23 @@ export function createExam(exam) {
   return request("/exams", { method: "POST", body: exam, protectedCall: true });
 }
 
+export function getExam(examId) {
+  return request("/exams/" + encodeURIComponent(examId), { protectedCall: true });
+}
+
+export function updateExam(examId, exam) {
+  return request("/exams/" + encodeURIComponent(examId), {
+    method: "PUT", body: exam, protectedCall: true,
+  });
+}
+
 export function getPlan(examId) {
   return request("/plan?examId=" + encodeURIComponent(examId), { protectedCall: true });
 }
 
-export function changeStatus(sessionId, status) {
+export function updateSession(sessionId, changes) {
   return request("/sessions/" + encodeURIComponent(sessionId) + "/status", {
-    method: "PATCH", body: { status }, protectedCall: true,
+    method: "PATCH", body: changes, protectedCall: true,
   });
 }
 

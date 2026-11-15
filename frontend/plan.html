@@ -7,15 +7,16 @@
   <link rel="stylesheet" href="/css/style.css">
   <script type="module" src="/js/pages.js"></script>
 </head>
-<body>
+<body class="public-page workspace-page">
   <header>
-    <a href="/dashboard.html">Softnote</a>
+    <a class="wordmark" href="/dashboard.html">Softnote</a>
     <button type="button" id="sign-out">Sign out</button>
   </header>
   <main>
-    <h1>Study plan</h1>
+    <div class="workspace-banner"><h1>Study plan</h1></div>
     <p id="error" role="alert" hidden></p>
     <p><a href="/dashboard.html">Back to exams</a></p>
+    <p><a id="edit-exam-link" href="/new-exam.html" hidden>Edit exam</a></p>
     <p><a id="progress-link" href="/progress.html">Progress and history</a></p>
     <p id="plan-status" role="status">Loading sessions…</p>
     <table id="plan-table" hidden>
