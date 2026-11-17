@@ -1223,3 +1223,23 @@ th:first-child {
   #exam-form > fieldset { padding: 12px; }
   #exam-form .chapter { padding: 12px; }
 }
+.softnote-theme form { width: 100%; max-width: none; }
+.softnote-theme form:not(.session-editor) > button[type="submit"] { width: 100%; min-height: 48px; }
+.softnote-theme.quiz-page main { max-width: 88rem; }
+#register-form, #reset-form, #note-upload, #quiz-start {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+#register-form > label, #reset-form > label,
+#note-upload > label, #quiz-start > label { margin-bottom: 0; }
+#register-form > label:last-of-type,
+#reset-form > #email-label,
+#register-form > button, #reset-form > button,
+#note-upload > button, #quiz-start > button, #quiz-start > p { grid-column: 1 / -1; }
+.softnote-theme .quiz-options button { width: 100%; }
+.softnote-theme .quiz-controls { display: flex; flex-wrap: wrap; gap: 12px; }
+.softnote-theme .quiz-controls button { flex: 1 1 180px; }
+@media (max-width: 600px) {
+  #register-form, #reset-form, #note-upload, #quiz-start { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+}
