@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Add an exam | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=exam-save-1">
+  <link rel="stylesheet" href="/css/style.css?v=exam-wide-1">
   <script type="module" src="/js/pages.js?v=exam-save-1"></script>
 </head>
 <body class="public-page workspace-page softnote-theme">
@@ -20,8 +20,8 @@
         <label>Semester <select name="semester" id="exam-semester"><option value="0">Not assigned</option></select></label>
         <label>Assessment <select name="assessment"><option value="CT">CT</option><option value="MID">Mid</option><option value="FINAL">Final</option><option value="OTHER" selected>Other</option></select></label>
       </div>
-      <label>Course <select id="exam-course" name="courseName"><option value="">Choose a course (optional)</option></select></label>
-      <label>Exam title <input name="title" maxlength="255" required></label>
+      <label class="exam-wide-field">Course <select id="exam-course" name="courseName"><option value="">Choose a course (optional)</option></select></label>
+      <label class="exam-wide-field">Exam title <input name="title" maxlength="255" required></label>
       <label>Exam date <input name="examDate" type="date" required></label>
       <label>Daily minutes <input name="dailyMinutes" type="number" min="1" max="2147483647" required></label>
       <fieldset>
