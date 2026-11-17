@@ -1178,3 +1178,25 @@ th:first-child {
 @media print {
   .softnote-theme { --text: #000; --secondary-text: #333; --card: #fff; --line: #ddd; background: #fff; color: #000; }
 }
+.softnote-theme .wordmark, .softnote-theme .dash-brand { display: inline-flex; align-items: center; gap: 10px; }
+.brand-symbol { width: 26px; height: 26px; flex: 0 0 26px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.softnote-theme .dash-brand .brand-symbol { width: 26px; height: 26px; }
+.nav-symbol { width: 20px; height: 20px; flex: 0 0 20px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.softnote-theme .dash-sidebar .nav-symbol, .softnote-theme .dash-primary > .nav-symbol { width: 20px; height: 20px; }
+.softnote-theme { --control-border: #7e8e76; }
+.softnote-theme input, .softnote-theme select { border-color: var(--control-border); }
+.softnote-theme .session-editor select, .softnote-theme .session-revision { border-color: var(--control-border); }
+.exam-save-result { padding-block: 8px 24px; }
+.exam-save-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.softnote-theme .secondary-button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 24px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--card); color: var(--action); font-weight: 600; text-decoration: none; }
+.softnote-theme .secondary-button:hover { background: var(--surface); }
+@media (prefers-color-scheme: dark) { .softnote-theme { --control-border: #8a9d81; } }
+@media (max-width: 600px) {
+  .exam-save-actions > a { width: 100%; }
+  #plan-table, #plan-table tbody, #plan-table tr, #plan-table td,
+  #history-table, #history-table tbody, #history-table tr, #history-table td { display: block; width: 100%; }
+  #plan-table thead, #history-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  #plan-table tr, #history-table tr { padding: 12px; border: 1px solid var(--line); border-radius: 10px; margin-block: 12px; }
+  #plan-table td, #history-table td { border: 0; padding: 6px 0; }
+  #plan-table td::before, #history-table td::before { content: attr(data-label); display: block; color: var(--muted); font-size: .8rem; font-weight: 600; }
+}

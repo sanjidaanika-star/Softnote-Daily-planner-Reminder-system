@@ -4,31 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=shared-green-1">
-  <script type="module" src="/js/pages.js?v=countdown-1"></script>
+  <link rel="stylesheet" href="/css/style.css?v=exam-save-1">
+  <script type="module" src="/js/pages.js?v=exam-save-1"></script>
 </head>
 <body class="dashboard-page softnote-theme" id="dashboard-top">
   <a class="dash-skip" href="#dashboard-main">Skip to content</a>
   <aside class="dash-sidebar">
-    <a class="dash-brand" href="/dashboard.html">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg>
-      Softnote
-    </a>
+    <a class="dash-brand" href="/dashboard.html"><svg class="brand-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg>Softnote</a>
     <nav aria-label="Dashboard navigation">
-      <a href="#dashboard-top" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-      <a href="#exams-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg>Exams</a>
-      <a href="#progress-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M9 16v-4m5 4V8m5 8V5"/></svg>Progress</a>
-      <a href="/quiz.html">Notes &amp; quizzes</a>
-      <a href="/report.html">Roadmap &amp; report</a>
-      <a href="#completed-chapters-heading">Completed chapters</a>
-      <a href="/admin.html" id="admin-link" hidden>Administration</a>
+      <a href="#dashboard-top" aria-current="page"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a href="#exams-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg>Exams</a>
+      <a href="#progress-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M9 16v-4m5 4V8m5 8V5"/></svg>Progress</a>
+      <a href="/quiz.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM14 3v5h5M8 12h8m-8 4h6"/></svg>Notes &amp; quizzes</a>
+      <a href="/report.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h12M8 12h12M8 20h12"/><circle cx="3" cy="4" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="20" r="1"/></svg>Roadmap &amp; report</a>
+      <a href="#completed-chapters-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Completed chapters</a>
+      <a href="/admin.html" id="admin-link" hidden><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM9 12l2 2 4-4"/></svg>Administration</a>
     </nav>
     <button type="button" id="sign-out" class="dash-secondary">Sign out</button>
   </aside>
   <main id="dashboard-main">
     <div class="dash-top">
       <div><p id="dashboard-date"></p><h1 id="dashboard-greeting">Study dashboard</h1></div>
-      <a class="dash-primary" href="/new-exam.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New exam</a>
+      <a class="dash-primary" href="/new-exam.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New exam</a>
     </div>
     <p id="dashboard-status" role="status">Loading your dashboard…</p>
     <div id="dashboard-error" class="dash-card" hidden>

@@ -463,8 +463,15 @@ async function setupExam(form) {
         estimatedMinutes: Number(row.querySelector('[name="estimatedMinutes"]').value),
       })),
     };
-    const exam = editing ? await updateExam(examId, payload) : await createExam(payload);
-    location.assign("/plan.html?examId=" + encodeURIComponent(exam.id));
+    await (editing ? updateExam(examId, payload) : createExam(payload));
+    form.hidden = true;
+    byId("exam-cancel").hidden = true;
+    byId("exam-save-message").textContent = payload.title + (editing ? " has been updated." : " has been saved.");
+    byId("exam-save-result").hidden = false;
+    const heading = document.querySelector("main h1");
+    heading.textContent = editing ? "Exam updated" : "Exam saved";
+    heading.tabIndex = -1;
+    heading.focus();
   });
 }
 
@@ -585,6 +592,7 @@ async function loadPlan(focusSessionId) {
       if (session.id === focusSessionId) row.tabIndex = -1;
     }
     table.hidden = sessions.length === 0;
+    labelTableRows(table);
     rows.querySelector('[tabindex="-1"]')?.focus();
   } catch (failure) {
     status.textContent = "";
@@ -608,10 +616,18 @@ async function loadProgress() {
         session.chapterName, session.plannedMinutes, session.status]);
     }
     table.hidden = history.length === 0;
+    labelTableRows(table);
     byId("history-status").textContent = history.length ? "" : "No completed or missed sessions yet.";
   } catch (failure) {
     progressStatus.textContent = "";
     showError(failure);
+  }
+}
+
+function labelTableRows(table) {
+  const labels = [...table.querySelectorAll("thead th")].map((cell) => cell.textContent);
+  for (const row of table.tBodies[0].rows) {
+    [...row.cells].forEach((cell, index) => { cell.dataset.label = labels[index]; });
   }
 }
 
