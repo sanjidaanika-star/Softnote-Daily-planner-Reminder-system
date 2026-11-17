@@ -77,8 +77,13 @@ public final class ApiServer {
     }
 
     public ApiServer(DBConnection database, int port, Clock clock, QuestionGenerator generator) throws IOException {
+        this(database, new InetSocketAddress("127.0.0.1", port), clock, generator);
+    }
+
+    private ApiServer(DBConnection database, InetSocketAddress address, Clock clock, QuestionGenerator generator)
+            throws IOException {
         this.clock = clock;
-        server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
+        server = HttpServer.create(address, 0);
         server.setExecutor(requests);
         auth = new AuthService(new UserDAO(database));
         exams = new ExamDAO(database);
@@ -104,12 +109,14 @@ public final class ApiServer {
     }
 
     public static void main(String[] args) throws IOException {
-        int port = args.length == 0 ? 8080 : Integer.parseInt(args[0]);
+        int port = Integer.parseInt(args.length == 0 ? System.getenv().getOrDefault("PORT", "8080") : args[0]);
+        String host = System.getenv().getOrDefault("SOFTNOTE_BIND_HOST", "127.0.0.1");
         DBConnection database = args.length < 2 ? new DBConnection() : new DBConnection(Path.of(args[1]));
-        ApiServer api = new ApiServer(database, port, Clock.systemDefaultZone());
+        ApiServer api = new ApiServer(database, new InetSocketAddress(host, port), Clock.systemDefaultZone(),
+                new GeminiClient(Path.of("config", "gemini.properties")));
         Runtime.getRuntime().addShutdownHook(new Thread(api::stop));
         api.start();
-        System.out.println("Softnote API listening on http://127.0.0.1:" + api.server.getAddress().getPort());
+        System.out.println("Softnote API listening on " + api.server.getAddress());
     }
 
     public void start() {

@@ -1,0 +1,10 @@
+*
+!Dockerfile
+!backend/
+!backend/**
+!frontend/
+!frontend/**
+!lib/
+!lib/gson-*.jar
+!lib/pdfbox-app-*.jar
+**/*.class

@@ -32,6 +32,14 @@ export function requireLogin() {
   return false;
 }
 
+function responseErrorMessage(data, status) {
+  const message = [data?.error, data?.error?.message, data?.message]
+    .find((value) => typeof value === "string" && value.trim());
+  if (message) return message;
+  if (status === 401) return "Sign-in could not be verified. Try again.";
+  return "The request failed. Try again.";
+}
+
 async function request(path, { method = "GET", body, protectedCall = false, raw, noteTitle, signal } = {}) {
   const headers = { Accept: "application/json" };
   if (protectedCall) {
@@ -62,7 +70,7 @@ async function request(path, { method = "GET", body, protectedCall = false, raw,
       destination.searchParams.set("expired", "1");
       location.replace(destination);
     }
-    throw new Error(data?.error || "The request failed. Try again.");
+    throw new Error(responseErrorMessage(data, response.status));
   }
   if (data === null) throw new Error("Softnote returned an unreadable response.");
   return data;
@@ -102,6 +110,9 @@ export function register(details) {
 
 export async function login(credentials) {
   const result = await request("/login", { method: "POST", body: credentials });
+  if (typeof result.token !== "string" || !result.token.trim()) {
+    throw new Error("Softnote did not return a sign-in token. Try again.");
+  }
   try {
     sessionStorage.setItem(tokenKey, result.token);
   } catch {
