@@ -1256,3 +1256,35 @@ th:first-child {
 .course-exam-form label { margin: 0; min-width: 0; }
 .course-exam-form > button { grid-column: 1 / -1; }
 @media (max-width: 760px) { .course-exam-form { grid-template-columns: minmax(0, 1fr); padding: 16px; } }
+@media (max-width: 719px) {
+  .public-page.softnote-theme header { gap: 8px; padding-block: 12px; }
+  .public-page.softnote-theme .wordmark { gap: 6px; font-size: 18px; }
+  .public-page.softnote-theme .brand-symbol { width: 22px; height: 22px; flex-basis: 22px; }
+  .public-page.softnote-theme header nav { gap: 10px; font-size: 12px; }
+  .public-page.softnote-theme header .primary-button { min-height: 40px; padding: 7px 10px; }
+  .public-home.softnote-theme main { padding-block: 20px 24px; }
+  .public-home.softnote-theme .hero {
+    display: grid;
+    align-items: start;
+    min-height: 0;
+    padding: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    color: var(--text);
+  }
+  .public-home.softnote-theme .hero::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: clamp(160px, 48vw, 240px);
+    background: #dce5d7 url("/assets/hero-study.png") center 35% / cover no-repeat;
+  }
+  .public-home.softnote-theme .hero-copy { width: 100%; padding: 24px; background: transparent; border-radius: 0; }
+  .public-home.softnote-theme .hero h1 { margin: 0 0 16px; font-size: clamp(26px, 6.8vw, 34px); line-height: 1.2; font-weight: 650; text-wrap: initial; }
+  .public-home.softnote-theme .hero-copy p { font-size: 15px; line-height: 1.65; color: var(--secondary-text); max-width: none; }
+  .public-page.softnote-theme footer { padding-block: 18px 24px; font-size: 12px; line-height: 1.6; text-align: center; }
+  .sign-in-page.softnote-theme .sign-in-card { padding: 24px; }
+  .sign-in-page.softnote-theme .sign-in-visual { min-height: 144px; }
+}
