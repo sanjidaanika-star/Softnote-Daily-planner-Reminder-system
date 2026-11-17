@@ -994,7 +994,7 @@ th:first-child {
   .dash-card { box-shadow: none; break-inside: avoid; color: black; background: white; }
   .report-roadmap > li { break-inside: avoid; }
 }
-.study-dashboard {
+.softnote-theme {
   --text: #24352c;
   --secondary-text: #647067;
   --background: #f5f3ed;
@@ -1010,26 +1010,28 @@ th:first-child {
   --shadow: 0 2px 8px #24352c05;
   color-scheme: light;
   background: var(--background);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
 }
-.study-dashboard .dash-sidebar {
+.softnote-theme .dash-sidebar {
   background: #fbfcf9;
   border-color: var(--line);
   box-shadow: none;
 }
-.study-dashboard .dash-sidebar .dash-brand { color: #214c36; }
-.study-dashboard .dash-sidebar nav a { color: #56635a; font-weight: 600; }
-.study-dashboard .dash-sidebar .dash-brand svg { color: #34745b; }
-.study-dashboard .dash-sidebar nav a:hover,
-.study-dashboard .dash-sidebar nav a[aria-current="page"] {
+.softnote-theme .dash-sidebar .dash-brand { color: #214c36; }
+.softnote-theme .dash-sidebar nav a { color: #56635a; font-weight: 600; }
+.softnote-theme .dash-sidebar .dash-brand svg { color: #34745b; }
+.softnote-theme .dash-sidebar nav a:hover,
+.softnote-theme .dash-sidebar nav a[aria-current="page"] {
   background: #e7eee3;
   color: #214c36;
 }
-.study-dashboard .dash-sidebar > .dash-secondary {
+.softnote-theme .dash-sidebar > .dash-secondary {
   background: transparent;
   border: 1px solid #d2d9cd;
   color: #46564a;
 }
-.study-dashboard .dash-top {
+.softnote-theme .dash-top {
   padding: 8px 0 24px;
   border-radius: 0;
   border-bottom: 1px solid #dce1d6;
@@ -1038,37 +1040,37 @@ th:first-child {
   box-shadow: none;
   margin-bottom: 24px;
 }
-.study-dashboard .dash-top h1 {
+.softnote-theme .dash-top h1 {
   color: #243d2d;
   letter-spacing: -.035em;
   font-size: clamp(1.7rem, 3vw, 2.35rem);
   font-weight: 650;
 }
-.study-dashboard .dash-top p { color: var(--secondary-text); margin-bottom: 8px; }
-.study-dashboard .dash-top .dash-primary,
-.study-dashboard .dash-primary {
+.softnote-theme .dash-top p { color: var(--secondary-text); margin-bottom: 8px; }
+.softnote-theme .dash-top .dash-primary,
+.softnote-theme .dash-primary {
   background: #285a42;
   color: #ffffff;
   border: 1px solid #285a42;
   box-shadow: none;
 }
-.study-dashboard .dash-secondary { background: #edf2e8; color: #285139; }
-.study-dashboard .dash-card {
+.softnote-theme .dash-secondary { background: #edf2e8; color: #285139; }
+.softnote-theme .dash-card {
   border: 1px solid var(--line);
   border-radius: 12px;
   box-shadow: var(--shadow);
   background: var(--card);
 }
-.study-dashboard .dash-stats .dash-card:first-child { background: #e8eee1; border-color: #dbe4d1; }
-.study-dashboard .dash-stats dd { color: #274c35; }
-.study-dashboard .dash-stats dt { font-size: .84rem; font-weight: 600; }
-.study-dashboard .course-roadmap > li { background: #fafbf8; border-color: var(--line); }
-.study-dashboard .chapter-groups summary { background: #f6f7f2; }
-.study-dashboard #completed-chapters summary { background: #edf3e8; }
-.study-dashboard .dash-day { background: #f8f9f5; border-color: var(--line); }
-.study-dashboard .dash-exam .dash-pill { background: #efece2; color: #575747; }
+.softnote-theme .dash-stats .dash-card:first-child { background: #e8eee1; border-color: #dbe4d1; }
+.softnote-theme .dash-stats dd { color: #274c35; }
+.softnote-theme .dash-stats dt { font-size: .84rem; font-weight: 600; }
+.softnote-theme .course-roadmap > li { background: #fafbf8; border-color: var(--line); }
+.softnote-theme .chapter-groups summary { background: #f6f7f2; }
+.softnote-theme #completed-chapters summary { background: #edf3e8; }
+.softnote-theme .dash-day { background: #f8f9f5; border-color: var(--line); }
+.softnote-theme .dash-exam .dash-pill { background: #efece2; color: #575747; }
 @media (prefers-color-scheme: dark) {
-  .study-dashboard {
+  .softnote-theme {
     --text: #e4e9df;
     --secondary-text: #b1bdad;
     --background: #19211c;
@@ -1079,28 +1081,100 @@ th:first-child {
     --focus: #b6d4a8;
     color-scheme: dark;
   }
-  .study-dashboard .dash-sidebar { background: #1d2720; }
-  .study-dashboard .dash-sidebar .dash-brand,
-  .study-dashboard .dash-sidebar nav a,
-  .study-dashboard .dash-top h1,
-  .study-dashboard .dash-stats dd { color: #dbe8d5; }
-  .study-dashboard .dash-sidebar nav a:hover,
-  .study-dashboard .dash-sidebar nav a[aria-current="page"],
-  .study-dashboard .dash-secondary { background: #344432; color: #e0edd8; }
-  .study-dashboard .dash-top { border-color: var(--line); }
-  .study-dashboard .dash-stats .dash-card:first-child,
-  .study-dashboard #completed-chapters summary { background: #2c3c29; border-color: var(--line); }
-  .study-dashboard .course-roadmap > li,
-  .study-dashboard .chapter-groups summary,
-  .study-dashboard .dash-day { background: #263128; }
-  .study-dashboard .dash-sidebar > .dash-secondary { color: #cfdbc9; border-color: var(--line); }
-  .study-dashboard .dash-exam .dash-pill { background: #3a3b2c; color: #e6e3c9; }
+  .softnote-theme .dash-sidebar { background: #1d2720; }
+  .softnote-theme .dash-sidebar .dash-brand,
+  .softnote-theme .dash-sidebar nav a,
+  .softnote-theme .dash-top h1,
+  .softnote-theme .dash-stats dd { color: #dbe8d5; }
+  .softnote-theme .dash-sidebar nav a:hover,
+  .softnote-theme .dash-sidebar nav a[aria-current="page"],
+  .softnote-theme .dash-secondary { background: #344432; color: #e0edd8; }
+  .softnote-theme .dash-top { border-color: var(--line); }
+  .softnote-theme .dash-stats .dash-card:first-child,
+  .softnote-theme #completed-chapters summary { background: #2c3c29; border-color: var(--line); }
+  .softnote-theme .course-roadmap > li,
+  .softnote-theme .chapter-groups summary,
+  .softnote-theme .dash-day { background: #263128; }
+  .softnote-theme .dash-sidebar > .dash-secondary { color: #cfdbc9; border-color: var(--line); }
+  .softnote-theme .dash-exam .dash-pill { background: #3a3b2c; color: #e6e3c9; }
 }
 @media (max-width: 1050px) {
-  .study-dashboard .dash-sidebar { padding: 16px; }
-  .study-dashboard .dash-sidebar nav { order: 3; flex-basis: 100%; margin-top: 12px; gap: 4px; }
-  .study-dashboard .dash-sidebar nav a { font-size: .875rem; padding: 8px 10px; min-height: 44px; }
+  .softnote-theme .dash-sidebar { padding: 16px; }
+  .softnote-theme .dash-sidebar nav { order: 3; flex-basis: 100%; margin-top: 12px; gap: 4px; }
+  .softnote-theme .dash-sidebar nav a { font-size: .875rem; padding: 8px 10px; min-height: 44px; }
 }
 @media (max-width: 600px) {
-  .study-dashboard .dash-top { gap: 16px; padding-top: 0; }
+  .softnote-theme .dash-top { gap: 16px; padding-top: 0; }
+}
+.public-page.softnote-theme {
+  --ink: var(--text);
+  --accent: var(--action);
+  --muted: var(--secondary-text);
+  --border: var(--line);
+  line-height: 1.6;
+}
+.softnote-theme header, .softnote-theme footer { border-color: var(--line); }
+.softnote-theme .wordmark { color: #274c35; }
+.softnote-theme button,
+.softnote-theme input,
+.softnote-theme select {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--card);
+}
+.softnote-theme button { padding: 8px 14px; cursor: pointer; }
+.softnote-theme button:disabled { cursor: default; opacity: .6; }
+.softnote-theme .primary-button,
+.softnote-theme.public-page form button[type="submit"] {
+  background: var(--action);
+  color: var(--action-text);
+  border-color: var(--action);
+  box-shadow: none;
+}
+.softnote-theme button:hover:not(:disabled) { filter: brightness(.95); }
+.softnote-theme input:focus-visible, .softnote-theme select:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.softnote-theme.workspace-page main, .softnote-theme.sign-in-page main {
+  background: var(--card);
+  border-color: var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.softnote-theme .workspace-banner {
+  background: var(--surface);
+  min-height: 0;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.softnote-theme .workspace-banner h1 { background: transparent; color: var(--text); padding: 0; }
+.softnote-theme.workspace-page #sign-out,
+.softnote-theme.workspace-page form button:not([type="submit"]),
+.softnote-theme.workspace-page table button {
+  background: var(--surface);
+  color: var(--action);
+  border-color: var(--line);
+}
+.softnote-theme.workspace-page fieldset,
+.softnote-theme.workspace-page th,
+.softnote-theme.workspace-page td,
+.softnote-theme .plan-countdown { border-color: var(--line); }
+.softnote-theme.workspace-page th { background: var(--surface); }
+.softnote-theme .session-editor select,
+.softnote-theme .session-revision { background: var(--card); color: var(--text); border-color: var(--line); }
+.softnote-theme .sign-in-card input { background: var(--surface); }
+.softnote-theme .closing-band { background: var(--surface); border-color: var(--line); }
+.softnote-theme .dash-card[data-accent] { border-top-color: var(--line); }
+.softnote-theme #error, .softnote-theme #quiz-error { color: #873d35; border-color: #d7aaa4; background: #fbefeb; }
+@media (prefers-color-scheme: dark) {
+  .softnote-theme { --action-text: #19211c; }
+  .softnote-theme .wordmark { color: #dbe8d5; }
+  .softnote-theme #error, .softnote-theme #quiz-error { color: #ffd4cc; background: #442c2a; }
+}
+@media print {
+  .softnote-theme { --text: #000; --secondary-text: #333; --card: #fff; --line: #ddd; background: #fff; color: #000; }
 }
