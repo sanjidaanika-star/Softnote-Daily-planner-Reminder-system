@@ -57,6 +57,7 @@ public final class ApiServer {
             Map.entry("/report.html", "text/html"), Map.entry("/js/report.js", "text/javascript"),
             Map.entry("/quiz.html", "text/html"), Map.entry("/js/quiz.js", "text/javascript"),
             Map.entry("/js/courses.js", "text/javascript"),
+            Map.entry("/js/countdown.js", "text/javascript"),
             Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
             Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),
             Map.entry("/plan.html", "text/html"), Map.entry("/progress.html", "text/html"), Map.entry("/css/style.css", "text/css"),
@@ -420,7 +421,29 @@ public final class ApiServer {
         String unscheduled = plan.unscheduled().stream()
                 .map(item -> "{\"chapterName\":" + Json.quote(item.chapterName()) + ",\"minutes\":" + item.minutes() + "}")
                 .collect(Collectors.joining(",", "[", "]"));
-        reply(exchange, 200, "{\"sessions\":" + items + ",\"unscheduled\":" + unscheduled + "}");
+        String chapterProgress = chapters.findByExamId(examId).stream()
+                .map(chapter -> chapterProgressJson(chapter, plan.sessions()))
+                .collect(Collectors.joining(",", "[", "]"));
+        reply(exchange, 200, "{\"sessions\":" + items + ",\"unscheduled\":" + unscheduled
+                + ",\"chapters\":" + chapterProgress + "}");
+    }
+
+    private static String chapterProgressJson(Chapter chapter, List<StudySession> sessions) {
+        int weight = switch (chapter.getDifficulty()) {
+            case EASY -> 1;
+            case MEDIUM -> 2;
+            case HARD -> 3;
+        };
+        long required = (long) chapter.getEstimatedMinutes() * weight;
+        long completed = sessions.stream().filter(session -> session.getChapterId() == chapter.getId()
+                        && !session.isRevision() && session.getStatus() == StudySession.Status.COMPLETED)
+                .mapToLong(StudySession::getPlannedMinutes).sum();
+        long revision = sessions.stream().filter(session -> session.getChapterId() == chapter.getId()
+                        && session.isRevision() && session.getStatus() == StudySession.Status.COMPLETED)
+                .mapToLong(StudySession::getPlannedMinutes).sum();
+        return "{\"id\":" + chapter.getId() + ",\"name\":" + Json.quote(chapter.getName())
+                + ",\"requiredMinutes\":" + required + ",\"completedMinutes\":" + completed
+                + ",\"revisionCompletedMinutes\":" + revision + ",\"completed\":" + (completed >= required) + "}";
     }
 
     private void changeStatus(HttpExchange exchange) throws IOException {

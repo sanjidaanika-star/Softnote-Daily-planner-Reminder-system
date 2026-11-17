@@ -56,7 +56,28 @@ public final class AdminIntegrationTest {
             call("PUT", "/exams/" + exam, userToken, saved.toString().replace("\"CT\"", "\"MID\""), 200);
             check(json(call("GET", "/exams/" + exam, userToken, null, 200)).get("assessment").getAsString().equals("MID"), "Metadata updated");
             call("GET", "/exams/" + exam, adminToken, null, 404);
-            call("GET", "/plan?examId=" + exam, userToken, null, 200);
+            JsonObject plan = json(call("GET", "/plan?examId=" + exam, userToken, null, 200));
+            check(!plan.getAsJsonArray("chapters").get(0).getAsJsonObject().get("completed").getAsBoolean(), "New chapter is active");
+            long firstSession = 0;
+            for (var entry : plan.getAsJsonArray("sessions")) {
+                JsonObject session = entry.getAsJsonObject();
+                if (!session.get("isRevision").getAsBoolean()) {
+                    firstSession = session.get("id").getAsLong();
+                    call("PATCH", "/sessions/" + firstSession + "/status", userToken, "{\"status\":\"completed\"}", 200);
+                    break;
+                }
+            }
+            check(!json(call("GET", "/plan?examId=" + exam, userToken, null, 200)).getAsJsonArray("chapters").get(0).getAsJsonObject().get("completed").getAsBoolean(), "One session cannot complete a multi-session chapter");
+            for (var entry : plan.getAsJsonArray("sessions")) {
+                JsonObject session = entry.getAsJsonObject();
+                if (!session.get("isRevision").getAsBoolean() && session.get("id").getAsLong() != firstSession) {
+                    call("PATCH", "/sessions/" + session.get("id").getAsLong() + "/status", userToken, "{\"status\":\"completed\"}", 200);
+                }
+            }
+            JsonObject completedChapter = json(call("GET", "/plan?examId=" + exam, userToken, null, 200)).getAsJsonArray("chapters").get(0).getAsJsonObject();
+            check(completedChapter.get("completed").getAsBoolean() && completedChapter.get("requiredMinutes").getAsLong() == 180
+                    && completedChapter.get("revisionCompletedMinutes").getAsLong() == 0, "Main study completion is independent of revision");
+            System.out.println("PASS chapter automatically completes after all weighted study minutes; revision stays separate");
             System.out.println("PASS semester/course/assessment create and edit preserve ownership and plan generation");
             call("PATCH", "/admin/users/" + user + "/active", adminToken, "{\"active\":false}", 200);
             call("GET", "/me", userToken, null, 401);

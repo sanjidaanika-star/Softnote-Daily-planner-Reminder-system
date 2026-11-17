@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=phase9-1">
-  <script type="module" src="/js/pages.js"></script>
+  <link rel="stylesheet" href="/css/style.css?v=countdown-1">
+  <script type="module" src="/js/pages.js?v=countdown-1"></script>
 </head>
 <body class="dashboard-page" id="dashboard-top">
   <a class="dash-skip" href="#dashboard-main">Skip to content</a>
@@ -20,6 +20,7 @@
       <a href="#progress-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M9 16v-4m5 4V8m5 8V5"/></svg>Progress</a>
       <a href="/quiz.html">Notes &amp; quizzes</a>
       <a href="/report.html">Roadmap &amp; report</a>
+      <a href="#completed-chapters-heading">Completed chapters</a>
       <a href="/admin.html" id="admin-link" hidden>Administration</a>
     </nav>
     <button type="button" id="sign-out" class="dash-secondary">Sign out</button>
@@ -43,7 +44,7 @@
       <dl class="dash-stats" aria-label="Study overview">
         <div class="dash-card" data-accent="0"><dt>Total exams</dt><dd id="exam-total"></dd></div>
         <div class="dash-card" data-accent="1"><dt>Upcoming exams</dt><dd id="exam-upcoming"></dd><small>Next 14 days</small></div>
-        <div class="dash-card" data-accent="2"><dt>Next exam in</dt><dd id="exam-countdown"></dd><small>Until midnight on exam day</small></div>
+        <div class="dash-card" data-accent="2"><dt>Next exam in</dt><dd id="exam-countdown" class="live-countdown"></dd><small>Until midnight at the start of exam day, in your local time</small></div>
         <div class="dash-card" data-accent="3"><dt>Overall completion</dt><dd id="exam-completion"></dd><small id="overall-minutes"></small></div>
       </dl>
       <section class="dash-card dash-section" aria-labelledby="courses-heading">
@@ -51,6 +52,17 @@
         <p class="dash-muted">Assign the semester and assessment when adding or editing an exam.</p>
         <ul id="semester-courses" class="course-roadmap"></ul>
       </section>
+      <div class="dash-focus dash-section">
+        <section class="dash-card" aria-labelledby="active-chapters-heading">
+          <h2 id="active-chapters-heading">Chapters to study</h2>
+          <div id="active-chapters" class="chapter-groups"></div>
+        </section>
+        <section class="dash-card" aria-labelledby="completed-chapters-heading">
+          <h2 id="completed-chapters-heading">Completed chapters</h2>
+          <p class="dash-muted">Open a course to see completed chapters. Revision sessions stay in your plan.</p>
+          <div id="completed-chapters" class="chapter-groups"></div>
+        </section>
+      </div>
       <div class="dash-focus">
         <section class="dash-card" data-accent="0" aria-labelledby="today-heading">
           <h2 id="today-heading" tabindex="-1">Today’s study</h2>

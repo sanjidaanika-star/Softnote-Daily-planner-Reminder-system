@@ -4,6 +4,18 @@
 
 [hidden] { display: none !important; }
 
+.live-countdown { display: block; font-variant-numeric: tabular-nums; font-weight: 700; font-size: .98rem; letter-spacing: .02em; white-space: normal; overflow-wrap: anywhere; }
+.dash-stats dd.live-countdown { font-size: clamp(1rem, 1.8vw, 1.5rem); line-height: 1.5; }
+.assessment-countdown { display: grid; gap: 4px; padding: 8px 0; }
+.chapter-groups details { margin-block: 12px; border: 1px solid #94a3b866; border-radius: 12px; overflow: hidden; }
+.chapter-groups summary { cursor: pointer; padding: 16px; font-weight: 650; overflow-wrap: anywhere; }
+.chapter-groups summary:hover { background: #94a3b81a; }
+.chapter-groups summary:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
+.chapter-groups details > ul { padding: 0 16px 16px; margin: 0; list-style: none; }
+.chapter-groups li { display: grid; gap: 6px; padding: 12px 0; border-top: 1px solid #94a3b866; }
+.plan-countdown { display: grid; gap: 8px; padding: 16px; border: 1px solid #94a3b866; border-radius: 12px; }
+.countdown-note { font-size: .85rem; }
+
 body {
   margin: 0;
   font: 1rem/1.5 system-ui, sans-serif;

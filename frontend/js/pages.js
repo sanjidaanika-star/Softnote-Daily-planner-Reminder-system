@@ -2,6 +2,7 @@ import { clearToken, createExam, getDisplayName, getExam, getHistory, getPlan, g
 
 import { populateCourses } from "./courses.js";
 import { getMe } from "./api.js";
+import { countdownText, refreshCountdowns } from "./countdown.js";
 
 const byId = (id) => document.getElementById(id);
 const error = byId("error");
@@ -220,9 +221,13 @@ function renderDashboard(exams, history, now) {
   byId("exam-upcoming").textContent = exams.filter((exam) => exam.examDate >= today && exam.examDate <= horizon).length;
   byId("exam-completion").textContent = (planned ? Math.round(100 * completed / planned) : 0) + "%";
   byId("overall-minutes").textContent = completed + " of " + planned + " min";
-  const totalHours = next ? Math.max(0, Math.floor((calendarDate(next.examDate) - now) / 3_600_000)) : 0;
-  byId("exam-countdown").textContent = !next ? "—" : next.examDate === today ? "Today"
-    : Math.floor(totalHours / 24) + "d " + totalHours % 24 + "h";
+  const nextCountdown = byId("exam-countdown");
+  delete nextCountdown.dataset.countdownDate;
+  nextCountdown.textContent = "—";
+  if (next) {
+    nextCountdown.dataset.countdownDate = next.examDate;
+    nextCountdown.textContent = countdownText(next.examDate, now);
+  }
 
   const nextCard = byId("next-exam");
   nextCard.replaceChildren();
@@ -257,7 +262,7 @@ function renderDashboard(exams, history, now) {
     item.append(dashNode("span", academicLabel(exam), "dash-pill"), dashNode("h3", exam.title),
       dashNode("p", exam.examDate + " · " + daysLeft(exam.examDate, today)
         + " · " + exam.dailyMinutes + " min/day", "dash-muted"),
-      dashNode("p", exam.progress.percentage + "% complete", "dash-muted"), examProgress(exam), actions);
+      countdownNode(exam), dashNode("p", exam.progress.percentage + "% complete", "dash-muted"), examProgress(exam), actions);
     return item;
   }));
   const groups = new Map();
@@ -273,11 +278,57 @@ function renderDashboard(exams, history, now) {
       dashNode("h3", first.courseName || first.title));
     const links = dashNode("div", null, "dash-actions");
     for (const exam of assessments.sort((a, b) => a.examDate.localeCompare(b.examDate))) {
-      links.append(examLink(exam, "/plan.html", exam.assessment + " · " + exam.examDate));
+      const assessment = dashNode("div", null, "assessment-countdown");
+      assessment.append(examLink(exam, "/plan.html", exam.assessment + " · " + exam.examDate), countdownNode(exam));
+      links.append(assessment);
     }
     item.append(links);
     return item;
   }), "Your courses will appear here when you add an exam.");
+  renderChapterGroups(byId("active-chapters"), exams, false);
+  renderChapterGroups(byId("completed-chapters"), exams, true);
+}
+
+function countdownNode(exam) {
+  const node = dashNode("span", countdownText(exam.examDate), "live-countdown");
+  node.dataset.countdownDate = exam.examDate;
+  node.title = "Time until the start of " + exam.examDate + " in your local time";
+  return node;
+}
+
+function renderChapterGroups(container, exams, completed) {
+  const expanded = new Set([...container.querySelectorAll("details[open]")].map((node) => node.dataset.course));
+  const courses = new Map();
+  for (const exam of exams) {
+    for (const chapter of exam.plan.chapters || []) {
+      if (chapter.completed !== completed) continue;
+      const key = exam.semester + "|" + (exam.courseName || exam.title);
+      if (!courses.has(key)) courses.set(key, { exam, chapters: [] });
+      courses.get(key).chapters.push({ chapter, exam });
+    }
+  }
+  const groups = [...courses].map(([key, course]) => {
+    const details = dashNode("details");
+    details.dataset.course = key;
+    details.open = expanded.has(key);
+    const summary = dashNode("summary", (course.exam.courseName || course.exam.title)
+      + " · " + (course.exam.semester ? "Semester " + course.exam.semester : "Unassigned semester")
+      + " · " + course.chapters.length + (course.chapters.length === 1 ? " chapter" : " chapters"));
+    const list = dashNode("ul", null, "dash-list");
+    for (const { chapter, exam } of course.chapters) {
+      const item = dashNode("li");
+      item.append(dashNode("strong", chapter.name), dashNode("span", (exam.assessment || "OTHER") + " · " + exam.title, "dash-muted"),
+        dashNode("span", chapter.completedMinutes + " / " + chapter.requiredMinutes + " study min · "
+          + chapter.revisionCompletedMinutes + " revision min completed", "dash-muted"),
+        examLink(exam, "/plan.html", completed ? "View study history" : "Open study plan"));
+      list.append(item);
+    }
+    details.append(summary, list);
+    return details;
+  });
+  container.replaceChildren(...groups);
+  if (!groups.length) container.append(dashNode("p", completed ? "No completed chapters in this selection yet."
+    : "No chapters left to study in this selection.", "dash-muted"));
 }
 
 function academicLabel(exam) {
@@ -285,6 +336,7 @@ function academicLabel(exam) {
 }
 
 let dashboardExams = [], dashboardHistory = [];
+let dashboardLoading = false;
 
 function applyDashboardFilters() {
   const semester = byId("semester-filter").value;
@@ -302,6 +354,8 @@ function daysLeft(date, today) {
 }
 
 async function loadDashboard(message = "") {
+  if (dashboardLoading) return;
+  dashboardLoading = true;
   const status = byId("dashboard-status");
   const content = byId("dashboard-content");
   const errorPanel = byId("dashboard-error");
@@ -332,6 +386,8 @@ async function loadDashboard(message = "") {
     showError(failure);
     errorPanel.hidden = false;
     byId("dashboard-retry").focus();
+  } finally {
+    dashboardLoading = false;
   }
 }
 
@@ -486,7 +542,12 @@ async function loadPlan(focusSessionId) {
   try {
     const examId = selectedExam();
     byId("progress-link").href = "/progress.html?examId=" + encodeURIComponent(examId);
-    const { sessions, unscheduled } = await getPlan(examId);
+    const [plan, exam] = await Promise.all([getPlan(examId), getExam(examId)]);
+    const { sessions, unscheduled } = plan;
+    const countdown = byId("plan-countdown");
+    countdown.replaceChildren(dashNode("strong", exam.title + " · " + exam.assessment + " · " + exam.examDate), countdownNode(exam));
+    renderChapterGroups(byId("plan-active-chapters"), [{ ...exam, plan }], false);
+    renderChapterGroups(byId("plan-completed-chapters"), [{ ...exam, plan }], true);
     const editLink = byId("edit-exam-link");
     editLink.href = "/new-exam.html?examId=" + encodeURIComponent(examId);
     editLink.hidden = false;
@@ -568,6 +629,9 @@ if (signOut && requireLogin()) {
     }
   });
   if (byId("dashboard-retry")) {
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && requireLogin()) loadDashboard();
+    });
     for (let semester = 1; semester <= 12; semester++) {
       byId("semester-filter").add(new Option("Semester " + semester, semester));
     }
@@ -582,6 +646,19 @@ if (signOut && requireLogin()) {
 }
 
 if (byId("login-form")) setupLogin(byId("login-form"));
+if (byId("exam-countdown") || byId("plan-countdown")) {
+  let countdownDay = dateKey(new Date());
+  setInterval(() => {
+    if (document.hidden) return;
+    refreshCountdowns();
+    const today = dateKey(new Date());
+    if (today !== countdownDay) {
+      countdownDay = today;
+      if (byId("exam-countdown")) loadDashboard();
+    }
+  }, 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshCountdowns(); });
+}
 if (byId("register-form")) {
   handleSubmit(byId("register-form"), async (details) => {
     await register(details);
