@@ -284,7 +284,7 @@ function renderDashboard(exams, history, now) {
     }
     item.append(links);
     return item;
-  }), "Your courses will appear here when you add an exam.");
+  }), "No saved exams in this selection. Use the form above to add one.");
   renderChapterGroups(byId("active-chapters"), exams, false);
   renderChapterGroups(byId("completed-chapters"), exams, true);
 }
@@ -402,7 +402,20 @@ async function setupExam(form) {
   course.addEventListener("change", () => {
     if (course.value) title.value = course.value;
   });
-  const editing = new URLSearchParams(location.search).has("examId");
+  const parameters = new URLSearchParams(location.search);
+  const editing = parameters.has("examId");
+  if (!editing) {
+    const semester = parameters.get("semester");
+    const assessment = parameters.get("assessment");
+    const courseName = parameters.get("course");
+    if (/^(?:[1-9]|1[0-2])$/.test(semester || "")) form.elements.semester.value = semester;
+    if (["CT", "MID", "FINAL", "OTHER"].includes(assessment)) form.elements.assessment.value = assessment;
+    if (courseName && courseName.length <= 255) {
+      if (![...course.options].some((option) => option.value === courseName)) course.add(new Option(courseName, courseName));
+      course.value = courseName;
+      title.value = courseName + " · " + form.elements.assessment.selectedOptions[0].textContent;
+    }
+  }
   let examId;
   function updateRemoveButtons() {
     for (const button of chapters.querySelectorAll(".remove-chapter")) {
@@ -645,6 +658,16 @@ if (signOut && requireLogin()) {
     }
   });
   if (byId("dashboard-retry")) {
+    const courseForm = byId("course-exam-form");
+    populateCourses(byId("dashboard-course"));
+    for (let semester = 1; semester <= 12; semester++) {
+      byId("course-semester").add(new Option("Semester " + semester, semester));
+    }
+    courseForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const parameters = new URLSearchParams(new FormData(courseForm));
+      location.assign("/new-exam.html?" + parameters.toString());
+    });
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden && requireLogin()) loadDashboard();
     });

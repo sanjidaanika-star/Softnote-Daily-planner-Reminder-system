@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=all-forms-wide-1">
-  <script type="module" src="/js/pages.js?v=exam-save-1"></script>
+  <link rel="stylesheet" href="/css/style.css?v=course-actions-1">
+  <script type="module" src="/js/pages.js?v=course-actions-1"></script>
 </head>
 <body class="dashboard-page softnote-theme" id="dashboard-top">
   <a class="dash-skip" href="#dashboard-main">Skip to content</a>
@@ -46,7 +46,13 @@
       </dl>
       <section class="dash-card dash-section" aria-labelledby="courses-heading">
         <h2 id="courses-heading">Semester courses</h2>
-        <p class="dash-muted">Assign the semester and assessment when adding or editing an exam.</p>
+        <p class="dash-muted">Choose a semester, course and assessment. Add the exam date and chapters on the next page, then save to see its plan here.</p>
+        <form id="course-exam-form" class="course-exam-form">
+          <label>Semester <select name="semester" id="course-semester" required><option value="">Choose semester</option></select></label>
+          <label>Course <select name="course" id="dashboard-course" required><option value="">Choose course</option></select></label>
+          <label>Assessment <select name="assessment"><option value="CT">CT</option><option value="MID">Mid</option><option value="FINAL">Final</option></select></label>
+          <button type="submit" class="dash-primary">Add exam</button>
+        </form>
         <ul id="semester-courses" class="course-roadmap"></ul>
       </section>
       <div class="dash-focus dash-section">

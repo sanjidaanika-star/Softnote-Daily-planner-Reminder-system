@@ -1243,3 +1243,16 @@ th:first-child {
 @media (max-width: 600px) {
   #register-form, #reset-form, #note-upload, #quiz-start { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 }
+.course-exam-form {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(180px, 2fr) minmax(120px, 1fr);
+  gap: 16px;
+  padding: 20px;
+  margin-block: 20px 24px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.course-exam-form label { margin: 0; min-width: 0; }
+.course-exam-form > button { grid-column: 1 / -1; }
+@media (max-width: 760px) { .course-exam-form { grid-template-columns: minmax(0, 1fr); padding: 16px; } }
