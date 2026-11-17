@@ -37,14 +37,17 @@ public final class ExamDAO {
 
     private static long insert(Connection connection, Exam item) throws SQLException {
         String sql = """
-                INSERT INTO exams (user_id, title, exam_date, daily_minutes)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO exams (user_id, title, exam_date, daily_minutes, semester, course_name, assessment)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
         try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setLong(1, item.getUserId());
             statement.setString(2, item.getTitle());
             statement.setObject(3, item.getExamDate());
             statement.setInt(4, item.getDailyMinutes());
+            statement.setInt(5, item.getSemester());
+            statement.setString(6, item.getCourseName());
+            statement.setString(7, item.getAssessment());
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -96,11 +99,14 @@ public final class ExamDAO {
                 throw new IllegalStateException("Chapters with study history must stay in the exam");
             }
             try (PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE exams SET title = ?, exam_date = ?, daily_minutes = ? WHERE id = ?")) {
+                    "UPDATE exams SET title = ?, exam_date = ?, daily_minutes = ?, semester = ?, course_name = ?, assessment = ? WHERE id = ?")) {
                 statement.setString(1, updated.getTitle());
                 statement.setObject(2, updated.getExamDate());
                 statement.setInt(3, updated.getDailyMinutes());
-                statement.setLong(4, examId);
+                statement.setInt(4, updated.getSemester());
+                statement.setString(5, updated.getCourseName());
+                statement.setString(6, updated.getAssessment());
+                statement.setLong(7, examId);
                 statement.executeUpdate();
             }
             if (rebuild) {
@@ -170,7 +176,7 @@ public final class ExamDAO {
     }
 
     private <T> T withLockedExam(long examId, long userId, ExamOperation<T> operation) {
-        String sql = "SELECT id, user_id, title, exam_date, daily_minutes FROM exams WHERE id = ? AND user_id = ? FOR UPDATE";
+        String sql = "SELECT * FROM exams WHERE id = ? AND user_id = ? FOR UPDATE";
         try (Connection connection = database.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement lock = connection.prepareStatement(sql)) {
@@ -227,7 +233,7 @@ public final class ExamDAO {
     }
 
     public Optional<Exam> findById(long examId) {
-        String sql = "SELECT id, user_id, title, exam_date, daily_minutes FROM exams WHERE id = ?";
+        String sql = "SELECT * FROM exams WHERE id = ?";
         try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, examId);
@@ -240,13 +246,17 @@ public final class ExamDAO {
     }
 
     static Exam readExam(ResultSet rows) throws SQLException {
-        return new Exam(rows.getLong("id"), rows.getLong("user_id"), rows.getString("title"),
+        Exam exam = new Exam(rows.getLong("id"), rows.getLong("user_id"), rows.getString("title"),
                 rows.getObject("exam_date", LocalDate.class), rows.getInt("daily_minutes"));
+        exam.setSemester(rows.getInt("semester"));
+        exam.setCourseName(rows.getString("course_name"));
+        exam.setAssessment(rows.getString("assessment"));
+        return exam;
     }
 
     public List<Exam> findByUserId(long userId) {
         String sql = """
-                SELECT id, user_id, title, exam_date, daily_minutes
+                SELECT *
                 FROM exams WHERE user_id = ? ORDER BY id
                 """;
         List<Exam> items = new ArrayList<>();

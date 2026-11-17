@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administration | Softnote</title>
+  <link rel="stylesheet" href="/css/style.css"><script type="module" src="/js/admin.js"></script>
+</head>
+<body class="dashboard-page">
+  <aside class="dash-sidebar"><a class="dash-brand" href="/dashboard.html">Softnote</a>
+    <nav aria-label="Administration navigation"><a href="/dashboard.html">Study dashboard</a><a href="#users-heading">Accounts</a><a href="#reset-heading">Password resets</a><a href="#audit-heading">Activity log</a></nav>
+    <button id="sign-out" class="dash-secondary">Sign out</button>
+  </aside>
+  <main>
+    <div class="dash-top"><div><p class="dash-muted">Softnote administration</p><h1>Account overview</h1></div><button id="refresh" class="dash-secondary">Refresh</button></div>
+    <p id="message" role="status">Loading administration…</p><p id="error" role="alert" hidden></p>
+    <div id="admin-content" hidden>
+      <dl id="admin-stats" class="dash-stats"></dl>
+      <section class="dash-card dash-section"><h2 id="users-heading">Registered accounts</h2>
+        <p class="dash-muted">Newest 1,000 accounts. Search by name or email. Disabling an account ends its active sessions.</p>
+        <label>Find an account <input id="account-search" type="search" placeholder="Name or email"></label>
+        <div class="data-table-wrap"><table><thead><tr><th>Name / email</th><th>Joined</th><th>Role</th><th>Exams / notes</th><th>Status</th><th>Action</th></tr></thead><tbody id="accounts"></tbody></table></div>
+      </section>
+      <section class="dash-card dash-section"><h2 id="reset-heading">Password reset requests</h2>
+        <p class="dash-muted">Verify the account owner's identity before issuing a link. Share it privately with that owner. Each link expires in 30 minutes and works once.</p>
+        <p id="reset-result" role="status" hidden></p>
+        <div class="data-table-wrap"><table><thead><tr><th>Account</th><th>Requested</th><th>Status</th><th>Action</th></tr></thead><tbody id="resets"></tbody></table></div>
+      </section>
+      <section class="dash-card dash-section"><h2 id="audit-heading">Administration activity</h2><ul id="audit" class="dash-list"></ul></section>
+    </div>
+  </main>
+</body></html>

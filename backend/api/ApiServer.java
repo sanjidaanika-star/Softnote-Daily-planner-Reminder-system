@@ -10,6 +10,7 @@ import backend.db.DataAccessException;
 import backend.db.ExamDAO;
 import backend.db.SessionDAO;
 import backend.db.UserDAO;
+import backend.db.AdminDAO;
 import backend.model.Chapter;
 import backend.model.Exam;
 import backend.model.StudySession;
@@ -51,6 +52,9 @@ public final class ApiServer {
             Map.entry("/assets/bg-study.svg", "image/svg+xml"),
             Map.entry("/assets/hero-study.png", "image/png"),
             Map.entry("/index.html", "text/html"),
+            Map.entry("/admin.html", "text/html"), Map.entry("/js/admin.js", "text/javascript"),
+            Map.entry("/reset-password.html", "text/html"), Map.entry("/js/reset.js", "text/javascript"),
+            Map.entry("/report.html", "text/html"), Map.entry("/js/report.js", "text/javascript"),
             Map.entry("/quiz.html", "text/html"), Map.entry("/js/quiz.js", "text/javascript"),
             Map.entry("/js/courses.js", "text/javascript"),
             Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
@@ -64,6 +68,7 @@ public final class ApiServer {
     private final HttpServer server;
     private final ExecutorService requests = Executors.newFixedThreadPool(4);
     private final AuthService auth;
+    private final UserDAO users;
     private final ExamDAO exams;
     private final ChapterDAO chapters;
     private final PlanService plans;
@@ -85,7 +90,16 @@ public final class ApiServer {
         this.clock = clock;
         server = HttpServer.create(address, 0);
         server.setExecutor(requests);
-        auth = new AuthService(new UserDAO(database));
+        users = new UserDAO(database);
+        auth = new AuthService(users);
+        AdminRoutes administration = new AdminRoutes(new AdminDAO(database));
+        route("/admin/", "GET, POST, PATCH", exchange -> administration.handle(exchange, requireAdmin(exchange)));
+        route("/password-reset/request", "POST", administration::requestReset);
+        route("/password-reset/confirm", "POST", administration::resetPassword);
+        route("/me", "GET", exchange -> {
+            long id = requireUser(exchange);
+            reply(exchange, 200, "{\"id\":" + id + ",\"role\":" + Json.quote(users.access(id).role()) + "}");
+        });
         exams = new ExamDAO(database);
         chapters = new ChapterDAO(database);
         sessions = new SessionDAO(database);
@@ -208,7 +222,7 @@ public final class ApiServer {
         String json = exams.findByUserId(requireUser(exchange)).stream()
                 .map(exam -> "{\"id\":" + exam.getId() + ",\"title\":" + Json.quote(exam.getTitle())
                         + ",\"examDate\":" + Json.quote(exam.getExamDate().toString())
-                        + ",\"dailyMinutes\":" + exam.getDailyMinutes() + "}")
+                        + ",\"dailyMinutes\":" + exam.getDailyMinutes() + examMetadata(exam) + "}")
                 .collect(Collectors.joining(",", "[", "]"));
         reply(exchange, 200, json);
     }
@@ -239,6 +253,7 @@ public final class ApiServer {
         }
         reply(exchange, 200, "{\"id\":" + user.getId() + ",\"name\":" + Json.quote(user.getName())
                 + ",\"email\":" + Json.quote(user.getEmail())
+                + ",\"role\":" + Json.quote(users.access(user.getId()).role())
                 + ",\"token\":" + Json.quote(issueToken(user.getId())) + "}");
     }
 
@@ -251,7 +266,7 @@ public final class ApiServer {
         byte[] tokenBytes = new byte[32];
         random.nextBytes(tokenBytes);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
-        loginSessions.put(token, new LoginSession(userId, now));
+        loginSessions.put(token, new LoginSession(userId, now, users.access(userId).version()));
         return token;
     }
 
@@ -261,11 +276,23 @@ public final class ApiServer {
             String token = header.substring(7);
             LoginSession session = loginSessions.get(token);
             if (session != null && System.nanoTime() - session.startedAt < LOGIN_SESSION_NANOS) {
-                return session.userId;
+                UserDAO.Access access = users.access(session.userId);
+                if (access.active() && access.version() == session.version) return session.userId;
             }
             loginSessions.remove(token);
         }
         throw new HttpError(401, "A valid login token is required");
+    }
+
+    private long requireAdmin(HttpExchange exchange) {
+        long id = requireUser(exchange);
+        if (!"admin".equals(users.access(id).role())) throw new HttpError(403, "Administrator access is required");
+        return id;
+    }
+
+    private static String examMetadata(Exam exam) {
+        return ",\"semester\":" + exam.getSemester() + ",\"courseName\":" + Json.quote(exam.getCourseName())
+                + ",\"assessment\":" + Json.quote(exam.getAssessment());
     }
 
     private void createExam(HttpExchange exchange) throws IOException {
@@ -303,7 +330,7 @@ public final class ApiServer {
                     .collect(Collectors.joining(",", "[", "]"));
             reply(exchange, 200, "{\"id\":" + examId + ",\"title\":" + Json.quote(exam.getTitle())
                     + ",\"examDate\":" + Json.quote(exam.getExamDate().toString())
-                    + ",\"dailyMinutes\":" + exam.getDailyMinutes() + ",\"chapters\":" + chaptersJson + "}");
+                    + ",\"dailyMinutes\":" + exam.getDailyMinutes() + examMetadata(exam) + ",\"chapters\":" + chaptersJson + "}");
         } catch (java.util.NoSuchElementException exception) {
             throw new HttpError(404, exception.getMessage());
         } catch (IllegalStateException exception) {
@@ -321,7 +348,16 @@ public final class ApiServer {
         if (examDate.getYear() < 1000 || examDate.getYear() > 9999) {
             throw new IllegalArgumentException("examDate must be within MySQL's date range");
         }
-        return new Exam(id, userId, boundedText(body, "title"), examDate, positiveInt(body, "dailyMinutes"));
+        Exam exam = new Exam(id, userId, boundedText(body, "title"), examDate, positiveInt(body, "dailyMinutes"));
+        if (body.containsKey("semester")) {
+            if (!(body.get("semester") instanceof Long value) || value < 0 || value > 12) {
+                throw new IllegalArgumentException("Semester must be 0 to 12");
+            }
+            exam.setSemester(((Long) body.get("semester")).intValue());
+        }
+        if (body.containsKey("courseName")) exam.setCourseName(boundedText(body, "courseName"));
+        if (body.containsKey("assessment")) exam.setAssessment(text(body, "assessment"));
+        return exam;
     }
 
     private static List<ExamDAO.ChapterEdit> readChapterInputs(Map<?, ?> body) {
@@ -530,7 +566,7 @@ public final class ApiServer {
         void handle(HttpExchange exchange) throws IOException;
     }
 
-    private record LoginSession(long userId, long startedAt) {}
+    private record LoginSession(long userId, long startedAt, long version) {}
 
     static final class HttpError extends RuntimeException {
         private static final long serialVersionUID = 1L;

@@ -1,5 +1,19 @@
 # Softnote : Daily planner & Reminder system
 
+## Administration and semester planning
+
+For an existing installation, apply `database/phase9.sql` once before deploying this version. Fresh installations use `database/schema.sql`, which includes the same changes.
+
+Each exam can store a semester from 1 to 12, a course, and a CT, Mid, Final or Other assessment. Existing exams appear as unassigned until edited. Course semester assignments are chosen by the student. The dashboard filters all panels by semester and assessment. `/report.html` shows a chronological roadmap and study totals, with a Print / save PDF button.
+
+Administrators sign in through the regular login page and open `/admin.html`. The server checks the role and account status on every protected request. Registration always creates a user. To appoint an administrator, an operator must update the chosen existing account in MySQL using a prepared statement equivalent to `UPDATE users SET role = 'admin' WHERE email = ?`. The public API cannot assign administrator roles.
+
+The administration page shows account creation dates, active status, exam and note counts, quiz failure counts, password reset requests, and an audit log. Disabling a user immediately invalidates their sessions. Administrator accounts cannot be disabled through this panel.
+
+Password recovery uses an administrator assisted workflow. The user submits their email on `/reset-password.html`. After verifying the owner's identity outside the app, the administrator issues a 30 minute reset link and privately shares it with that owner. Tokens are stored as SHA-256 hashes and can be used once. Replacing a link invalidates the previous link. Saving a password invalidates all of that user's login sessions. Email delivery is manual because SMTP has not been configured.
+
+The hosted Java API reads `SOFTNOTE_DB_URL`, `SOFTNOTE_DB_USER`, and `SOFTNOTE_DB_PASSWORD`. Local development continues to use the ignored `config/database.properties`. The Dockerfile includes Connector/J 9.7.0 from Maven Central with a SHA-256 checksum. Vercel proxies API routes to Railway through `frontend/vercel.json`.
+
 Softnote is an adaptive exam study planner. Its goal is to help students organize exam preparation, track their progress, and adjust what they study next based on that progress.
 
 ## Tech stack

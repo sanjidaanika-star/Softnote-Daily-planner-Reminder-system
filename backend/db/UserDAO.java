@@ -59,4 +59,19 @@ public final class UserDAO {
     }
 
     public record Credentials(User user, byte[] passwordHash, byte[] passwordSalt) {}
+
+    public record Access(String role, boolean active, long version) {}
+
+    public Access access(long id) {
+        try (Connection connection = database.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT role, active, auth_version FROM users WHERE id = ?")) {
+            statement.setLong(1, id);
+            try (ResultSet rows = statement.executeQuery()) {
+                return rows.next() ? new Access(rows.getString(1), rows.getBoolean(2), rows.getLong(3))
+                        : new Access("user", false, -1);
+            }
+        } catch (SQLException exception) {
+            throw new DataAccessException("Could not check account access", exception);
+        }
+    }
 }

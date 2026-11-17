@@ -948,3 +948,35 @@ th:first-child {
 #wrong-answers li + li {
   margin-top: 12px;
 }
+/* Semester planning and administration share the dashboard's colours. */
+.academic-toolbar, .academic-fields { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; }
+.academic-toolbar { margin-bottom: 24px; }
+.academic-toolbar label, .academic-fields label { flex: 1 1 160px; margin: 0; }
+.academic-toolbar select, .academic-fields select { width: 100%; min-height: 44px; }
+.dashboard-page input, .dashboard-page select { max-width: 100%; background: var(--card); color: var(--text); }
+.course-roadmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; list-style: none; padding: 0; }
+.course-roadmap > li { padding: 16px; border: 1px solid #94a3b866; border-radius: 12px; }
+.data-table-wrap { max-width: 100%; overflow-x: auto; }
+.data-table-wrap table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table-wrap th, .data-table-wrap td { padding: 12px; border-bottom: 1px solid #94a3b866; vertical-align: top; white-space: normal; overflow-wrap: anywhere; }
+.data-table-wrap td:first-child { white-space: pre-line; }
+.data-table-wrap button { min-height: 44px; }
+.report-roadmap { list-style: none; padding: 0; }
+.report-roadmap > li { border-left: 3px solid var(--teal); padding: 0 0 24px 24px; }
+.report-roadmap time { font-weight: 700; }
+.dashboard-page [hidden] { display: none !important; }
+@media (max-width: 600px) {
+  .data-table-wrap table, .data-table-wrap tbody, .data-table-wrap tr, .data-table-wrap td { display: block; }
+  .data-table-wrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .data-table-wrap tr { border: 1px solid #94a3b866; border-radius: 12px; margin-bottom: 16px; padding: 8px; }
+  .data-table-wrap td { border: 0; padding: 6px; }
+  .data-table-wrap td::before { content: attr(data-label); display: block; font-size: .8rem; font-weight: 700; opacity: .8; }
+  .academic-toolbar > a { width: 100%; }
+}
+@media print {
+  .dash-sidebar, .academic-toolbar, #print-report, #report-retry { display: none !important; }
+  .dashboard-page { display: block; background: white; color: black; }
+  .dashboard-page main { max-width: none; margin: 0; padding: 0; }
+  .dash-card { box-shadow: none; break-inside: avoid; color: black; background: white; }
+  .report-roadmap > li { break-inside: avoid; }
+}

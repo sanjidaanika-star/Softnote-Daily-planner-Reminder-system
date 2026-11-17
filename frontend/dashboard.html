@@ -19,6 +19,8 @@
       <a href="#exams-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg>Exams</a>
       <a href="#progress-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M9 16v-4m5 4V8m5 8V5"/></svg>Progress</a>
       <a href="/quiz.html">Notes &amp; quizzes</a>
+      <a href="/report.html">Roadmap &amp; report</a>
+      <a href="/admin.html" id="admin-link" hidden>Administration</a>
     </nav>
     <button type="button" id="sign-out" class="dash-secondary">Sign out</button>
   </aside>
@@ -33,12 +35,22 @@
       <button id="dashboard-retry" class="dash-secondary" type="button">Retry</button>
     </div>
     <div id="dashboard-content" hidden>
+      <section class="dash-card academic-toolbar" aria-label="Study filters">
+        <label>Semester <select id="semester-filter"><option value="all">All semesters</option><option value="0">Not assigned</option></select></label>
+        <label>Assessment <select id="assessment-filter"><option value="all">All assessments</option><option value="CT">CT</option><option value="MID">Mid</option><option value="FINAL">Final</option><option value="OTHER">Other</option></select></label>
+        <a href="/report.html" class="dash-secondary">Study roadmap &amp; report</a>
+      </section>
       <dl class="dash-stats" aria-label="Study overview">
         <div class="dash-card" data-accent="0"><dt>Total exams</dt><dd id="exam-total"></dd></div>
         <div class="dash-card" data-accent="1"><dt>Upcoming exams</dt><dd id="exam-upcoming"></dd><small>Next 14 days</small></div>
         <div class="dash-card" data-accent="2"><dt>Next exam in</dt><dd id="exam-countdown"></dd><small>Until midnight on exam day</small></div>
         <div class="dash-card" data-accent="3"><dt>Overall completion</dt><dd id="exam-completion"></dd><small id="overall-minutes"></small></div>
       </dl>
+      <section class="dash-card dash-section" aria-labelledby="courses-heading">
+        <h2 id="courses-heading">Semester courses</h2>
+        <p class="dash-muted">Assign the semester and assessment when adding or editing an exam.</p>
+        <ul id="semester-courses" class="course-roadmap"></ul>
+      </section>
       <div class="dash-focus">
         <section class="dash-card" data-accent="0" aria-labelledby="today-heading">
           <h2 id="today-heading" tabindex="-1">Today’s study</h2>

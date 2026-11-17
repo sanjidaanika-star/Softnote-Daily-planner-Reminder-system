@@ -53,7 +53,7 @@ public final class SessionDAO {
     }
 
     public List<StudySession> saveIfAbsent(long examId, SchedulingStrategy strategy, LocalDate today) {
-        String lockExam = "SELECT id, user_id, title, exam_date, daily_minutes FROM exams WHERE id = ? FOR UPDATE";
+        String lockExam = "SELECT * FROM exams WHERE id = ? FOR UPDATE";
         try (Connection connection = database.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement lock = connection.prepareStatement(lockExam)) {

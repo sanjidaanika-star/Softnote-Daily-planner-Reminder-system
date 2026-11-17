@@ -43,13 +43,13 @@ public final class AuthService {
         byte[] salt = credentials == null ? new byte[SALT_BYTES] : credentials.passwordSalt();
         byte[] expected = credentials == null ? new byte[32] : credentials.passwordHash();
         boolean matches = MessageDigest.isEqual(expected, hash(salt, password));
-        if (!matches || credentials == null) {
+        if (!matches || credentials == null || !users.access(credentials.user().getId()).active()) {
             throw new IllegalArgumentException(INVALID_CREDENTIALS);
         }
         return credentials.user();
     }
 
-    private static byte[] hash(byte[] salt, String password) {
+    public static byte[] hash(byte[] salt, String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             digest.update(salt);

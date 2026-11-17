@@ -1,6 +1,7 @@
 import { clearToken, createExam, getDisplayName, getExam, getHistory, getPlan, getProgress, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
 
 import { populateCourses } from "./courses.js";
+import { getMe } from "./api.js";
 
 const byId = (id) => document.getElementById(id);
 const error = byId("error");
@@ -253,12 +254,44 @@ function renderDashboard(exams, history, now) {
     actions.append(examLink(exam, "/plan.html", "Study plan", "dash-primary"),
       examLink(exam, "/progress.html", "Progress & history"),
       examLink(exam, "/new-exam.html", "Edit exam"));
-    item.append(dashNode("h3", exam.title),
+    item.append(dashNode("span", academicLabel(exam), "dash-pill"), dashNode("h3", exam.title),
       dashNode("p", exam.examDate + " · " + daysLeft(exam.examDate, today)
         + " · " + exam.dailyMinutes + " min/day", "dash-muted"),
       dashNode("p", exam.progress.percentage + "% complete", "dash-muted"), examProgress(exam), actions);
     return item;
   }));
+  const groups = new Map();
+  for (const exam of exams) {
+    const key = exam.semester + "|" + (exam.courseName || exam.title);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(exam);
+  }
+  populateList("semester-courses", [...groups.values()].map((assessments) => {
+    const item = dashNode("li");
+    const first = assessments[0];
+    item.append(dashNode("small", first.semester ? "Semester " + first.semester : "Semester not assigned", "dash-muted"),
+      dashNode("h3", first.courseName || first.title));
+    const links = dashNode("div", null, "dash-actions");
+    for (const exam of assessments.sort((a, b) => a.examDate.localeCompare(b.examDate))) {
+      links.append(examLink(exam, "/plan.html", exam.assessment + " · " + exam.examDate));
+    }
+    item.append(links);
+    return item;
+  }), "Your courses will appear here when you add an exam.");
+}
+
+function academicLabel(exam) {
+  return (exam.semester ? "Semester " + exam.semester : "Unassigned semester") + " · " + (exam.assessment || "OTHER");
+}
+
+let dashboardExams = [], dashboardHistory = [];
+
+function applyDashboardFilters() {
+  const semester = byId("semester-filter").value;
+  const assessment = byId("assessment-filter").value;
+  const filtered = dashboardExams.filter((exam) => (semester === "all" || String(exam.semester) === semester)
+    && (assessment === "all" || exam.assessment === assessment));
+  renderDashboard(filtered, dashboardHistory, new Date());
 }
 
 function daysLeft(date, today) {
@@ -283,12 +316,15 @@ async function loadDashboard(message = "") {
   error.hidden = true;
   content.hidden = true;
   try {
-    const [exams, history] = await Promise.all([listExams(), getHistory()]);
+    const [exams, history, me] = await Promise.all([listExams(), getHistory(), getMe()]);
+    byId("admin-link").hidden = me.role !== "admin";
     const details = await Promise.all(exams.map(async (exam, index) => {
       const [plan, progress] = await Promise.all([getPlan(exam.id), getProgress(exam.id)]);
       return { ...exam, plan, progress, accent: index % 6 };
     }));
-    renderDashboard(details, history, now);
+    dashboardExams = details;
+    dashboardHistory = history;
+    applyDashboardFilters();
     content.hidden = false;
     status.textContent = message;
   } catch (failure) {
@@ -304,6 +340,9 @@ async function setupExam(form) {
   const course = byId("exam-course");
   const title = form.elements.namedItem("title");
   populateCourses(course);
+  for (let semester = 1; semester <= 12; semester++) {
+    byId("exam-semester").add(new Option("Semester " + semester, semester));
+  }
   course.addEventListener("change", () => {
     if (course.value) title.value = course.value;
   });
@@ -340,8 +379,9 @@ async function setupExam(form) {
     try {
       examId = selectedExam();
       const exam = await getExam(examId);
-      for (const key of ["title", "examDate", "dailyMinutes"]) form.elements.namedItem(key).value = exam[key];
-      course.value = Array.from(course.options).some((option) => option.value === exam.title) ? exam.title : "";
+      for (const key of ["title", "examDate", "dailyMinutes", "semester", "assessment"]) form.elements.namedItem(key).value = exam[key];
+      course.value = exam.courseName || "";
+      if (exam.courseName && course.value !== exam.courseName) course.add(new Option(exam.courseName, exam.courseName, true, true));
       exam.chapters.forEach((chapter) => addChapter(false, chapter));
       form.querySelector('[type="submit"]').textContent = "Save changes";
       form.hidden = false;
@@ -357,6 +397,9 @@ async function setupExam(form) {
       title: fields.title,
       examDate: fields.examDate,
       dailyMinutes: Number(fields.dailyMinutes),
+      semester: Number(fields.semester),
+      assessment: fields.assessment,
+      courseName: fields.courseName,
       chapters: Array.from(chapters.children, (row) => ({
         id: row.dataset.chapterId ? Number(row.dataset.chapterId) : undefined,
         name: row.querySelector('[name="chapterName"]').value,
@@ -525,6 +568,11 @@ if (signOut && requireLogin()) {
     }
   });
   if (byId("dashboard-retry")) {
+    for (let semester = 1; semester <= 12; semester++) {
+      byId("semester-filter").add(new Option("Semester " + semester, semester));
+    }
+    byId("semester-filter").addEventListener("change", applyDashboardFilters);
+    byId("assessment-filter").addEventListener("change", applyDashboardFilters);
     byId("dashboard-retry").addEventListener("click", () => loadDashboard());
     loadDashboard();
   }

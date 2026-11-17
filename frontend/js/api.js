@@ -76,6 +76,21 @@ async function request(path, { method = "GET", body, protectedCall = false, raw,
   return data;
 }
 
+export function getMe() { return request("/me", { protectedCall: true }); }
+export function adminGet(section) { return request("/admin/" + section, { protectedCall: true }); }
+export function setAccountActive(id, active) {
+  return request("/admin/users/" + id + "/active", { method: "PATCH", body: { active }, protectedCall: true });
+}
+export function issueReset(id) {
+  return request("/admin/resets/" + id + "/issue", { method: "POST", body: {}, protectedCall: true });
+}
+export function requestPasswordReset(email) {
+  return request("/password-reset/request", { method: "POST", body: { email } });
+}
+export function confirmPasswordReset(token, password) {
+  return request("/password-reset/confirm", { method: "POST", body: { token, password } });
+}
+
 export function listNotes() {
   return request("/notes", { protectedCall: true });
 }

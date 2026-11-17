@@ -8,6 +8,9 @@ public final class Exam {
     private String title;
     private LocalDate examDate;
     private int dailyMinutes;
+    private int semester;
+    private String courseName = "";
+    private String assessment = "OTHER";
 
     public Exam(long id, long userId, String title, LocalDate examDate, int dailyMinutes) {
         setId(id);
@@ -63,6 +66,31 @@ public final class Exam {
 
     public int getDailyMinutes() {
         return dailyMinutes;
+    }
+
+    public int getSemester() { return semester; }
+
+    public void setSemester(int semester) {
+        if (semester < 0 || semester > 12) throw new IllegalArgumentException("Semester must be 0 to 12");
+        this.semester = semester;
+    }
+
+    public String getCourseName() { return courseName; }
+
+    public void setCourseName(String courseName) {
+        if (courseName == null || courseName.length() > 255) {
+            throw new IllegalArgumentException("Course must be at most 255 characters");
+        }
+        this.courseName = courseName.strip();
+    }
+
+    public String getAssessment() { return assessment; }
+
+    public void setAssessment(String assessment) {
+        if (!java.util.Set.of("CT", "MID", "FINAL", "OTHER").contains(assessment)) {
+            throw new IllegalArgumentException("Assessment must be CT, MID, FINAL, or OTHER");
+        }
+        this.assessment = assessment;
     }
 
     public void setDailyMinutes(int dailyMinutes) {

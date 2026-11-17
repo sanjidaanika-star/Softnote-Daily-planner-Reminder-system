@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    { "source": "/me", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/me" },
+    { "source": "/admin/:path*", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/admin/:path*" },
+    { "source": "/password-reset/:path*", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/password-reset/:path*" },
     { "source": "/login", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/login" },
     { "source": "/register", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/register" },
     { "source": "/exams", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/exams" },
