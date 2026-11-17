@@ -1267,7 +1267,7 @@ th:first-child {
   .public-home.softnote-theme header { padding-block: 16px; }
   .public-home.softnote-theme header nav { font-size: 13px; gap: 12px; }
   .public-home.softnote-theme header nav > a { display: inline-flex; align-items: center; min-height: 44px; }
-  .public-home.softnote-theme header .primary-button { background: transparent; color: var(--action); }
+  .public-home.softnote-theme header .primary-button { min-height: 44px; background: transparent; color: var(--action); }
   .public-home.softnote-theme main { flex: 1; padding-block: 24px 28px; }
   .public-home.softnote-theme .hero {
     display: grid;
