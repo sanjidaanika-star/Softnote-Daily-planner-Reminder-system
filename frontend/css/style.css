@@ -846,7 +846,8 @@ th:first-child {
 .dash-list > li { padding-block: 10px; border-top: 1px solid var(--line); }
 .dash-list strong, .dash-list .dash-muted, .dash-list a { display: block; }
 .dash-today-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.dash-today-item > div { border-inline-start: 3px solid var(--exam-accent); padding-inline-start: 10px; }
+.dash-today-item > div { min-width: 0; border-inline-start: 3px solid var(--exam-accent); padding-inline-start: 10px; }
+.dash-today-item > button { flex: none; min-width: 64px; white-space: nowrap; }
 .dash-muted { font-size: .875rem; }
 
 #next-exam { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
