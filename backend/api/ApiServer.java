@@ -11,6 +11,12 @@ import backend.db.ExamDAO;
 import backend.db.SessionDAO;
 import backend.db.UserDAO;
 import backend.db.AdminDAO;
+import backend.db.ReminderDAO;
+import backend.reminder.ReminderConfig;
+import backend.reminder.ReminderService;
+import backend.reminder.GmailSender;
+import backend.reminder.WebPushSender;
+import backend.reminder.BrevoSender;
 import backend.model.Chapter;
 import backend.model.Exam;
 import backend.model.StudySession;
@@ -64,6 +70,8 @@ public final class ApiServer {
             Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),
             Map.entry("/exams.html", "text/html"), Map.entry("/study.html", "text/html"),
             Map.entry("/chapters.html", "text/html"),
+            Map.entry("/reminders.html", "text/html"), Map.entry("/js/reminders.js", "text/javascript"),
+            Map.entry("/sw.js", "text/javascript"),
             Map.entry("/plan.html", "text/html"), Map.entry("/progress.html", "text/html"), Map.entry("/css/style.css", "text/css"),
             Map.entry("/js/api.js", "text/javascript"), Map.entry("/js/pages.js", "text/javascript"));
     private static final int MAX_BODY_BYTES = 65_536;
@@ -79,6 +87,7 @@ public final class ApiServer {
     private final PlanService plans;
     private final SessionDAO sessions;
     private final Clock clock;
+    private final ReminderService reminders;
     private final SecureRandom random = new SecureRandom();
     private final LinkedHashMap<String, LoginSession> loginSessions = new LinkedHashMap<>();
 
@@ -97,6 +106,14 @@ public final class ApiServer {
         server.setExecutor(requests);
         users = new UserDAO(database);
         auth = new AuthService(users);
+        ReminderConfig reminderConfig = ReminderConfig.load();
+        ReminderDAO reminderDao = new ReminderDAO(database);
+        reminders = new ReminderService(reminderDao,
+                "smtp".equals(reminderConfig.value("mail.provider", "brevo")) ? new GmailSender(reminderConfig) : new BrevoSender(reminderConfig),
+                new WebPushSender(reminderConfig), clock);
+        ReminderRoutes reminderRoutes = new ReminderRoutes(reminderDao, reminderConfig, clock);
+        route("/reminders", "GET", exchange -> reminderRoutes.handle(exchange, requireUser(exchange)));
+        route("/reminders/", "GET, POST, PUT, PATCH, DELETE", exchange -> reminderRoutes.handle(exchange, requireUser(exchange)));
         AdminRoutes administration = new AdminRoutes(new AdminDAO(database));
         route("/admin/", "GET, POST, PATCH", exchange -> administration.handle(exchange, requireAdmin(exchange)));
         route("/password-reset/request", "POST", administration::requestReset);
@@ -140,10 +157,12 @@ public final class ApiServer {
 
     public void start() {
         server.start();
+        reminders.start();
     }
 
     public void stop() {
         server.stop(2);
+        reminders.close();
         requests.shutdownNow();
         plans.shutdown();
     }

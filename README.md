@@ -1,5 +1,48 @@
 # Softnote : Daily planner & Reminder system
 
+## Study reminders and email notifications
+
+Open **Reminders** from the dashboard bell or sidebar. Choose a daily time and IANA time zone, enable unfinished-study and/or next-day exam reminders, and save. Every scheduled reminder appears in the account's notification inbox. Daily reminders exclude completed and missed sessions. Exam reminders cover all assessment types including CT, Mid and Final. The server checks once per minute and catches up within two hours of today's chosen time. It must remain running. Settings are opt-in, and are isolated per account.
+
+Apply `database/phase10.sql` once to an existing database, using a migration account with CREATE permission. Fresh installs include these tables in `database/schema.sql`. The migration only adds reminder settings, browser subscriptions, reminder events and delivery records. It does not edit exam or session data.
+
+Copy `config/reminders.properties.example` to `config/reminders.properties` (ignored by git). On Railway, use service Variables instead:
+
+| Variable | Value |
+| --- | --- |
+| `SOFTNOTE_APP_URL` | `https://softnote-daily-planner-reminder-sys.vercel.app` |
+| `SOFTNOTE_MAIL_PROVIDER` | `brevo` (default, HTTPS API) or `smtp` |
+| `SOFTNOTE_MAIL_FROM` | Verified Brevo sender email |
+| `SOFTNOTE_BREVO_APIKEY` | Brevo API key; never put it in frontend code |
+| `SOFTNOTE_PUSH_PUBLICKEY` | Stable VAPID public key |
+| `SOFTNOTE_PUSH_PRIVATEKEY` | Stable VAPID private key, server only |
+| `SOFTNOTE_PUSH_SUBJECT` | Contact URI, for example `mailto:your-email@example.com` |
+
+For **Brevo**, create a free account at [Brevo](https://www.brevo.com/), verify a sender under Senders & Domains, create an **API key** (not an SMTP key), and set the variables above on the Java backend service. Complete any account review required by the provider. A custom authenticated domain improves deliverability; free sender addresses may be replaced by Brevo with a compliant address. Recipients can still use Gmail. The [Free plan](https://help.brevo.com/hc/en-us/articles/208580669-FAQs-What-are-the-limits-of-the-Free-plan) currently allows 300 sends/day. Keys stay on the server. Email goes only to the signed-in account's registered email; reserved test addresses cannot enable email delivery.
+
+For **Gmail SMTP**, set `SOFTNOTE_MAIL_PROVIDER=smtp`, `SOFTNOTE_SMTP_USER`, `SOFTNOTE_SMTP_FROM` (the same sender Gmail), and `SOFTNOTE_SMTP_PASSWORD` (a dedicated [App Password](https://support.google.com/accounts/answer/185833), which requires 2-Step Verification). The defaults are `smtp.gmail.com:587`, mandatory STARTTLS and certificate identity validation. **Railway Free, Trial and Hobby disable outbound SMTP**; use the HTTPS provider on those plans. See [Railway's outbound networking documentation](https://docs.railway.com/networking/outbound-networking).
+
+Generate VAPID keys once locally, after compiling:
+
+```powershell
+java -cp "out;lib/*" backend.reminder.GeneratePushKeys
+```
+
+The keys are written to the ignored `config/reminders.properties`, without printing the private key. Set the contact URI and public app URL. Transfer the keys securely to the backend environment and retain them across deployments. On the Reminders page, select **Enable this browser**, grant browser notification permission, check browser delivery and save settings. This installs a local service worker, without intercepting or caching existing requests. Push can arrive with the tab closed when supported by the browser/OS; it requires permission, internet and supported background delivery. Signing out unsubscribes the browser. Other devices remain independent.
+
+Use **Send a test reminder**, then **Refresh** to inspect delivery status. `sent` means the SMTP/API/push service accepted the message, not that it was placed in the Gmail inbox or displayed by the OS. Check Spam and provider logs if needed. Failed deliveries retry at five-minute intervals, up to three attempts. Stale browser subscriptions are removed. The persistent outbox and unique event keys prevent routine repeat sends across restarts; SMTP is at-least-once and an interrupted connection after acceptance can still result in a duplicate. Brevo requests use a stable idempotency key.
+
+New bearer-protected endpoints are `GET /reminders`, `PUT /reminders/settings`, `POST` and `DELETE /reminders/subscription`, `POST /reminders/test`, and `PATCH /reminders/{id}/read`. The last route returns 404 for another account's reminder. Test requests are limited to one per account per minute. No recipient override is accepted.
+
+Run the new integration tests against `softnote_test` after applying the migration:
+
+```powershell
+javac --release 17 -cp "lib/*" -d out (Get-ChildItem backend -Recurse -Filter *.java).FullName
+java -cp "out;lib/*;$connectorJar" backend.test.ReminderTest
+```
+
+Tests use fake transports and never send real email/push. They cover time zones, invalid inputs, authentication, inbox ownership, deduplication, completed-session exclusion, opt-out, retries, expired subscriptions, AES128GCM encryption and VAPID signing. Additional jars and their Maven coordinates/checksums are documented in `docs/reminder-dependencies.md`; their license notices are included in the jars.
+
 ## Administration and semester planning
 
 For an existing installation, apply `database/phase9.sql` once before deploying this version. Fresh installations use `database/schema.sql`, which includes the same changes.

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=dashboard-hub-1">
-  <script type="module" src="/js/pages.js?v=dashboard-hub-1"></script>
+  <link rel="stylesheet" href="/css/style.css?v=reminders-1">
+  <script type="module" src="/js/pages.js?v=reminders-1"></script>
 </head>
 <body class="dashboard-page softnote-theme" data-view="dashboard" data-title="Dashboard">
   <a class="dash-skip" href="#dashboard-main">Skip to content</a>
@@ -19,14 +19,14 @@
       <a href="/study.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8m-8 5h8m-8 5h5"/></svg>Study sessions</a><a href="/quiz.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM14 3v5h5M8 12h8m-8 4h6"/></svg>Notes &amp; quizzes</a>
       <a href="/report.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h12M8 12h12M8 20h12"/><circle cx="3" cy="4" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="20" r="1"/></svg>Roadmap &amp; report</a>
       <a href="/chapters.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Completed chapters</a>
-      <a href="/admin.html" id="admin-link" hidden><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM9 12l2 2 4-4"/></svg>Administration</a>
+      <a href="/reminders.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>Reminders</a><a href="/admin.html" id="admin-link" hidden><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM9 12l2 2 4-4"/></svg>Administration</a>
     <button type="button" id="sign-out" class="dash-secondary">Sign out</button></nav>
 
   </aside>
   <main id="dashboard-main">
     <div class="dash-top">
       <div><p id="dashboard-date"></p><h1 id="dashboard-greeting">Dashboard</h1></div>
-      <a class="dash-primary" href="/new-exam.html">New exam</a>
+      <div class="dash-actions"><a class="dash-secondary reminder-bell" href="/reminders.html" aria-label="Reminders"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span>Reminders</span><span id="reminder-unread" hidden></span></a><a class="dash-primary" href="/new-exam.html">New exam</a></div>
     </div>
 <section class="quick-options" aria-label="Quick options"><a class="quick-option" href="/new-exam.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New exam</span></a><a class="quick-option" href="/exams.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg><span>My exams</span></a><a class="quick-option" href="/study.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8m-8 5h8m-8 5h5"/></svg><span>Study sessions</span></a><a class="quick-option" href="/chapters.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg><span>Completed chapters</span></a><a class="quick-option" href="/report.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h12M8 12h12M8 20h12"/><circle cx="3" cy="4" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="20" r="1"/></svg><span>Roadmap &amp; report</span></a><a class="quick-option" href="/quiz.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM14 3v5h5M8 12h8m-8 4h6"/></svg><span>Notes &amp; quizzes</span></a><a id="admin-option" class="quick-option" href="/admin.html" hidden><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM9 12l2 2 4-4"/></svg><span>Administration</span></a></section>
     <p id="dashboard-status" role="status">Loading your study data…</p>

@@ -7,4 +7,5 @@
 !lib/
 !lib/gson-*.jar
 !lib/pdfbox-app-*.jar
+!lib/*.jar
 **/*.class

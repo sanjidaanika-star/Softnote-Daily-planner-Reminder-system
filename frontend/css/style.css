@@ -1334,6 +1334,31 @@ th:first-child {
 .pie-swatch { display: block; width: 12px; height: 12px; }
 .pie-empty-label { grid-column: 1 / -1; margin: 0; }
 .workspace-menu-toggle { display: none; }
+.reminder-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.reminder-layout > * { min-width: 0; }
+.reminder-time-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.reminder-time-fields label { min-width: 0; }
+.reminder-checks { margin: 20px 0; padding: 16px; border: 1px solid var(--line); border-radius: 10px; }
+.reminder-checks label { display: flex; align-items: flex-start; gap: 10px; margin: 12px 0; }
+.reminder-checks input[type="checkbox"] { width: 20px; height: 20px; margin: 4px 0 0; flex: none; accent-color: var(--action); }
+.reminder-checks p { font-size: .875rem; }
+.reminder-address, .reminder-item p { overflow-wrap: anywhere; }
+.reminder-items { list-style: none; margin: 0; padding: 0; }
+.reminder-item { padding-block: 20px; border-bottom: 1px solid var(--line); }
+.reminder-item h3 { font-size: 1rem; margin: 0; }
+.reminder-item small { display: block; }
+.reminder-inbox-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.reminder-inbox-top h2, .reminder-inbox-top p { margin: 0 0 8px; }
+.reminder-bell { display: inline-flex; align-items: center; gap: 8px; }
+#reminder-unread { background: var(--action); color: #fff; border-radius: 20px; min-width: 22px; padding: 1px 6px; font-size: 12px; text-align: center; }
+#reminder-error { border: 1px solid #ad4e36; padding: 12px 16px; border-radius: 8px; }
+.reminder-empty { padding-block: 20px; color: var(--secondary-text); }
+@media (max-width: 900px) { .reminder-layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 480px) {
+  .reminder-time-fields { grid-template-columns: minmax(0, 1fr); }
+  .reminder-bell > span:not(#reminder-unread) { display: none; }
+  .dash-top > .dash-actions { margin-top: 0; }
+}
 body[data-view="study"] #catch-list { margin-top: 16px; }
 body[data-view="study"] section[aria-labelledby="catch-heading"] { margin-top: 20px; }
 @media (max-width: 1050px) {

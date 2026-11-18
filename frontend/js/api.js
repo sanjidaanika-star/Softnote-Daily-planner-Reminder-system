@@ -18,6 +18,11 @@ export function getToken() {
 }
 
 export function clearToken() {
+  // Stop delivery to this browser when its signed-in account changes or signs out.
+  if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistration("/").then(async (registration) => {
+    const subscription = await registration?.pushManager?.getSubscription();
+    if (subscription) await subscription.unsubscribe();
+  }).catch(() => {});
   try {
     sessionStorage.removeItem(tokenKey);
     sessionStorage.removeItem(nameKey);
@@ -77,6 +82,14 @@ async function request(path, { method = "GET", body, protectedCall = false, raw,
 }
 
 export function getMe() { return request("/me", { protectedCall: true }); }
+export function getReminders() { return request("/reminders", { protectedCall: true }); }
+export function saveReminders(settings) { return request("/reminders/settings", { method: "PUT", body: settings, protectedCall: true }); }
+export function connectPush(subscription) { return request("/reminders/subscription", { method: "POST", body: {
+  endpoint: subscription.endpoint, p256dh: subscription.keys.p256dh, auth: subscription.keys.auth,
+}, protectedCall: true }); }
+export function disconnectPush(endpoint) { return request("/reminders/subscription", { method: "DELETE", body: { endpoint }, protectedCall: true }); }
+export function testReminder() { return request("/reminders/test", { method: "POST", body: {}, protectedCall: true }); }
+export function readReminder(id) { return request("/reminders/" + encodeURIComponent(id) + "/read", { method: "PATCH", body: {}, protectedCall: true }); }
 export function adminGet(section) { return request("/admin/" + section, { protectedCall: true }); }
 export function setAccountActive(id, active) {
   return request("/admin/users/" + id + "/active", { method: "PATCH", body: { active }, protectedCall: true });

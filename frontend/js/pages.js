@@ -1,4 +1,4 @@
-import { clearToken, createExam, getDisplayName, getExam, getHistory, getPlan, getProgress, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
+import { clearToken, createExam, getDisplayName, getExam, getHistory, getPlan, getProgress, getReminders, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
 
 import { populateCourses } from "./courses.js";
 import { getMe } from "./api.js";
@@ -794,4 +794,18 @@ if (menuButton) {
     const open = byId("workspace-nav").classList.toggle("is-open");
     menuButton.setAttribute("aria-expanded", String(open));
   });
+}
+
+if (byId("reminder-unread")) {
+  const refreshReminderCount = async () => {
+    if (!requireLogin()) return;
+    try {
+      const { unread } = await getReminders();
+      byId("reminder-unread").textContent = unread > 99 ? "99+" : String(unread);
+      byId("reminder-unread").hidden = unread === 0;
+      document.querySelector(".reminder-bell").setAttribute("aria-label", "Reminders, " + unread + " unread");
+    } catch { /* Reminder availability must not block the study dashboard. */ }
+  };
+  refreshReminderCount();
+  setInterval(() => { if (!document.hidden) refreshReminderCount(); }, 60000);
 }

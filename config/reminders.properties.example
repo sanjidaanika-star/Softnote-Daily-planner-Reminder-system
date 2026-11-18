@@ -1,0 +1,16 @@
+# Copy to reminders.properties. Keep secrets out of git.
+app.url=https://softnote-daily-planner-reminder-sys.vercel.app
+mail.provider=brevo
+mail.from=
+brevo.apiKey=
+# Alternative: mail.provider=smtp. Railway Trial/Free/Hobby blocks SMTP.
+# Gmail requires 2-Step Verification and a dedicated App Password.
+smtp.host=smtp.gmail.com
+smtp.port=587
+smtp.user=
+smtp.password=
+smtp.from=
+# Generate once with backend.reminder.GeneratePushKeys; keep stable across deployments.
+push.publicKey=
+push.privateKey=
+push.subject=
