@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=mobile-home-1">
-  <script type="module" src="/js/pages.js?v=course-actions-1"></script>
+  <link rel="stylesheet" href="/css/style.css?v=weekly-readable-1">
+  <script type="module" src="/js/pages.js?v=weekly-readable-1"></script>
 </head>
 <body class="dashboard-page softnote-theme" id="dashboard-top">
   <a class="dash-skip" href="#dashboard-main">Skip to content</a>
@@ -78,7 +78,8 @@
       </div>
       <section class="dash-card dash-section" data-accent="4" aria-labelledby="week-heading">
         <h2 id="week-heading">This week</h2>
-        <ol id="week-days" class="dash-week"></ol>
+        <p class="dash-muted week-scroll-hint">Swipe or scroll sideways to see all seven days.</p>
+        <ol id="week-days" class="dash-week" tabindex="0" aria-labelledby="week-heading"></ol>
       </section>
       <div class="dash-focus dash-section">
         <section class="dash-card" data-accent="3" aria-labelledby="catch-heading">

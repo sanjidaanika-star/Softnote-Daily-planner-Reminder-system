@@ -167,9 +167,14 @@ function renderWeek(exams, now) {
     for (const session of day.sessions) {
       const item = dashNode("li", null, "dash-week-session");
       item.dataset.accent = session.exam.accent;
-      item.append(dashNode("strong", session.chapterName),
-        dashNode("span", session.exam.title, "dash-muted"),
-        dashNode("span", session.plannedMinutes + " min · " + statusLabels[session.status], "dash-pill"));
+      item.dataset.status = session.status;
+      const course = examLink(session.exam, "/plan.html", session.exam.title, "week-course-title");
+      course.title = session.exam.title;
+      course.setAttribute("aria-label", "Open study plan for " + session.exam.title);
+      const meta = dashNode("div", null, "week-session-meta");
+      meta.append(dashNode("span", session.plannedMinutes + " min", "week-session-minutes"),
+        dashNode("span", statusLabels[session.status], "dash-pill week-session-status"));
+      item.append(dashNode("strong", session.chapterName), course, meta);
       sessions.append(item);
     }
     column.append(heading, dashNode("span", shortDate.format(day.date) + " · " + day.minutes + " min", "dash-muted"), svg);
