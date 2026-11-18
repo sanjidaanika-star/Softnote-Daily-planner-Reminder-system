@@ -172,6 +172,10 @@ export function updateExam(examId, exam) {
   });
 }
 
+export function deleteExam(examId) {
+  return request("/exams/" + encodeURIComponent(examId), { method: "DELETE", protectedCall: true });
+}
+
 export function getPlan(examId) {
   return request("/plan?examId=" + encodeURIComponent(examId), { protectedCall: true });
 }

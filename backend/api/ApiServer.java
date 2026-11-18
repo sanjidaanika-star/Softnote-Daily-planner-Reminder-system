@@ -135,7 +135,7 @@ public final class ApiServer {
         route("/register", "POST", this::register);
         route("/login", "POST", this::login);
         route("/exams", "GET, POST", this::handleExams);
-        route("/exams/", "GET, PUT", this::handleExam);
+        route("/exams/", "GET, PUT, DELETE", this::handleExam);
         route("/plan", "GET", this::plan);
         route("/progress", "GET", this::progress);
         route("/history", "GET", this::history);
@@ -339,6 +339,11 @@ public final class ApiServer {
         }
         long examId = Long.parseLong(path.substring("/exams/".length()));
         try {
+            if ("DELETE".equals(exchange.getRequestMethod())) {
+                exams.delete(examId, userId);
+                reply(exchange, 200, "{\"message\":\"Exam and study plan deleted\"}");
+                return;
+            }
             if ("PUT".equals(exchange.getRequestMethod())) {
                 Map<?, ?> body = requestBody(exchange);
                 exams.update(readExamInput(body, examId, userId), readChapterInputs(body), LocalDate.now(clock));

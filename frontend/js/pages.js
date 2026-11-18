@@ -1,4 +1,4 @@
-import { clearToken, createExam, getDisplayName, getExam, getHistory, getPlan, getProgress, getReminders, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
+import { clearToken, createExam, deleteExam, getDisplayName, getExam, getHistory, getPlan, getProgress, getReminders, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
 
 import { populateCourses } from "./courses.js";
 import { getMe } from "./api.js";
@@ -263,12 +263,62 @@ function renderExamList(exams, now) {
     actions.append(examLink(exam, "/plan.html", "Study plan", "dash-primary"),
       examLink(exam, "/progress.html", "Progress & history"),
       examLink(exam, "/new-exam.html", "Edit exam"));
+    const remove = dashNode("button", "Delete", "dash-secondary dash-danger");
+    remove.type = "button";
+    remove.setAttribute("aria-label", "Delete exam for " + exam.title);
+    remove.addEventListener("click", () => openDeleteExam(exam, remove));
+    actions.append(remove);
     item.append(dashNode("span", academicLabel(exam), "dash-pill"), dashNode("h3", exam.title),
       dashNode("p", exam.examDate + " · " + daysLeft(exam.examDate, today)
         + " · " + exam.dailyMinutes + " min/day", "dash-muted"),
       countdownNode(exam), dashNode("p", exam.progress.percentage + "% complete", "dash-muted"), examProgress(exam), actions);
     return item;
   }));
+}
+
+let examToDelete = null;
+let deleteTrigger = null;
+let deletingExam = false;
+function openDeleteExam(exam, trigger) {
+  if (deletingExam) return;
+  examToDelete = exam;
+  deleteTrigger = trigger;
+  byId("delete-exam-name").textContent = exam.title;
+  byId("delete-exam-error").hidden = true;
+  byId("delete-exam-dialog").showModal();
+}
+
+if (byId("delete-exam-dialog")) {
+  const dialog = byId("delete-exam-dialog");
+  byId("delete-exam-cancel").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("cancel", (event) => { if (deletingExam) event.preventDefault(); });
+  dialog.addEventListener("close", () => {
+    if (deleteTrigger?.isConnected) deleteTrigger.focus();
+    examToDelete = null;
+  });
+  byId("delete-exam-confirm").addEventListener("click", async () => {
+    if (!examToDelete || deletingExam) return;
+    const exam = examToDelete;
+    deletingExam = true;
+    byId("delete-exam-confirm").disabled = true;
+    byId("delete-exam-cancel").disabled = true;
+    byId("delete-exam-confirm").textContent = "Deleting…";
+    byId("delete-exam-error").hidden = true;
+    try {
+      await deleteExam(exam.id);
+      dialog.close();
+      await loadDashboard("Exam and study plan deleted.");
+      byId("exams-heading").focus();
+    } catch (failure) {
+      byId("delete-exam-error").textContent = failure.message;
+      byId("delete-exam-error").hidden = false;
+    } finally {
+      deletingExam = false;
+      byId("delete-exam-confirm").disabled = false;
+      byId("delete-exam-cancel").disabled = false;
+      byId("delete-exam-confirm").textContent = "Delete permanently";
+    }
+  });
 }
 
 function renderSemesterCourses(exams) {

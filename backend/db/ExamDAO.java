@@ -69,6 +69,33 @@ public final class ExamDAO {
                 (connection, exam) -> new ExamDetails(exam, ChapterDAO.findByExamId(connection, examId)));
     }
 
+    /** The owner check and all dependent deletes share the same transaction and exam lock. */
+    public void delete(long examId, long userId) {
+        withLockedExam(examId, userId, (connection, exam) -> {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "DELETE FROM reminders WHERE user_id = ? AND target_path = ?")) {
+                statement.setLong(1, userId);
+                statement.setString(2, "/plan.html?examId=" + examId);
+                statement.executeUpdate();
+            }
+            for (String sql : List.of(
+                    "DELETE FROM unscheduled_sessions WHERE session_id IN (SELECT id FROM study_sessions WHERE exam_id = ?)",
+                    "DELETE FROM study_sessions WHERE exam_id = ?",
+                    "DELETE FROM chapters WHERE exam_id = ?")) {
+                try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                    statement.setLong(1, examId);
+                    statement.executeUpdate();
+                }
+            }
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM exams WHERE id = ? AND user_id = ?")) {
+                statement.setLong(1, examId);
+                statement.setLong(2, userId);
+                statement.executeUpdate();
+            }
+            return null;
+        });
+    }
+
     public void update(Exam updated, List<ChapterEdit> edits, LocalDate today) {
         long examId = updated.getId();
         withLockedExam(examId, updated.getUserId(), (connection, current) -> {

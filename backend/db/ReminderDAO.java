@@ -166,6 +166,10 @@ public final class ReminderDAO {
     }
     public boolean allowed(Delivery delivery) {
         Account account=account(delivery.userId());
+        if (delivery.path().startsWith("/plan.html?examId=")) {
+            long examId=Long.parseLong(delivery.path().substring("/plan.html?examId=".length()));
+            if(query("SELECT id FROM exams WHERE id=? AND user_id=?",examId,delivery.userId()).isEmpty()) return false;
+        }
         return "email".equals(delivery.channel()) ? account.settings().emailEnabled()
                 : account.settings().pushEnabled() && delivery.endpoint()!=null;
     }

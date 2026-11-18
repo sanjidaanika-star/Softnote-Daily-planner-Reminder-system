@@ -1334,6 +1334,16 @@ th:first-child {
 .pie-swatch { display: block; width: 12px; height: 12px; }
 .pie-empty-label { grid-column: 1 / -1; margin: 0; }
 .workspace-menu-toggle { display: none; }
+.softnote-theme { --danger: #8c3227; }
+.dashboard-page .dash-danger { color: var(--danger); border: 1px solid currentColor; background: transparent; }
+.dashboard-page .dash-danger:hover { background: var(--surface); }
+.delete-exam-dialog { width: min(460px, calc(100% - 32px)); max-height: calc(100svh - 32px); overflow: auto; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); color: var(--text); }
+.delete-exam-dialog::backdrop { background: rgba(15, 23, 19, .45); }
+.delete-exam-dialog h2 { margin-top: 0; }
+#delete-exam-name { font-weight: 650; overflow-wrap: anywhere; }
+#delete-exam-error { color: var(--danger); }
+.dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+@media (prefers-color-scheme: dark) { .softnote-theme { --danger: #ffb4a6; } }
 .reminder-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .reminder-layout > * { min-width: 0; }
 .reminder-time-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }

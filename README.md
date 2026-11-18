@@ -125,6 +125,7 @@ The server listens on `127.0.0.1:8080`. Pass a port and an optional properties f
 | `POST /register` | `name`, `email`, `password` | `201` with user ID |
 | `POST /login` | `email`, `password` | `200` with user profile and token |
 | `GET /exams` | Bearer token | `200` with the signed-in user's exams |
+| `DELETE /exams/{id}` | Bearer token; owner only | `200` after deleting the exam, chapters, sessions/history, unscheduled work and linked exam reminders in one transaction; other owners get `404` |
 | `POST /exams` | `title`, ISO `examDate`, integer `dailyMinutes`, and a `chapters` array of objects with `name`, `difficulty`, and integer `estimatedMinutes` | `201` with exam ID |
 | `GET /plan?examId=...` | Exam ID from the creation response | `200` with `sessions` and `unscheduled` arrays. The first request generates the plan. |
 | `PATCH /sessions/{id}/status` | `status` set to `completed` or `missed` | `200` with the updated session |
@@ -132,6 +133,8 @@ The server listens on `127.0.0.1:8080`. Pass a port and an optional properties f
 | `GET /history` | Bearer token | `200` with completed and missed sessions, newest session date first |
 
 Send JSON bodies with `Content-Type: application/json`. Send the login token in `Authorization: Bearer <token>` for exam, plan, status, progress, and history requests. Tokens are held in memory for up to eight hours and are cleared when the server stops.
+
+To remove an incorrect exam/plan, open **My exams → Delete**. A confirmation explains that deletion is permanent. Cancel keeps the exam unchanged. Uploaded notes, quizzes and other exams are preserved. Run `backend.test.DeleteExamTest` against `softnote_test` to verify ownership, related-row cleanup and rollback on failure.
 
 Marking a session missed preserves the original row for history. Replacement sessions use free time starting today. Progress counts replacement and unscheduled minutes once, so a missed session does not inflate the total.
 

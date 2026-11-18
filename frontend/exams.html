@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My exams | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=reminders-1">
-  <script type="module" src="/js/pages.js?v=reminders-1"></script>
+  <link rel="stylesheet" href="/css/style.css?v=delete-exam-1">
+  <script type="module" src="/js/pages.js?v=delete-exam-1"></script>
 </head>
 <body class="dashboard-page softnote-theme" data-view="exams" data-title="My exams">
   <a class="dash-skip" href="#dashboard-main">Skip to content</a>
@@ -56,5 +56,15 @@
       </section>
     </div>
   </main>
+  <dialog id="delete-exam-dialog" class="delete-exam-dialog" aria-labelledby="delete-exam-heading" aria-describedby="delete-exam-description">
+    <h2 id="delete-exam-heading">Delete this exam?</h2>
+    <p id="delete-exam-name"></p>
+    <p id="delete-exam-description">This permanently deletes the exam, its chapters, all study sessions and study history, and unscheduled work. This cannot be undone. Your uploaded notes and quizzes stay saved.</p>
+    <p id="delete-exam-error" role="alert" hidden></p>
+    <div class="dialog-actions">
+      <button id="delete-exam-cancel" class="dash-secondary" type="button" autofocus>Cancel</button>
+      <button id="delete-exam-confirm" class="dash-secondary dash-danger" type="button">Delete permanently</button>
+    </div>
+  </dialog>
 </body>
 </html>
