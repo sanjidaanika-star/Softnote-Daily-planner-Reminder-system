@@ -4,99 +4,46 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=weekly-readable-1">
-  <script type="module" src="/js/pages.js?v=weekly-readable-1"></script>
+  <link rel="stylesheet" href="/css/style.css?v=dashboard-hub-1">
+  <script type="module" src="/js/pages.js?v=dashboard-hub-1"></script>
 </head>
-<body class="dashboard-page softnote-theme" id="dashboard-top">
+<body class="dashboard-page softnote-theme" data-view="dashboard" data-title="Dashboard">
   <a class="dash-skip" href="#dashboard-main">Skip to content</a>
   <aside class="dash-sidebar">
     <a class="dash-brand" href="/dashboard.html"><svg class="brand-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg>Softnote</a>
-    <nav aria-label="Dashboard navigation">
-      <a href="#dashboard-top" aria-current="page"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-      <a href="#exams-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg>Exams</a>
-      <a href="#progress-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M9 16v-4m5 4V8m5 8V5"/></svg>Progress</a>
-      <a href="/quiz.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM14 3v5h5M8 12h8m-8 4h6"/></svg>Notes &amp; quizzes</a>
+    <button type="button" id="workspace-menu-toggle" class="workspace-menu-toggle" aria-controls="workspace-nav" aria-expanded="false">Menu</button>
+    <nav id="workspace-nav" class="workspace-nav" aria-label="Study navigation">
+      <a href="/dashboard.html" aria-current="page"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a href="/exams.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg>Exams</a>
+
+      <a href="/study.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8m-8 5h8m-8 5h5"/></svg>Study sessions</a><a href="/quiz.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM14 3v5h5M8 12h8m-8 4h6"/></svg>Notes &amp; quizzes</a>
       <a href="/report.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h12M8 12h12M8 20h12"/><circle cx="3" cy="4" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="20" r="1"/></svg>Roadmap &amp; report</a>
-      <a href="#completed-chapters-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Completed chapters</a>
+      <a href="/chapters.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Completed chapters</a>
       <a href="/admin.html" id="admin-link" hidden><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM9 12l2 2 4-4"/></svg>Administration</a>
-    </nav>
-    <button type="button" id="sign-out" class="dash-secondary">Sign out</button>
+    <button type="button" id="sign-out" class="dash-secondary">Sign out</button></nav>
+
   </aside>
   <main id="dashboard-main">
     <div class="dash-top">
-      <div><p id="dashboard-date"></p><h1 id="dashboard-greeting">Study dashboard</h1></div>
-      <a class="dash-primary" href="/new-exam.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New exam</a>
+      <div><p id="dashboard-date"></p><h1 id="dashboard-greeting">Dashboard</h1></div>
+      <a class="dash-primary" href="/new-exam.html">New exam</a>
     </div>
-    <p id="dashboard-status" role="status">Loading your dashboard…</p>
+<section class="quick-options" aria-label="Quick options"><a class="quick-option" href="/new-exam.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New exam</span></a><a class="quick-option" href="/exams.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg><span>My exams</span></a><a class="quick-option" href="/study.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8m-8 5h8m-8 5h5"/></svg><span>Study sessions</span></a><a class="quick-option" href="/chapters.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg><span>Completed chapters</span></a><a class="quick-option" href="/report.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h12M8 12h12M8 20h12"/><circle cx="3" cy="4" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="20" r="1"/></svg><span>Roadmap &amp; report</span></a><a class="quick-option" href="/quiz.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM14 3v5h5M8 12h8m-8 4h6"/></svg><span>Notes &amp; quizzes</span></a><a id="admin-option" class="quick-option" href="/admin.html" hidden><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM9 12l2 2 4-4"/></svg><span>Administration</span></a></section>
+    <p id="dashboard-status" role="status">Loading your study data…</p>
     <div id="dashboard-error" class="dash-card" hidden>
       <p id="error" role="alert" hidden></p>
       <button id="dashboard-retry" class="dash-secondary" type="button">Retry</button>
     </div>
     <div id="dashboard-content" hidden>
-      <section class="dash-card academic-toolbar" aria-label="Study filters">
-        <label>Semester <select id="semester-filter"><option value="all">All semesters</option><option value="0">Not assigned</option></select></label>
-        <label>Assessment <select id="assessment-filter"><option value="all">All assessments</option><option value="CT">CT</option><option value="MID">Mid</option><option value="FINAL">Final</option><option value="OTHER">Other</option></select></label>
-        <a href="/report.html" class="dash-secondary">Study roadmap &amp; report</a>
-      </section>
-      <dl class="dash-stats" aria-label="Study overview">
+<dl class="dash-stats" aria-label="Study overview">
         <div class="dash-card" data-accent="0"><dt>Total exams</dt><dd id="exam-total"></dd></div>
         <div class="dash-card" data-accent="1"><dt>Upcoming exams</dt><dd id="exam-upcoming"></dd><small>Next 14 days</small></div>
         <div class="dash-card" data-accent="2"><dt>Next exam in</dt><dd id="exam-countdown" class="live-countdown"></dd><small>Until midnight at the start of exam day, in your local time</small></div>
         <div class="dash-card" data-accent="3"><dt>Overall completion</dt><dd id="exam-completion"></dd><small id="overall-minutes"></small></div>
-      </dl>
-      <section class="dash-card dash-section" aria-labelledby="courses-heading">
-        <h2 id="courses-heading">Semester courses</h2>
-        <p class="dash-muted">Choose a semester, course and assessment. Add the exam date and chapters on the next page, then save to see its plan here.</p>
-        <form id="course-exam-form" class="course-exam-form">
-          <label>Semester <select name="semester" id="course-semester" required><option value="">Choose semester</option></select></label>
-          <label>Course <select name="course" id="dashboard-course" required><option value="">Choose course</option></select></label>
-          <label>Assessment <select name="assessment"><option value="CT">CT</option><option value="MID">Mid</option><option value="FINAL">Final</option></select></label>
-          <button type="submit" class="dash-primary">Add exam</button>
-        </form>
-        <ul id="semester-courses" class="course-roadmap"></ul>
-      </section>
-      <div class="dash-focus dash-section">
-        <section class="dash-card" aria-labelledby="active-chapters-heading">
-          <h2 id="active-chapters-heading">Chapters to study</h2>
-          <div id="active-chapters" class="chapter-groups"></div>
-        </section>
-        <section class="dash-card" aria-labelledby="completed-chapters-heading">
-          <h2 id="completed-chapters-heading">Completed chapters</h2>
-          <p class="dash-muted">Open a course to see completed chapters. Revision sessions stay in your plan.</p>
-          <div id="completed-chapters" class="chapter-groups"></div>
-        </section>
-      </div>
-      <div class="dash-focus">
-        <section class="dash-card" data-accent="0" aria-labelledby="today-heading">
-          <h2 id="today-heading" tabindex="-1">Today’s study</h2>
-          <ul id="today-sessions" class="dash-list"></ul>
-        </section>
-        <section class="dash-card" data-accent="1" aria-labelledby="next-heading">
-          <h2 id="next-heading">Next exam</h2>
-          <div id="next-exam"></div>
-        </section>
-      </div>
-      <section class="dash-card dash-section" data-accent="4" aria-labelledby="week-heading">
-        <h2 id="week-heading">This week</h2>
-        <p class="dash-muted week-scroll-hint">Swipe or scroll sideways to see all seven days.</p>
-        <ol id="week-days" class="dash-week" tabindex="0" aria-labelledby="week-heading"></ol>
-      </section>
-      <div class="dash-focus dash-section">
-        <section class="dash-card" data-accent="3" aria-labelledby="catch-heading">
-          <h2 id="catch-heading">Catch-up</h2>
-          <p id="catch-count" class="dash-muted"></p>
-          <ul id="catch-list" class="dash-list"></ul>
-        </section>
-        <section class="dash-card" data-accent="5" aria-labelledby="progress-heading">
-          <h2 id="progress-heading" tabindex="-1">Progress</h2>
-          <ul id="dashboard-progress" class="dash-list"></ul>
-        </section>
-      </div>
-      <section class="dash-section" aria-labelledby="exams-heading">
-        <h2 id="exams-heading" tabindex="-1">Your exams</h2>
-        <p id="exam-empty" class="dash-muted" hidden>Add your first exam to create a study plan.</p>
-        <ul id="exam-list" class="dash-exams"></ul>
-      </section>
+      </dl><section class="analytics-grid" aria-label="Study analytics">
+  <article class="dash-card"><h2>Session status</h2><p class="dash-muted">Saved sessions by status</p><div id="session-chart" class="analytics-chart"></div></article>
+  <article class="dash-card"><h2>Chapter completion</h2><p class="dash-muted">Main study completion</p><div id="chapter-chart" class="analytics-chart"></div></article>
+</section>
     </div>
   </main>
 </body>

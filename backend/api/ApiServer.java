@@ -62,6 +62,8 @@ public final class ApiServer {
             Map.entry("/js/countdown.js", "text/javascript"),
             Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
             Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),
+            Map.entry("/exams.html", "text/html"), Map.entry("/study.html", "text/html"),
+            Map.entry("/chapters.html", "text/html"),
             Map.entry("/plan.html", "text/html"), Map.entry("/progress.html", "text/html"), Map.entry("/css/style.css", "text/css"),
             Map.entry("/js/api.js", "text/javascript"), Map.entry("/js/pages.js", "text/javascript"));
     private static final int MAX_BODY_BYTES = 65_536;

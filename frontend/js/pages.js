@@ -215,7 +215,7 @@ function renderCatchUp(exams, history) {
   populateList("catch-list", items, "You’re all caught up.");
 }
 
-function renderDashboard(exams, history, now) {
+function renderOverview(exams, now) {
   const today = dateKey(now);
   const horizon = dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 14));
   const next = exams.filter((exam) => exam.examDate >= today)
@@ -234,6 +234,12 @@ function renderDashboard(exams, history, now) {
     nextCountdown.textContent = countdownText(next.examDate, now);
   }
 
+  renderAnalytics(exams);
+}
+
+function renderNextExam(exams, now) {
+  const today = dateKey(now);
+  const next = exams.filter((exam) => exam.examDate >= today).sort((a, b) => a.examDate.localeCompare(b.examDate))[0];
   const nextCard = byId("next-exam");
   nextCard.replaceChildren();
   if (next) {
@@ -245,17 +251,10 @@ function renderDashboard(exams, history, now) {
     nextCard.append(dashNode("p", "No upcoming exam.", "dash-muted"));
   }
 
-  renderToday(exams, today);
-  renderWeek(exams, now);
-  renderCatchUp(exams, history);
-  populateList("dashboard-progress", exams.map((exam) => {
-    const item = dashNode("li");
-    item.dataset.accent = exam.accent;
-    item.append(dashNode("strong", exam.title),
-      dashNode("span", exam.progress.completedMinutes + " of " + exam.progress.totalPlannedMinutes + " min", "dash-muted"),
-      examProgress(exam));
-    return item;
-  }), "Add an exam to track your progress.");
+}
+
+function renderExamList(exams, now) {
+  const today = dateKey(now);
   byId("exam-empty").hidden = exams.length > 0;
   byId("exam-list").replaceChildren(...exams.map((exam) => {
     const item = dashNode("li", null, "dash-card dash-exam");
@@ -270,6 +269,9 @@ function renderDashboard(exams, history, now) {
       countdownNode(exam), dashNode("p", exam.progress.percentage + "% complete", "dash-muted"), examProgress(exam), actions);
     return item;
   }));
+}
+
+function renderSemesterCourses(exams) {
   const groups = new Map();
   for (const exam of exams) {
     const key = exam.semester + "|" + (exam.courseName || exam.title);
@@ -290,10 +292,79 @@ function renderDashboard(exams, history, now) {
     item.append(links);
     return item;
   }), "No saved exams in this selection. Use the form above to add one.");
-  renderChapterGroups(byId("active-chapters"), exams, false);
-  renderChapterGroups(byId("completed-chapters"), exams, true);
 }
 
+function renderDashboard(exams, history, now) {
+  switch (document.body.dataset.view) {
+    case "exams":
+      renderSemesterCourses(exams);
+      renderExamList(exams, now);
+      break;
+    case "study":
+      renderToday(exams, dateKey(now));
+      renderNextExam(exams, now);
+      renderWeek(exams, now);
+      renderCatchUp(exams, history);
+      break;
+    case "chapters":
+      renderChapterGroups(byId("active-chapters"), exams, false);
+      renderChapterGroups(byId("completed-chapters"), exams, true);
+      break;
+    default:
+      renderOverview(exams, now);
+  }
+}
+
+function renderAnalytics(exams) {
+  const sessions = exams.flatMap((exam) => exam.plan.sessions);
+  const chapters = exams.flatMap((exam) => exam.plan.chapters || []);
+  renderPie("session-chart", [
+    { label: "Completed", value: sessions.filter((session) => session.status === "completed").length, colour: "#285a42" },
+    { label: "Planned", value: sessions.filter((session) => session.status === "planned").length, colour: "#a5bda0" },
+    { label: "Missed", value: sessions.filter((session) => session.status === "missed").length, colour: "#b67559" },
+  ], "No study sessions yet.");
+  renderPie("chapter-chart", [
+    { label: "Completed", value: chapters.filter((chapter) => chapter.completed).length, colour: "#285a42" },
+    { label: "In progress", value: chapters.filter((chapter) => !chapter.completed).length, colour: "#c6ba99" },
+  ], "No chapters yet.");
+}
+
+function renderPie(id, segments, emptyMessage) {
+  const container = byId(id);
+  const total = segments.reduce((sum, segment) => sum + segment.value, 0);
+  const svg = dashboardSvg("svg", {
+    viewBox: "0 0 120 120", role: "img",
+    "aria-label": total ? segments.map((segment) => segment.label + ": " + segment.value).join(", ") : emptyMessage,
+  });
+  let angle = -Math.PI / 2;
+  if (!total) svg.append(dashboardSvg("circle", { cx: 60, cy: 60, r: 50, class: "pie-empty" }));
+  for (const segment of segments) {
+    if (!segment.value) continue;
+    const end = angle + 2 * Math.PI * segment.value / total;
+    if (segment.value === total) {
+      svg.append(dashboardSvg("circle", { cx: 60, cy: 60, r: 50, fill: segment.colour }));
+    } else {
+      const x1 = 60 + 50 * Math.cos(angle), y1 = 60 + 50 * Math.sin(angle);
+      const x2 = 60 + 50 * Math.cos(end), y2 = 60 + 50 * Math.sin(end);
+      const large = end - angle > Math.PI ? 1 : 0;
+      svg.append(dashboardSvg("path", {
+        d: "M60 60 L" + x1 + " " + y1 + " A50 50 0 " + large + " 1 " + x2 + " " + y2 + " Z",
+        fill: segment.colour,
+      }));
+    }
+    angle = end;
+  }
+  const legend = dashNode("ul", null, "pie-legend");
+  for (const segment of segments) {
+    const item = dashNode("li");
+    const swatch = dashboardSvg("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", class: "pie-swatch" });
+    swatch.append(dashboardSvg("rect", { width: 12, height: 12, rx: 3, fill: segment.colour }));
+    item.append(swatch, dashNode("span", segment.label), dashNode("strong", String(segment.value)));
+    legend.append(item);
+  }
+  container.replaceChildren(svg, legend);
+  if (!total) container.append(dashNode("p", emptyMessage, "dash-muted pie-empty-label"));
+}
 function countdownNode(exam) {
   const node = dashNode("span", countdownText(exam.examDate), "live-countdown");
   node.dataset.countdownDate = exam.examDate;
@@ -344,8 +415,8 @@ let dashboardExams = [], dashboardHistory = [];
 let dashboardLoading = false;
 
 function applyDashboardFilters() {
-  const semester = byId("semester-filter").value;
-  const assessment = byId("assessment-filter").value;
+  const semester = byId("semester-filter")?.value ?? "all";
+  const assessment = byId("assessment-filter")?.value ?? "all";
   const filtered = dashboardExams.filter((exam) => (semester === "all" || String(exam.semester) === semester)
     && (assessment === "all" || exam.assessment === assessment));
   renderDashboard(filtered, dashboardHistory, new Date());
@@ -368,15 +439,16 @@ async function loadDashboard(message = "") {
   const hours = now.getHours();
   const greeting = hours < 12 ? "Good morning" : hours < 18 ? "Good afternoon" : "Good evening";
   const name = getDisplayName();
-  byId("dashboard-greeting").textContent = greeting + (name ? ", " + name : "");
+  byId("dashboard-greeting").textContent = document.body.dataset.view === "dashboard" ? greeting + (name ? ", " + name : "") : document.body.dataset.title;
   byId("dashboard-date").textContent = dashboardDate.format(now);
-  status.textContent = "Loading your dashboard…";
+  status.textContent = "Loading your study data…";
   errorPanel.hidden = true;
   error.hidden = true;
   content.hidden = true;
   try {
     const [exams, history, me] = await Promise.all([listExams(), getHistory(), getMe()]);
     byId("admin-link").hidden = me.role !== "admin";
+    if (byId("admin-option")) byId("admin-option").hidden = me.role !== "admin";
     const details = await Promise.all(exams.map(async (exam, index) => {
       const [plan, progress] = await Promise.all([getPlan(exam.id), getProgress(exam.id)]);
       return { ...exam, plan, progress, accent: index % 6 };
@@ -657,30 +729,23 @@ if (signOut && requireLogin()) {
   });
   window.addEventListener("pageshow", (event) => {
     if (event.persisted && requireLogin()) {
-      if (byId("exam-list")) loadDashboard();
+      if (byId("dashboard-retry")) loadDashboard();
       if (byId("plan-table")) loadPlan();
       if (byId("history-table")) location.reload();
     }
   });
   if (byId("dashboard-retry")) {
-    const courseForm = byId("course-exam-form");
-    populateCourses(byId("dashboard-course"));
-    for (let semester = 1; semester <= 12; semester++) {
-      byId("course-semester").add(new Option("Semester " + semester, semester));
-    }
-    courseForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const parameters = new URLSearchParams(new FormData(courseForm));
-      location.assign("/new-exam.html?" + parameters.toString());
-    });
+    if (byId("course-exam-form")) setupCoursePicker();
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden && requireLogin()) loadDashboard();
     });
-    for (let semester = 1; semester <= 12; semester++) {
-      byId("semester-filter").add(new Option("Semester " + semester, semester));
+    if (byId("semester-filter")) {
+      for (let semester = 1; semester <= 12; semester++) {
+        byId("semester-filter").add(new Option("Semester " + semester, semester));
+      }
+      byId("semester-filter").addEventListener("change", applyDashboardFilters);
+      byId("assessment-filter").addEventListener("change", applyDashboardFilters);
     }
-    byId("semester-filter").addEventListener("change", applyDashboardFilters);
-    byId("assessment-filter").addEventListener("change", applyDashboardFilters);
     byId("dashboard-retry").addEventListener("click", () => loadDashboard());
     loadDashboard();
   }
@@ -690,7 +755,7 @@ if (signOut && requireLogin()) {
 }
 
 if (byId("login-form")) setupLogin(byId("login-form"));
-if (byId("exam-countdown") || byId("plan-countdown")) {
+if (byId("dashboard-retry") || byId("plan-countdown")) {
   let countdownDay = dateKey(new Date());
   setInterval(() => {
     if (document.hidden) return;
@@ -698,7 +763,7 @@ if (byId("exam-countdown") || byId("plan-countdown")) {
     const today = dateKey(new Date());
     if (today !== countdownDay) {
       countdownDay = today;
-      if (byId("exam-countdown")) loadDashboard();
+      if (byId("dashboard-retry")) loadDashboard();
     }
   }, 1000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshCountdowns(); });
@@ -707,5 +772,26 @@ if (byId("register-form")) {
   handleSubmit(byId("register-form"), async (details) => {
     await register(details);
     location.replace("/login.html?registered=1");
+  });
+}
+
+function setupCoursePicker() {
+  const courseForm = byId("course-exam-form");
+  populateCourses(byId("dashboard-course"));
+  for (let semester = 1; semester <= 12; semester++) {
+    byId("course-semester").add(new Option("Semester " + semester, semester));
+  }
+  courseForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const parameters = new URLSearchParams(new FormData(courseForm));
+    location.assign("/new-exam.html?" + parameters.toString());
+  });
+}
+
+const menuButton = byId("workspace-menu-toggle");
+if (menuButton) {
+  menuButton.addEventListener("click", () => {
+    const open = byId("workspace-nav").classList.toggle("is-open");
+    menuButton.setAttribute("aria-expanded", String(open));
   });
 }
