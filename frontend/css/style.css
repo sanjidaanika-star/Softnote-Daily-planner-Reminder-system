@@ -285,17 +285,21 @@ th:first-child {
 
 .public-home .hero {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
+  gap: 48px;
   min-height: 520px;
-  padding: 48px;
-  border-radius: 16px;
-  background: #123d40 url("/assets/hero-study.png") center / cover no-repeat;
-  color: white;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
 }
 
 .hero-copy {
-  width: min(46%, 29rem);
+  width: 100%;
 }
+
+.home-photo { min-width: 0; overflow: hidden; border-radius: 18px; }
+.home-photo img { display: block; width: 100%; height: 520px; object-fit: cover; object-position: 68% center; }
 
 .public-home .hero h1 {
   font-size: clamp(32px, 4vw, 52px);
@@ -332,7 +336,7 @@ th:first-child {
 }
 
 .sign-in-visual {
-  background: #123d40 url("/assets/hero-study.png") right center / cover no-repeat;
+  background: #123d40 url("/assets/hero-study.jpg") right center / cover no-repeat;
 }
 
 .sign-in-card {
@@ -458,7 +462,7 @@ th:first-child {
   margin-bottom: 24px;
   padding: clamp(16px, 4vw, 40px);
   border-radius: 12px;
-  background: #123d40 url("/assets/hero-study.png") right center / cover no-repeat;
+  background: #123d40 url("/assets/hero-study.jpg") right center / cover no-repeat;
 }
 
 .workspace-banner h1 {
@@ -581,7 +585,7 @@ th:first-child {
   margin-bottom: 24px;
   padding: clamp(20px, 5vw, 48px);
   border-radius: 14px;
-  background: #123d40 url("/assets/hero-study.png") right center / cover no-repeat;
+  background: #123d40 url("/assets/hero-study.jpg") right center / cover no-repeat;
   color: white;
 }
 
@@ -1256,22 +1260,28 @@ th:first-child {
 .course-exam-form label { margin: 0; min-width: 0; }
 .course-exam-form > button { grid-column: 1 / -1; }
 @media (max-width: 760px) { .course-exam-form { grid-template-columns: minmax(0, 1fr); padding: 16px; } }
-.home-actions { display: none; }
+.home-actions { display: block; margin-top: 28px; }
+.home-actions .primary-button { gap: 24px; }
+.home-actions svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 719px) {
   .public-page.softnote-theme header { gap: 8px; padding-block: 12px; }
   .public-page.softnote-theme .wordmark { gap: 6px; font-size: 18px; }
   .public-page.softnote-theme .brand-symbol { width: 22px; height: 22px; flex-basis: 22px; }
   .public-page.softnote-theme header nav { gap: 10px; font-size: 12px; }
   .public-page.softnote-theme header .primary-button { min-height: 40px; padding: 7px 10px; }
-  .public-home.softnote-theme { min-height: 100svh; display: flex; flex-direction: column; }
+  .public-home.softnote-theme { min-height: 100svh; display: block; }
   .public-home.softnote-theme header { padding-block: 16px; }
-  .public-home.softnote-theme header nav { font-size: 13px; gap: 12px; }
-  .public-home.softnote-theme header nav > a { display: inline-flex; align-items: center; min-height: 44px; }
-  .public-home.softnote-theme header .primary-button { min-height: 44px; background: transparent; color: var(--action); }
-  .public-home.softnote-theme main { flex: 1; padding-block: 24px 28px; }
+  .public-home.softnote-theme .wordmark { font-size: 21px; gap: 8px; }
+  .public-home.softnote-theme .brand-symbol { width: 25px; height: 25px; flex-basis: 25px; }
+  .public-home.softnote-theme header nav { font-size: 14px; }
+  .public-home.softnote-theme header nav > a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 16px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; }
+  .public-home.softnote-theme header .primary-button { display: none; }
+  .public-home.softnote-theme main { padding-block: 28px 32px; }
   .public-home.softnote-theme .hero {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
+    gap: 28px;
     min-height: 0;
     padding: 0;
     background: transparent;
@@ -1280,21 +1290,13 @@ th:first-child {
     overflow: visible;
     color: var(--text);
   }
-  .public-home.softnote-theme .hero::before {
-    content: "";
-    display: block;
-    width: 100%;
-    height: clamp(200px, 60vw, 290px);
-    border-radius: 16px;
-    background: #dce5d7 url("/assets/hero-study.png") 65% 45% / cover no-repeat;
-  }
-  .public-home.softnote-theme .hero-copy { width: 100%; padding: 26px 4px 0; background: transparent; border-radius: 0; }
+  .public-home.softnote-theme .hero-copy { width: 100%; padding: 0 4px; background: transparent; border-radius: 0; }
   .public-home.softnote-theme .home-brand-prefix { display: none; }
-  .public-home.softnote-theme .hero h1 { margin: 0 0 16px; max-width: 15ch; font-size: clamp(30px, 8vw, 40px); line-height: 1.15; font-weight: 650; letter-spacing: -.035em; text-wrap: initial; }
+  .public-home.softnote-theme .hero h1 { margin: 0 0 18px; max-width: 15ch; font-size: clamp(32px, 9vw, 42px); line-height: 1.1; font-weight: 650; letter-spacing: -.04em; text-wrap: initial; }
   .public-home.softnote-theme .hero-copy p { font-size: 16px; line-height: 1.65; color: var(--secondary-text); max-width: 34ch; }
   .home-actions { display: block; margin-top: 24px; }
   .public-home.softnote-theme .home-actions .primary-button { display: flex; justify-content: space-between; width: 100%; min-height: 50px; padding-inline: 20px; border-radius: 10px; }
-  .home-actions svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .public-home.softnote-theme .home-photo img { height: clamp(210px, 62vw, 280px); object-position: 65% center; }
   .public-page.softnote-theme footer { padding-block: 18px 24px; font-size: 12px; line-height: 1.6; text-align: center; }
   .sign-in-page.softnote-theme .sign-in-card { padding: 24px; }
   .sign-in-page.softnote-theme .sign-in-visual { min-height: 144px; }

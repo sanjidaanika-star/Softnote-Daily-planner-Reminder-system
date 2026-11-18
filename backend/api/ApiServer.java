@@ -51,6 +51,8 @@ public final class ApiServer {
     private static final Map<String, String> ASSETS = Map.ofEntries(
             Map.entry("/assets/bg-study.svg", "image/svg+xml"),
             Map.entry("/assets/hero-study.png", "image/png"),
+            Map.entry("/assets/hero-study.jpg", "image/jpeg"),
+            Map.entry("/js/home.js", "text/javascript"),
             Map.entry("/index.html", "text/html"),
             Map.entry("/admin.html", "text/html"), Map.entry("/js/admin.js", "text/javascript"),
             Map.entry("/reset-password.html", "text/html"), Map.entry("/js/reset.js", "text/javascript"),
