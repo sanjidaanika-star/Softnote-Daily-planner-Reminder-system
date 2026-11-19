@@ -1,4 +1,4 @@
-import { requireLogin, clearToken, getReminders, saveReminders, connectPush, disconnectPush, testReminder, readReminder } from "./api.js";
+import { requireLogin, endSession, getReminders, saveReminders, connectPush, disconnectPush, testReminder, readReminder } from "./api.js";
 
 const byId = (id) => document.getElementById(id);
 let data, loading = false;
@@ -110,7 +110,7 @@ if (requireLogin()) {
     status((await testReminder()).message); await load(false);
   }));
   byId("reminder-refresh").addEventListener("click", () => action(() => load(false)));
-  byId("sign-out").addEventListener("click", () => { clearToken(); location.replace("/login.html"); });
+  byId("sign-out").addEventListener("click", async () => { await endSession(); location.replace("/login.html"); });
   byId("workspace-menu-toggle").addEventListener("click", () => {
     const open = byId("workspace-nav").classList.toggle("is-open");
     byId("workspace-menu-toggle").setAttribute("aria-expanded", String(open));

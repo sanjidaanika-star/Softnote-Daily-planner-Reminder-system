@@ -1,4 +1,4 @@
-import { requireLogin, getMe, adminGet, setAccountActive, issueReset, clearToken } from './api.js';
+import { requireLogin, getMe, adminGet, setAccountActive, issueReset, endSession } from './api.js';
 const byId = (id) => document.getElementById(id);
 const node = (tag, text) => Object.assign(document.createElement(tag), { textContent: text });
 let users = [];
@@ -73,5 +73,5 @@ async function load() {
 }
 byId('refresh').addEventListener('click', load);
 byId('account-search').addEventListener('input', renderUsers);
-byId('sign-out').addEventListener('click', () => { clearToken(); location.replace('/login.html'); });
+byId('sign-out').addEventListener('click', async () => { await endSession(); location.replace('/login.html'); });
 if (requireLogin()) load();

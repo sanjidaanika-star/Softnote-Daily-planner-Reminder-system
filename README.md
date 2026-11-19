@@ -2,7 +2,7 @@
 
 ## Study reminders and email notifications
 
-Open **Reminders** from the dashboard bell or sidebar. Choose a daily time and IANA time zone, enable unfinished-study and/or next-day exam reminders, and save. Every scheduled reminder appears in the account's notification inbox. Daily reminders exclude completed and missed sessions. Exam reminders cover all assessment types including CT, Mid and Final. The server checks once per minute and catches up within two hours of today's chosen time. It must remain running. Settings are opt-in, and are isolated per account.
+Open **Reminders** from the dashboard bell or sidebar. Choose a daily time and IANA time zone, enable unfinished-study and/or next-day exam reminders, and save. Every scheduled reminder appears in the account's notification inbox. Daily reminders exclude completed and missed sessions. Exam reminders cover all assessment types including CT, Mid and Final. The server checks once per minute and catches up within two hours of today's chosen time. It must remain running. Settings are opt-in, and are isolated per account. Login expiry preserves push subscriptions. A new login reassigns the current browser subscription to the newly signed-in account; failed reassignment disconnects it. Explicit sign-out removes the browser subscription from the server and browser.
 
 Apply `database/phase10.sql` once to an existing database, using a migration account with CREATE permission. Fresh installs include these tables in `database/schema.sql`. The migration only adds reminder settings, browser subscriptions, reminder events and delivery records. It does not edit exam or session data.
 
@@ -142,7 +142,9 @@ Marking a session missed preserves the original row for history. Replacement ses
 
 Apply `database/phase8b.sql` once to an existing Softnote database. Fresh installations get the notes and quiz tables from `database/schema.sql`. The bundled jars in `lib/` are Gson 2.13.2 for JSON and Apache PDFBox 3.0.6 for local PDF text extraction.
 
-Copy `config/gemini.properties.example` to `config/gemini.properties`. Set `gemini.apiKey` locally, set `gemini.model` to `gemini-3.5-flash-lite` if available for your project, and set `gemini.timeoutSeconds` to a value such as `45`. The key stays in the ignored server config. Check the model's active requests-per-minute, tokens-per-minute, and requests-per-day limits in [Google AI Studio](https://aistudio.google.com/usage). Google's [pricing](https://ai.google.dev/gemini-api/docs/pricing) lists this model on the free tier, and [rate limits](https://ai.google.dev/gemini-api/docs/rate-limits) depend on the project and tier.
+Copy `config/gemini.properties.example` to `config/gemini.properties`. Set `gemini.apiKey` locally, set `gemini.model` to a JSON-output-capable model available in your Google AI Studio project, and set `gemini.timeoutSeconds` to a value such as `45` (allowed range 1–55 seconds). The key stays in the ignored server config. Check your project's active model and limits in [Google AI Studio](https://aistudio.google.com/usage), Google's [pricing](https://ai.google.dev/gemini-api/docs/pricing), and [rate limits](https://ai.google.dev/gemini-api/docs/rate-limits).
+
+For the Railway/Docker deployment, no config file is required. Set `SOFTNOTE_GEMINI_API_KEY`, `SOFTNOTE_GEMINI_MODEL`, and `SOFTNOTE_GEMINI_TIMEOUT_SECONDS=45` on the backend service. Environment values take precedence over the ignored properties file. The model name stays configurable and is not hardcoded. Without a configured key/model, the rest of Softnote works, while quiz generation returns a configuration error.
 
 Open **Notes & quizzes** from the dashboard. Upload a text-based PDF of up to 8 MB, choose a question count, and select **Create questions**. Softnote stores the extracted text and sends up to 60,000 characters to Gemini. The PDF stays local to the upload request. Gemini's free tier can use submitted content to improve its products, so use notes you are comfortable sharing with Google.
 
@@ -160,3 +162,13 @@ All of these endpoints require the login bearer token. To run the quiz integrati
 ```powershell
 java -cp "out;lib/*;$connectorJar" backend.test.QuizTest C:\path\to\quiz-test.properties
 ```
+
+## Run all checks
+
+Create the separate `softnote_test` and `softnote_quiz_test` databases from `database/schema.sql`. Use a local migration/test user with DDL privileges for the delete rollback test's disposable guard table. Never point these tests at production. Store their connection settings in ignored local files or outside the repository. The integration tests validate the database name before changing test data. Quiz tests leave disposable fixture records in `softnote_quiz_test`; recreate that test database from the schema when a fresh test environment is needed.
+
+```powershell
+./scripts/test.ps1 -ConnectorJar C:\path\to\mysql-connector-j.jar -TestConfig config/database.test.properties -QuizConfig C:\path\to\quiz-test.properties
+```
+
+This compiles every Java file with Java 17, runs all eight Java test programs, and runs five Node tests for login expiry, browser subscription ownership, and explicit sign-out. See [project status](docs/project-status.md) for implemented features and external activation requirements. The editable [architecture diagram](docs/architecture.drawio) opens in draw.io.

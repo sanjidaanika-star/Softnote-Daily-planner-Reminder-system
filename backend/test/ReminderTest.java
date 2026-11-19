@@ -101,6 +101,13 @@ public final class ReminderTest {
             }
             check(dao.inbox(user).stream().anyMatch(row->"failed".equals(row.get("emailStatus"))),"Failure appears in inbox");
             System.out.println("PASS fake sender failure, delayed retry, three-attempt limit, expired push and visible failure status");
+            dao.subscribe(user,"https://fcm.googleapis.com/account-switch-test","fake-key","fake-auth");
+            dao.enqueue(dao.account(user),"owner-switch","Account switch","Do not notify the previous owner","/study.html");
+            var previousDelivery=dao.due().stream().filter(d->"push".equals(d.channel())).findFirst().orElseThrow();
+            check(dao.allowed(previousDelivery),"Current browser owner can receive reminders");
+            dao.subscribe(other,"https://fcm.googleapis.com/account-switch-test","fake-key","fake-auth");
+            check(!dao.allowed(previousDelivery),"Even an already-loaded delivery is blocked after browser changes accounts");
+            System.out.println("PASS browser account switch blocks queued reminders from the previous owner");
             System.out.println("ReminderTest: ALL PASSED (no external email or push calls)");
         } finally {
             server.stop();

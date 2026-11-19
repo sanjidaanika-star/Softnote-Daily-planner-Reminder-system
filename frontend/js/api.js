@@ -17,18 +17,36 @@ export function getToken() {
   }
 }
 
-export function clearToken() {
+async function unsubscribeBrowser() {
+  if (!("serviceWorker" in navigator)) return;
+  const registration = await navigator.serviceWorker.getRegistration("/");
+  const subscription = await registration?.pushManager?.getSubscription();
+  if (subscription) await subscription.unsubscribe();
+}
+
+export function clearToken({ disconnectBrowser = true } = {}) {
   // Stop delivery to this browser when its signed-in account changes or signs out.
-  if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistration("/").then(async (registration) => {
-    const subscription = await registration?.pushManager?.getSubscription();
-    if (subscription) await subscription.unsubscribe();
-  }).catch(() => {});
+  if (disconnectBrowser) unsubscribeBrowser().catch(() => {});
   try {
     sessionStorage.removeItem(tokenKey);
     sessionStorage.removeItem(nameKey);
   } catch {
     // Storage can be unavailable in some browser settings.
   }
+}
+
+export async function endSession() {
+  try {
+    if ("serviceWorker" in navigator) {
+      const registration = await navigator.serviceWorker.getRegistration("/");
+      const subscription = await registration?.pushManager?.getSubscription();
+      if (subscription) {
+        try { await disconnectPush(subscription.endpoint); } catch { /* Still remove the local subscription. */ }
+        await subscription.unsubscribe();
+      }
+    }
+  } catch { /* Sign out even when browser notification APIs are unavailable. */ }
+  finally { clearToken({ disconnectBrowser: false }); }
 }
 
 export function requireLogin() {
@@ -70,7 +88,8 @@ async function request(path, { method = "GET", body, protectedCall = false, raw,
   const data = await response.json().catch(() => null);
   if (!response.ok) {
     if (protectedCall && response.status === 401) {
-      clearToken();
+      // An expired login does not opt the user out of their scheduled reminders.
+      clearToken({ disconnectBrowser: false });
       const destination = new URL("/login.html", location.origin);
       destination.searchParams.set("expired", "1");
       location.replace(destination);
@@ -87,7 +106,7 @@ export function saveReminders(settings) { return request("/reminders/settings", 
 export function connectPush(subscription) { return request("/reminders/subscription", { method: "POST", body: {
   endpoint: subscription.endpoint, p256dh: subscription.keys.p256dh, auth: subscription.keys.auth,
 }, protectedCall: true }); }
-export function disconnectPush(endpoint) { return request("/reminders/subscription", { method: "DELETE", body: { endpoint }, protectedCall: true }); }
+export function disconnectPush(endpoint) { return request("/reminders/subscription", { method: "DELETE", body: { endpoint }, protectedCall: true, signal: AbortSignal.timeout(5000) }); }
 export function testReminder() { return request("/reminders/test", { method: "POST", body: {}, protectedCall: true }); }
 export function readReminder(id) { return request("/reminders/" + encodeURIComponent(id) + "/read", { method: "PATCH", body: {}, protectedCall: true }); }
 export function adminGet(section) { return request("/admin/" + section, { protectedCall: true }); }
@@ -150,6 +169,16 @@ export async function login(credentials) {
     sessionStorage.setItem(nameKey, result.name ?? "");
   } catch {
     // The dashboard can still greet the user without a stored name.
+  }
+  // Rebind an existing browser subscription to this login before showing any account data.
+  // Switching accounts cannot leave reminders assigned to the previous account.
+  let subscription;
+  try {
+    const registration = "serviceWorker" in navigator ? await navigator.serviceWorker.getRegistration("/") : null;
+    subscription = await registration?.pushManager?.getSubscription();
+    if (subscription) await connectPush(subscription.toJSON());
+  } catch {
+    if (subscription) await subscription.unsubscribe().catch(() => {});
   }
   return result;
 }

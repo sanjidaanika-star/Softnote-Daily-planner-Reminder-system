@@ -3,17 +3,14 @@ package backend.ai;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;
-import java.io.Reader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public final class GeminiClient implements QuestionGenerator {
     public static final int NOTE_LIMIT = 60_000;
@@ -28,20 +25,9 @@ public final class GeminiClient implements QuestionGenerator {
 
     @Override
     public String generate(String text, int count) throws GenerationException {
-        Properties properties = new Properties();
-        try (Reader reader = Files.newBufferedReader(config)) {
-            properties.load(reader);
-        } catch (IOException | IllegalArgumentException exception) {
-            throw new GenerationException("Gemini API key problem. Check the server configuration.");
-        }
-        String key = properties.getProperty("gemini.apiKey", "").strip();
-        String model = properties.getProperty("gemini.model", "").strip();
-        if (key.isEmpty() || !key.matches("[A-Za-z0-9_-]+")) {
-            throw new GenerationException("Gemini API key problem. Check the server configuration.");
-        }
-        if (!model.matches("[a-zA-Z0-9_-]+")) {
-            throw new GenerationException("Set a valid Gemini model in the server configuration.");
-        }
+        GeminiConfig settings = GeminiConfig.load(config);
+        String key = settings.apiKey();
+        String model = settings.model();
 
         String instructions = """
                 Generate exactly %d multiple-choice questions using only facts from the supplied notes.
@@ -58,13 +44,9 @@ public final class GeminiClient implements QuestionGenerator {
                 "contents", List.of(Map.of("parts", List.of(Map.of("text", note)))),
                 "generationConfig", Map.of("responseMimeType", "application/json")));
         try {
-            long seconds = Long.parseLong(properties.getProperty("gemini.timeoutSeconds", "").strip());
-            if (seconds < 1 || seconds > 55) {
-                throw new GenerationException("Set Gemini timeout to 1–55 seconds in the server configuration.");
-            }
             HttpRequest request = HttpRequest.newBuilder(URI.create(
                     "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent"))
-                    .timeout(Duration.ofSeconds(seconds)).header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(settings.timeoutSeconds())).header("Content-Type", "application/json")
                     .header("x-goog-api-key", key).POST(HttpRequest.BodyPublishers.ofString(body)).build();
             HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
             switch (response.statusCode()) {

@@ -1,4 +1,4 @@
-import { clearToken, createExam, deleteExam, getDisplayName, getExam, getHistory, getPlan, getProgress, getReminders, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
+import { endSession, createExam, deleteExam, getDisplayName, getExam, getHistory, getPlan, getProgress, getReminders, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
 
 import { populateCourses } from "./courses.js";
 import { getMe } from "./api.js";
@@ -773,8 +773,8 @@ function labelTableRows(table) {
 
 const signOut = byId("sign-out");
 if (signOut && requireLogin()) {
-  signOut.addEventListener("click", () => {
-    clearToken();
+  signOut.addEventListener("click", async () => {
+    await endSession();
     location.replace("/login.html");
   });
   window.addEventListener("pageshow", (event) => {
