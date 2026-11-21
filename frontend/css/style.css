@@ -1399,6 +1399,8 @@ body[data-view="study"] section[aria-labelledby="catch-heading"] { margin-top: 2
 .online-answer span { overflow-wrap:anywhere; min-width:0; }
 .online-correct { font-weight:600; }
 .online-incorrect { border-left:3px solid currentColor; padding-left:12px; }
-#exam-timer { font-size:1.25rem; font-weight:700; font-variant-numeric:tabular-nums; }
+#exam-attempt > .dash-top { flex-wrap:wrap; align-items:flex-start; gap:12px; }
+#exam-attempt > .dash-top > div { flex:1 1 260px; min-width:0; }
+#exam-timer { flex:none; white-space:nowrap; margin:0; font-size:1.25rem; font-weight:700; font-variant-numeric:tabular-nums; }
 #publish-form, #answer-form { max-width:none; }
 @media(max-width:600px) { .online-form-grid { grid-template-columns:minmax(0,1fr); } .online-question { padding:12px; } }
