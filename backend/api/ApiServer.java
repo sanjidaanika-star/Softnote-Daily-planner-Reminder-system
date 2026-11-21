@@ -61,6 +61,7 @@ public final class ApiServer {
             Map.entry("/js/home.js", "text/javascript"),
             Map.entry("/index.html", "text/html"),
             Map.entry("/admin.html", "text/html"), Map.entry("/js/admin.js", "text/javascript"),
+            Map.entry("/online-exams.html", "text/html"), Map.entry("/js/online-exams.js", "text/javascript"),
             Map.entry("/reset-password.html", "text/html"), Map.entry("/js/reset.js", "text/javascript"),
             Map.entry("/report.html", "text/html"), Map.entry("/js/report.js", "text/javascript"),
             Map.entry("/quiz.html", "text/html"), Map.entry("/js/quiz.js", "text/javascript"),
@@ -88,6 +89,8 @@ public final class ApiServer {
     private final SessionDAO sessions;
     private final Clock clock;
     private final ReminderService reminders;
+    private final backend.db.OnlineExamDAO onlineExams;
+    private final java.util.concurrent.ScheduledExecutorService examGrader = Executors.newSingleThreadScheduledExecutor();
     private final SecureRandom random = new SecureRandom();
     private final LinkedHashMap<String, LoginSession> loginSessions = new LinkedHashMap<>();
 
@@ -115,6 +118,12 @@ public final class ApiServer {
         route("/reminders", "GET", exchange -> reminderRoutes.handle(exchange, requireUser(exchange)));
         route("/reminders/", "GET, POST, PUT, PATCH, DELETE", exchange -> reminderRoutes.handle(exchange, requireUser(exchange)));
         AdminRoutes administration = new AdminRoutes(new AdminDAO(database));
+        onlineExams = new backend.db.OnlineExamDAO(database,clock);
+        OnlineExamRoutes onlineRoutes = new OnlineExamRoutes(onlineExams);
+        route("/admin/online-exams", "GET, POST", exchange -> onlineRoutes.handle(exchange, requireAdmin(exchange),true));
+        route("/admin/online-exams/", "GET", exchange -> onlineRoutes.handle(exchange, requireAdmin(exchange),true));
+        route("/online-exams", "GET, POST, PUT", exchange -> onlineRoutes.handle(exchange, requireUser(exchange),false));
+        route("/online-exams/", "GET, POST, PUT", exchange -> onlineRoutes.handle(exchange, requireUser(exchange),false));
         route("/admin/", "GET, POST, PATCH", exchange -> administration.handle(exchange, requireAdmin(exchange)));
         route("/password-reset/request", "POST", administration::requestReset);
         route("/password-reset/confirm", "POST", administration::resetPassword);
@@ -158,9 +167,20 @@ public final class ApiServer {
     public void start() {
         server.start();
         reminders.start();
+        examGrader.scheduleWithFixedDelay(() -> {
+            try { onlineExams.expire(); }
+            catch (RuntimeException failure) { System.err.println("Online exam auto-submit could not run: " + failure.getClass().getSimpleName()); }
+        },5,5,TimeUnit.SECONDS);
     }
 
     public void stop() {
+        examGrader.shutdown();
+        try {
+            if (!examGrader.awaitTermination(5, TimeUnit.SECONDS)) examGrader.shutdownNow();
+        } catch (InterruptedException interrupted) {
+            examGrader.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
         server.stop(2);
         reminders.close();
         requests.shutdownNow();

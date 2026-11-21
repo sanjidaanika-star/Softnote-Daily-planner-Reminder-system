@@ -171,4 +171,24 @@ Create the separate `softnote_test` and `softnote_quiz_test` databases from `dat
 ./scripts/test.ps1 -ConnectorJar C:\path\to\mysql-connector-j.jar -TestConfig config/database.test.properties -QuizConfig C:\path\to\quiz-test.properties
 ```
 
-This compiles every Java file with Java 17, runs all eight Java test programs, and runs five Node tests for login expiry, browser subscription ownership, and explicit sign-out. See [project status](docs/project-status.md) for implemented features and external activation requirements. The editable [architecture diagram](docs/architecture.drawio) opens in draw.io.
+This compiles every Java file with Java 17, runs all nine Java test programs, and runs five Node tests for login expiry, browser subscription ownership, and explicit sign-out. See [project status](docs/project-status.md) for implemented features and external activation requirements. The editable [architecture diagram](docs/architecture.drawio) opens in draw.io.
+
+## Administrator-published online exams
+
+Existing installations must apply `database/phase11.sql` before deploying this version. Fresh `schema.sql` installations include the same tables. Online assessments are separate from personal study-plan exams.
+
+Open **Admin panel → Online exams** to enter a title, course, semester, opening/closing time, duration (1–240 minutes) and 1–50 MCQ questions. Each question has four distinct options, one correct answer and one mark. Publishing freezes the paper and enrolls all currently active student accounts; accounts registered later are not automatically enrolled. Semester and course are labels, not recipient filters in this version. Publishing and in-app notifications commit or roll back together. External email/browser delivery requires the existing provider configuration and each recipient's opt-in; opening an exam does not opt anyone in.
+
+Students open **Dashboard → Online exams**, start within the published window, and answer with automatic saving. Refreshing resumes the same attempt and deadline. The Java server enforces the earlier of closing time or start + duration. At expiry, a background worker grades saved answers (checked every five seconds), including when the browser is closed. Late unsaved answers are not accepted. Submit is idempotent: concurrent/retried submissions do not change a final score. The result shows correct answers only after submission. Admin reports show invited students, started/submitted state, submission time and score. There are no written questions, proctoring or anti-cheating guarantees.
+
+| Endpoint | Access / purpose |
+| --- | --- |
+| `GET, POST /admin/online-exams` | Admin list / publish and notify |
+| `GET /admin/online-exams/{id}/report` | Admin submission report |
+| `GET /online-exams` | Signed-in student's assigned exams |
+| `GET /online-exams/{id}` | Own attempt; question paper only after starting |
+| `POST /online-exams/{id}/start` | Begin/resume one timed attempt |
+| `PUT /online-exams/{id}/answers` | Save own answers as an array of 0–3 or null |
+| `POST /online-exams/{id}/submit` | Final answers and automatic MCQ score |
+
+Run `backend.test.OnlineExamTest` against `softnote_test` to verify role checks, recipient privacy, notification rollback, server-enforced deadlines, answer secrecy, autosave/resume, concurrent submission, expired auto-submit and reports. The test never delivers external notifications.

@@ -50,7 +50,7 @@ async function load(fill = true) {
     if (reminder.pushStatus) delivery.push("Browser: " + reminder.pushStatus);
     if (delivery.length) item.append(node("p", delivery.join(" · "), "dash-muted"));
     const actions = node("div", null, "dash-actions");
-    const link = node("a", "Open study plan", "dash-secondary"); link.href = reminder.path; actions.append(link);
+    const link = node("a", reminder.path.startsWith('/online-exams.html') ? "Open exam" : "Open study plan", "dash-secondary"); link.href = reminder.path; actions.append(link);
     if (!reminder.isRead) {
       const read = node("button", "Mark as read", "dash-secondary"); read.type = "button";
       read.setAttribute("aria-label", "Mark " + reminder.title + " as read");

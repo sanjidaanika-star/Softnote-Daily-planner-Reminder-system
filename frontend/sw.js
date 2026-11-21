@@ -2,7 +2,7 @@
 self.addEventListener("push", (event) => {
   let data;
   try { data = event.data.json(); } catch { data = {}; }
-  const url = typeof data.url === "string" && /^\/(study\.html|plan\.html\?examId=\d+)$/.test(data.url)
+  const url = typeof data.url === "string" && /^\/(study\.html|plan\.html\?examId=\d+|online-exams\.html\?examId=\d+)$/.test(data.url)
     ? data.url : "/reminders.html";
   event.waitUntil(self.registration.showNotification(data.title || "Softnote reminder", {
     body: data.body || "Open Softnote to view your study reminder.",

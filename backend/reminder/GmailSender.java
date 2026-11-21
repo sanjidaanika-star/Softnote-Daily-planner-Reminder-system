@@ -30,7 +30,7 @@ public final class GmailSender implements ReminderSender {
             message.setFrom(new InternetAddress(config.value("smtp.from", ""), true));
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(delivery.email(), true));
             message.setSubject(delivery.title(), "UTF-8");
-            message.setText(delivery.message() + "\n\nOpen your plan: " + config.appUrl() + delivery.path()
+            message.setText(delivery.message() + "\n\nOpen Softnote: " + config.appUrl() + delivery.path()
                     + "\n\nManage reminders: " + config.appUrl() + "/reminders.html", "UTF-8");
             message.setSentDate(new java.util.Date());
             // A stable Message-ID helps diagnose retries. SMTP acceptance cannot guarantee inbox placement.

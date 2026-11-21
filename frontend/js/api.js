@@ -101,6 +101,13 @@ async function request(path, { method = "GET", body, protectedCall = false, raw,
 }
 
 export function getMe() { return request("/me", { protectedCall: true }); }
+export function onlineExams(admin = false) { return request(admin ? '/admin/online-exams' : '/online-exams', { protectedCall: true }); }
+export function publishOnlineExam(paper) { return request('/admin/online-exams', { method: 'POST', body: paper, protectedCall: true }); }
+export function onlineExamReport(id) { return request('/admin/online-exams/' + encodeURIComponent(id) + '/report', { protectedCall: true }); }
+export function viewOnlineExam(id) { return request('/online-exams/' + encodeURIComponent(id), { protectedCall: true }); }
+export function startOnlineExam(id) { return request('/online-exams/' + encodeURIComponent(id) + '/start', { method: 'POST', body: {}, protectedCall: true }); }
+export function saveOnlineAnswers(id, answers) { return request('/online-exams/' + encodeURIComponent(id) + '/answers', { method: 'PUT', body: { answers }, protectedCall: true }); }
+export function submitOnlineExam(id, answers) { return request('/online-exams/' + encodeURIComponent(id) + '/submit', { method: 'POST', body: { answers }, protectedCall: true }); }
 export function getReminders() { return request("/reminders", { protectedCall: true }); }
 export function saveReminders(settings) { return request("/reminders/settings", { method: "PUT", body: settings, protectedCall: true }); }
 export function connectPush(subscription) { return request("/reminders/subscription", { method: "POST", body: {

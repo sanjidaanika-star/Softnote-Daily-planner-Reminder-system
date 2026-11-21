@@ -25,10 +25,10 @@ try {
     foreach ($name in @('DifficultyPlanStrategyTest','ReschedulerTest','GeminiConfigTest')) {
         Checked 'java' @('-cp',$classpath,"backend.test.$name")
     }
-    foreach ($name in @('AuthServiceIntegrationTest','AdminIntegrationTest','ReminderTest','DeleteExamTest')) {
+    foreach ($name in @('AuthServiceIntegrationTest','AdminIntegrationTest','ReminderTest','DeleteExamTest','OnlineExamTest')) {
         Checked 'java' @('-cp',$classpath,"backend.test.$name",$database)
     }
     Checked 'java' @('-cp',$classpath,'backend.test.QuizTest',$quiz)
     Checked 'node' @('--test','tests/frontend-session.test.mjs')
-    Write-Output 'PASS all 8 Java test programs and 5 frontend session tests'
+    Write-Output 'PASS all 9 Java test programs and 5 frontend session tests'
 } finally { Pop-Location }

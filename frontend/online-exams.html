@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Online exams | Softnote</title>
+  <link rel="stylesheet" href="/css/style.css?v=online-exams-1">
+  <script type="module" src="/js/online-exams.js"></script>
+</head>
+<body class="dashboard-page softnote-theme">
+  <aside class="dash-sidebar">
+    <a class="dash-brand" id="account-home" href="/dashboard.html">Softnote</a>
+    <nav aria-label="Exam navigation"><a id="back-home" href="/dashboard.html">Dashboard</a><a href="/online-exams.html" aria-current="page">Online exams</a><a href="/reminders.html">Notifications</a></nav>
+    <button id="sign-out" class="dash-secondary" type="button">Sign out</button>
+  </aside>
+  <main>
+    <div class="dash-top"><div><p class="dash-muted">Learn. Practice. Assess.</p><h1>Online exams</h1></div><button id="refresh-exams" class="dash-secondary" type="button">Refresh</button></div>
+    <p id="online-status" role="status">Loading exams…</p><p id="error" role="alert" hidden></p>
+    <section id="publisher" class="dash-card dash-section" hidden>
+      <h2>Publish an MCQ exam</h2>
+      <p class="dash-muted">All currently active student accounts receive this exam and an in-app notification. Email and browser delivery follow each student's settings and the configured sender service. Published papers cannot be edited.</p>
+      <form id="publish-form">
+        <div class="online-form-grid">
+          <label>Exam title<input name="title" maxlength="255" required></label>
+          <label>Course name<input name="courseName" maxlength="255" placeholder="CSE 332 · Advanced Programming Lab" required></label>
+          <label>Semester<select name="semester" id="online-semester"><option value="0">Not assigned</option></select></label>
+          <label>Duration (minutes)<input name="durationMinutes" type="number" min="1" max="240" value="30" required></label>
+          <label>Opens at (your local time)<input name="opensAt" type="datetime-local" required></label>
+          <label>Closes at (your local time)<input name="closesAt" type="datetime-local" required></label>
+        </div>
+        <p class="dash-muted">One mark per question. The timer ends at the earlier of the student's duration limit or the closing time. A student can submit once.</p>
+        <div id="question-editor"></div>
+        <div class="online-actions"><button type="button" id="add-question" class="dash-secondary">Add question</button><button type="submit" id="publish-exam">Publish exam &amp; notify students</button></div>
+      </form>
+    </section>
+    <section class="dash-card dash-section"><h2 id="exam-list-heading">Available exams</h2><div id="online-exam-list" class="online-exam-list"></div></section>
+    <section id="exam-attempt" class="dash-card dash-section" hidden aria-labelledby="paper-title">
+      <div class="dash-top"><div><h2 id="paper-title"></h2><p id="paper-info" class="dash-muted"></p></div><p id="exam-timer" aria-label="Time remaining"></p></div>
+      <p id="attempt-notice" role="status"></p>
+      <button id="start-exam" type="button" hidden>Start exam</button>
+      <form id="answer-form" hidden><div id="answer-questions"></div><p id="save-state" role="status"></p><div class="online-actions"><button id="retry-save" type="button" class="dash-secondary" hidden>Retry save</button><button id="submit-exam" type="submit">Submit exam</button></div></form>
+      <div id="exam-result" hidden></div>
+    </section>
+    <section id="submission-report" class="dash-card dash-section" hidden aria-labelledby="submission-heading"><h2 id="submission-heading">Submissions</h2><p id="report-summary"></p><div class="data-table-wrap"><table><thead><tr><th>Student</th><th>Status</th><th>Submitted at</th><th>Score</th></tr></thead><tbody id="submission-rows"></tbody></table></div></section>
+  </main>
+</body>
+</html>

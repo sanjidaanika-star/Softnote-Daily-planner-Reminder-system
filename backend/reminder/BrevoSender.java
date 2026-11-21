@@ -15,7 +15,7 @@ public final class BrevoSender implements ReminderSender {
     @Override public void send(Delivery delivery) throws DeliveryFailure {
         if (!config.emailReady()) throw new DeliveryFailure("Email sender is not configured yet.");
         try {
-            String content = delivery.message() + "\n\nOpen your plan: " + config.appUrl() + delivery.path()
+            String content = delivery.message() + "\n\nOpen Softnote: " + config.appUrl() + delivery.path()
                     + "\n\nManage reminders: " + config.appUrl() + "/reminders.html";
             String payload = new Gson().toJson(Map.of(
                     "sender", Map.of("name", "Softnote", "email", config.value("mail.from", "")),
