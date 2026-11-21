@@ -39,8 +39,8 @@ function setupLogin(form) {
     showError(new Error("A valid login token is required. Sign in again."));
   }
   handleSubmit(form, async (credentials) => {
-    await login(credentials);
-    location.replace("/dashboard.html");
+    const account = await login(credentials);
+    location.replace(account.role === "admin" ? "/admin.html" : "/dashboard.html");
   });
 }
 
