@@ -48,7 +48,7 @@ async function load() {
       const card = node('article','','online-exam-item'); card.append(node('h3',exam.title));
       card.append(node('p',exam.courseName + (exam.semester?' · Semester '+exam.semester:''),'dash-muted'));
       card.append(node('p',date(exam.opensAt)+' — '+date(exam.closesAt)));
-      card.append(node('p',exam.durationMinutes+' minutes · '+exam.questionCount+' questions · '+(exam.submitted?'Submitted':exam.started?'In progress':'Not started')));
+      card.append(node('p',exam.durationMinutes+' minutes · '+exam.questionCount+' questions · '+(admin?'Published':exam.submitted?'Submitted':exam.started?'In progress':'Not started')));
       const button=node('button',admin?'View submissions':exam.submitted?'View result':exam.started?'Resume exam':'View exam','dash-secondary');button.type='button';
       button.addEventListener('click',()=>admin?report(exam):open(exam.id));card.append(button);byId('online-exam-list').append(card);
     }
