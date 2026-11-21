@@ -149,6 +149,8 @@ byId('publish-form').addEventListener('submit',async event=>{
 if(requireLogin()){
   try{
     const me=await getMe();admin=me.role==='admin';byId('publisher').hidden=!admin;
+    byId('workspace-role').textContent=admin?'Admin workspace':'Student workspace';
+    if(admin)document.title='Admin · Online exams | Softnote';
     byId('account-home').href=byId('back-home').href=admin?'/admin.html':'/dashboard.html';byId('back-home').textContent=admin?'Admin panel':'Dashboard';
     byId('exam-list-heading').textContent=admin?'Published exams':'Your online exams';
     for(let i=1;i<=12;i++)byId('online-semester').add(new Option('Semester '+i,i));

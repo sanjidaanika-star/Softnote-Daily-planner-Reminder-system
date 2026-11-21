@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public final class ApplyReminderMigration {
     public static void main(String[] args) throws Exception {
         DBConnection database = args.length == 0 ? new DBConnection() : new DBConnection(Path.of(args[0]));
-        String ddl = Files.readString(Path.of("database", "phase10.sql")).replaceAll("(?m)^--.*$", "");
+        String ddl = Files.readString(Path.of("database", "add_reminders.sql")).replaceAll("(?m)^--.*$", "");
         try (var connection = database.getConnection()) {
             for (String sql : ddl.split(";")) {
                 if (sql.isBlank()) continue;

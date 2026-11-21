@@ -5,7 +5,7 @@ Softnote is a Java 17 / JDBC / MySQL application with a plain HTML, CSS and Java
 ## Implemented
 
 - Registration, salted password hashing, bearer sessions, owner-only exam/plan/note/quiz access and a separate administrator role.
-- Administrator-published timed MCQ exams, notification fan-out to currently active students, automatic answer saving, server-side auto-submit, one final submission and administrator score reports. Apply `database/phase11.sql` before deploying to an existing database.
+- Administrator-published timed MCQ exams, notification fan-out to currently active students, automatic answer saving, server-side auto-submit, one final submission and administrator score reports. Apply `database/add_online_exams.sql` before deploying to an existing database.
 - Semester/course/assessment selection, exam creation/editing/deletion, difficulty-weighted plans, revisions, missed-session rescheduling and visible unscheduled work.
 - Dashboard analytics and navigation, today's study, weekly planner, completed chapters, progress/history and roadmap/report pages.
 - PDF text extraction, asynchronous Gemini quiz generation, response validation, hidden answers until submission and saved scores.

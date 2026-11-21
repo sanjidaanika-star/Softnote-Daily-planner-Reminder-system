@@ -4,7 +4,7 @@
 
 Open **Reminders** from the dashboard bell or sidebar. Choose a daily time and IANA time zone, enable unfinished-study and/or next-day exam reminders, and save. Every scheduled reminder appears in the account's notification inbox. Daily reminders exclude completed and missed sessions. Exam reminders cover all assessment types including CT, Mid and Final. The server checks once per minute and catches up within two hours of today's chosen time. It must remain running. Settings are opt-in, and are isolated per account. Login expiry preserves push subscriptions. A new login reassigns the current browser subscription to the newly signed-in account; failed reassignment disconnects it. Explicit sign-out removes the browser subscription from the server and browser.
 
-Apply `database/phase10.sql` once to an existing database, using a migration account with CREATE permission. Fresh installs include these tables in `database/schema.sql`. The migration only adds reminder settings, browser subscriptions, reminder events and delivery records. It does not edit exam or session data.
+Apply `database/add_reminders.sql` once to an existing database, using a migration account with CREATE permission. Fresh installs include these tables in `database/schema.sql`. The migration only adds reminder settings, browser subscriptions, reminder events and delivery records. It does not edit exam or session data.
 
 Copy `config/reminders.properties.example` to `config/reminders.properties` (ignored by git). On Railway, use service Variables instead:
 
@@ -45,7 +45,7 @@ Tests use fake transports and never send real email/push. They cover time zones,
 
 ## Administration and semester planning
 
-For an existing installation, apply `database/phase9.sql` once before deploying this version. Fresh installations use `database/schema.sql`, which includes the same changes.
+For an existing installation, apply `database/add_admin_and_course_metadata.sql` once before deploying this version. Fresh installations use `database/schema.sql`, which includes the same changes.
 
 Each exam can store a semester from 1 to 12, a course, and a CT, Mid, Final or Other assessment. Existing exams appear as unassigned until edited. Course semester assignments are chosen by the student. The dashboard filters all panels by semester and assessment. `/report.html` shows a chronological roadmap and study totals, with a Print / save PDF button.
 
@@ -95,7 +95,7 @@ Keep the server running and open [Softnote](http://127.0.0.1:8080/). Use **Creat
 For an existing Phase 5 database, run the migration once in place of loading the fresh schema into that database.
 
 ```powershell
-Get-Content -Raw database/phase6.sql | mysql --user=root --password --database=softnote_dev
+Get-Content -Raw database/add_unscheduled_sessions.sql | mysql --user=root --password --database=softnote_dev
 ```
 
 ## Authentication integration tests
@@ -140,7 +140,7 @@ Marking a session missed preserves the original row for history. Replacement ses
 
 ## Notes and Gemini quizzes
 
-Apply `database/phase8b.sql` once to an existing Softnote database. Fresh installations get the notes and quiz tables from `database/schema.sql`. The bundled jars in `lib/` are Gson 2.13.2 for JSON and Apache PDFBox 3.0.6 for local PDF text extraction.
+Apply `database/add_notes_and_quizzes.sql` once to an existing Softnote database. Fresh installations get the notes and quiz tables from `database/schema.sql`. The bundled jars in `lib/` are Gson 2.13.2 for JSON and Apache PDFBox 3.0.6 for local PDF text extraction.
 
 Copy `config/gemini.properties.example` to `config/gemini.properties`. Set `gemini.apiKey` locally, set `gemini.model` to a JSON-output-capable model available in your Google AI Studio project, and set `gemini.timeoutSeconds` to a value such as `45` (allowed range 1–55 seconds). The key stays in the ignored server config. Check your project's active model and limits in [Google AI Studio](https://aistudio.google.com/usage), Google's [pricing](https://ai.google.dev/gemini-api/docs/pricing), and [rate limits](https://ai.google.dev/gemini-api/docs/rate-limits).
 
@@ -175,7 +175,7 @@ This compiles every Java file with Java 17, runs all nine Java test programs, an
 
 ## Administrator-published online exams
 
-Existing installations must apply `database/phase11.sql` before deploying this version. Fresh `schema.sql` installations include the same tables. Online assessments are separate from personal study-plan exams.
+Existing installations must apply `database/add_online_exams.sql` before deploying this version. Fresh `schema.sql` installations include the same tables. Online assessments are separate from personal study-plan exams.
 
 Open **Admin panel → Online exams** to enter a title, course, semester, opening/closing time, duration (1–240 minutes) and 1–50 MCQ questions. Each question has four distinct options, one correct answer and one mark. Publishing freezes the paper and enrolls all currently active student accounts; accounts registered later are not automatically enrolled. Semester and course are labels, not recipient filters in this version. Publishing and in-app notifications commit or roll back together. External email/browser delivery requires the existing provider configuration and each recipient's opt-in; opening an exam does not opt anyone in.
 
