@@ -1,4 +1,4 @@
-import { requireLogin, endSession, getReminders, saveReminders, connectPush, disconnectPush, testReminder, readReminder } from "./api.js";
+import { requireLogin, getReminders, saveReminders, connectPush, disconnectPush, testReminder, readReminder } from "./api.js";
 
 const byId = (id) => document.getElementById(id);
 let data, loading = false;

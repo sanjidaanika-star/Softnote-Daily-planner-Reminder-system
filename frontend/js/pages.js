@@ -1,7 +1,5 @@
-import { endSession, createExam, deleteExam, getDisplayName, getExam, getHistory, getPlan, getProgress, getReminders, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
-
+import { createExam, deleteExam, getDisplayName, getExam, getHistory, getMe, getPlan, getProgress, getReminders, listExams, login, register, requireLogin, updateExam, updateSession } from "./api.js";
 import { populateCourses } from "./courses.js";
-import { getMe } from "./api.js";
 import { countdownText, friendlyDate, refreshCountdowns, renderCountdown } from "./countdown.js";
 
 const byId = (id) => document.getElementById(id);
@@ -51,10 +49,6 @@ const shortDate = new Intl.DateTimeFormat(undefined, { month: "short", day: "num
 function dateKey(date) {
   return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"),
     String(date.getDate()).padStart(2, "0")].join("-");
-}
-
-function calendarDate(key) {
-  return new Date(key + "T00:00:00");
 }
 
 function dashNode(tag, content, className) {
@@ -549,7 +543,6 @@ async function loadDashboard(message = "") {
   try {
     const [exams, history, me] = await Promise.all([listExams(), getHistory(), getMe()]);
     byId("admin-link").hidden = me.role !== "admin";
-    if (byId("admin-option")) byId("admin-option").hidden = me.role !== "admin";
     const details = await Promise.all(exams.map(async (exam, index) => {
       const [plan, progress] = await Promise.all([getPlan(exam.id), getProgress(exam.id)]);
       return { ...exam, plan, progress, accent: index % 6 };

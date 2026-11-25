@@ -1,14 +1,8 @@
-/* ==========================================================================
-   Softnote design system: "study notebook"
-   Warm paper, ink-green text actions, a yellow highlighter for what matters
-   today. Flat surfaces and thin rules instead of shadows and gradients.
-   Every colour, radius and font comes from the tokens below.
-   ========================================================================== */
+/* Softnote styles: warm paper, ink-green actions, a yellow highlighter for today.
+   All colours, radii and fonts come from the tokens in :root. */
 
 :root {
   --font: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
-  --font-display: var(--font);
-  --font-mono: var(--font);
 
   --bg: #f6f3ec;
   --surface: #fffdf8;
@@ -58,8 +52,6 @@
   --radius-sm: 6px;
   --radius: 8px;
   --radius-lg: 10px;
-  --shadow-sm: none;
-  --shadow: none;
   --shadow-lg: 0 18px 50px rgb(35 36 31 / 18%);
   --focus-ring: 0 0 0 3px rgb(47 93 70 / 28%);
 
@@ -120,9 +112,7 @@
   }
 }
 
-/* --------------------------------------------------------------------------
-   Base
-   -------------------------------------------------------------------------- */
+/* Base */
 
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -140,7 +130,7 @@ body {
 }
 
 h1, h2, h3 { margin: 0; color: var(--text); line-height: 1.2; letter-spacing: -0.01em; }
-h1 { font-family: var(--font-display); font-size: clamp(1.875rem, 2.8vw, 2.5rem); font-weight: 600; letter-spacing: -0.015em; }
+h1 { font-size: clamp(1.875rem, 2.8vw, 2.5rem); font-weight: 600; letter-spacing: -0.015em; }
 h2 { font-size: 1.0625rem; font-weight: 600; }
 h3 { font-size: 1rem; font-weight: 600; }
 p { margin: 0 0 12px; }
@@ -180,9 +170,7 @@ img, svg { max-width: 100%; }
 }
 .dash-skip:focus { translate: 0; color: var(--on-primary); }
 
-/* --------------------------------------------------------------------------
-   Form controls
-   -------------------------------------------------------------------------- */
+/* Form controls */
 
 label {
   display: block;
@@ -306,7 +294,6 @@ button[type="submit"],
   border-color: var(--primary);
   background: var(--primary);
   color: var(--on-primary);
-  box-shadow: var(--shadow-sm);
 }
 
 button[type="submit"]:hover:not(:disabled),
@@ -336,7 +323,7 @@ button[type="submit"]:hover:not(:disabled),
 button:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 
 /* Messages */
-#error, #quiz-error, #reminder-error, #delete-exam-error {
+#error, #reminder-error, #delete-exam-error {
   margin: 0 0 16px;
   padding: 12px 16px;
   border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
@@ -367,9 +354,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 #dashboard-status:empty, #plan-status:empty, #history-status:empty, #unscheduled-status:empty,
 #online-status:empty, #attempt-notice:empty, #save-state:empty { display: none; }
 
-/* --------------------------------------------------------------------------
-   Tables
-   -------------------------------------------------------------------------- */
+/* Tables */
 
 table {
   width: 100%;
@@ -436,9 +421,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
   }
 }
 
-/* --------------------------------------------------------------------------
-   App shell: sidebar + main
-   -------------------------------------------------------------------------- */
+/* App shell: sidebar + main */
 
 .dashboard-page {
   display: grid;
@@ -467,7 +450,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
   gap: 10px;
   padding: 4px 8px;
   color: var(--sidebar-active);
-  font-family: var(--font-display);
+ 
   font-size: 1.375rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -523,8 +506,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 }
 .dash-sidebar nav a[aria-current="page"] .nav-symbol { opacity: 1; color: var(--primary); }
 
-#sign-out,
-.sidebar-signout {
+#sign-out {
   justify-content: flex-start;
   width: 100%;
   margin-top: auto;
@@ -539,7 +521,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 }
 .dash-sidebar nav #sign-out { margin-top: auto; }
 .dash-sidebar nav > a:last-of-type, .dash-sidebar nav > a[id="admin-link"] { margin-bottom: 20px; }
-#sign-out:hover:not(:disabled), .sidebar-signout:hover:not(:disabled) { background: var(--sidebar-2); border-color: var(--border-strong); color: var(--sidebar-active); }
+#sign-out:hover:not(:disabled) { background: var(--sidebar-2); border-color: var(--border-strong); color: var(--sidebar-active); }
 
 .workspace-menu-toggle {
   display: none;
@@ -572,9 +554,6 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
     border-right: 0;
     border-bottom: 1px solid var(--border);
   }
-  .dash-sidebar > nav:not(.workspace-nav) { flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
-  .dash-sidebar > nav:not(.workspace-nav) a[aria-current="page"]::before { display: none; }
-  .dash-sidebar > #sign-out { width: auto; margin-top: 10px; }
   .workspace-menu-toggle { display: inline-flex; }
   .dash-sidebar .workspace-nav { display: none; margin-top: 12px; padding-bottom: 8px; }
   .dash-sidebar .workspace-nav.is-open { display: flex; }
@@ -582,9 +561,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
   .dashboard-page main { padding-top: 24px; }
 }
 
-/* --------------------------------------------------------------------------
-   Page header
-   -------------------------------------------------------------------------- */
+/* Page header */
 
 .dash-top {
   display: flex;
@@ -625,9 +602,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
   line-height: 1.3;
 }
 
-/* --------------------------------------------------------------------------
-   Cards and shared building blocks
-   -------------------------------------------------------------------------- */
+/* Cards and shared building blocks */
 
 .dash-card {
   min-width: 0;
@@ -671,8 +646,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 
 .live-countdown { font-variant-numeric: tabular-nums; font-weight: 600; }
 
-/* Stat tiles */
-/* One ruled strip, like the header of a notebook page */
+/* Stat tiles: one ruled strip, like the header of a notebook page */
 .dash-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
@@ -704,7 +678,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 .dash-stats dd {
   margin: 4px 0 2px;
   color: var(--text);
-  font-family: var(--font-display);
+ 
   font-size: clamp(1.75rem, 2.6vw, 2.25rem);
   font-weight: 600;
   line-height: 1.1;
@@ -733,14 +707,14 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 
 /* Next exam card */
 #next-exam { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-#next-exam h3 { font-family: var(--font-display); font-size: 1.375rem; font-weight: 600; }
+#next-exam h3 { font-size: 1.375rem; font-weight: 600; }
 #next-exam p { margin: 6px 0 12px; }
 #next-exam a { display: inline-flex; font-size: 0.875rem; font-weight: 650; }
 .dash-ring { display: grid; place-items: center; width: clamp(96px, 10vw, 124px); flex: none; }
 .dash-ring > * { grid-area: 1 / 1; }
 .dash-ring svg { width: 100%; fill: none; stroke: var(--primary); stroke-width: 2.5; stroke-linecap: butt; }
 .dash-ring .ring-track { stroke: var(--surface-3); }
-.dash-ring strong { font-family: var(--font-display); font-size: 1.375rem; font-weight: 600; }
+.dash-ring strong { font-size: 1.375rem; font-weight: 600; }
 
 /* Week strip */
 .week-scroll-hint { margin: -10px 0 16px; }
@@ -761,7 +735,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 .dash-day svg { display: block; width: 100%; height: 6px; margin: 10px 0 4px; }
 .week-track { fill: var(--surface-3); }
 .week-fill { fill: var(--primary); }
-.dash-week-session { margin-top: 10px; padding: 10px 12px; border-left: 4px solid var(--exam-accent, var(--primary)); border-radius: var(--radius-sm); background: var(--surface); font-size: 0.875rem; box-shadow: var(--shadow-sm); }
+.dash-week-session { margin-top: 10px; padding: 10px 12px; border-left: 4px solid var(--exam-accent, var(--primary)); border-radius: var(--radius-sm); background: var(--surface); font-size: 0.875rem; }
 .dash-week-session > strong { display: block; margin-bottom: 4px; line-height: 1.4; }
 .week-course-title { display: -webkit-box; overflow: hidden; color: var(--text-2); font-size: 0.8125rem; text-decoration: none; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .week-course-title:hover { color: var(--primary); text-decoration: underline; }
@@ -773,7 +747,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 .analytics-chart > svg { display: block; width: 100%; max-width: 150px; }
 .pie-empty { fill: var(--surface-2); }
 .pie-hole { fill: var(--surface); }
-.pie-total { fill: var(--text); font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+.pie-total { fill: var(--text); font-family: var(--font); font-size: 20px; font-weight: 600; }
 .pie-legend { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
 .pie-legend li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 0.875rem; }
 .pie-legend strong { font-variant-numeric: tabular-nums; }
@@ -795,9 +769,9 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 /* Exams page */
 .dash-exams { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 20px; }
 .dash-exam { position: relative; display: flex; flex-direction: column; gap: 6px; border-left: 3px solid var(--exam-accent, var(--primary)); }
-.dash-exam h3 { font-family: var(--font-display); font-size: 1.3125rem; font-weight: 600; }
+.dash-exam h3 { font-size: 1.3125rem; font-weight: 600; }
 .dash-exam p { margin: 0; }
-.dash-exam .live-countdown { display: inline-flex; width: fit-content; margin: 6px 0 4px; padding: 0 4px; background: linear-gradient(transparent 45%, var(--accent-soft) 45%); color: var(--text); font-family: var(--font-mono); font-size: 0.9375rem; font-weight: 500; }
+.dash-exam .live-countdown { display: inline-flex; width: fit-content; margin: 6px 0 4px; padding: 0 4px; background: linear-gradient(transparent 45%, var(--accent-soft) 45%); color: var(--text); font-size: 0.9375rem; font-weight: 500; }
 .dash-exam .dash-actions { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
 .dash-exam .dash-actions a:not(.dash-primary) { color: var(--text-2); }
 .dash-exam .dash-actions a:not(.dash-primary):hover { color: var(--primary); }
@@ -909,7 +883,7 @@ progress::-moz-progress-bar { border-radius: 4px; background: var(--exam-accent,
 #exam-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; }
 #exam-form label { margin: 0; }
 #exam-form > .academic-fields { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; }
-#exam-form > .exam-wide-field, #exam-form > fieldset, #exam-form > button[type="submit"], #exam-form > .form-section-title { grid-column: 1 / -1; }
+#exam-form > .exam-wide-field, #exam-form > fieldset, #exam-form > button[type="submit"] { grid-column: 1 / -1; }
 #exam-form > fieldset { margin: 0; padding: 20px; background: var(--surface-2); }
 #exam-form > fieldset > legend { font-size: 1rem; }
 #chapters { display: grid; gap: 12px; margin-bottom: 14px; }
@@ -978,23 +952,12 @@ progress::-moz-progress-bar { border-radius: 4px; background: var(--exam-accent,
 #exam-timer { flex: none; margin: 0; padding: 8px 14px; border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent-ink); font-size: 1.25rem; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
 #exam-timer:empty { display: none; }
 
-/* Notes & quizzes (hidden feature, kept tidy if re-enabled) */
-.quiz-options { display: grid; gap: 8px; }
-.quiz-options button { justify-content: flex-start; width: 100%; white-space: normal; text-align: left; }
-.quiz-options .quiz-correct { border-color: var(--primary); background: var(--primary-soft); }
-.quiz-options .quiz-wrong { border-color: var(--danger); background: var(--danger-soft); color: var(--danger-ink); }
-.quiz-controls { display: flex; flex-wrap: wrap; gap: 12px; }
-
 /* Admin */
 #account-search { max-width: 420px; }
 .data-table-wrap td.account-cell { display: grid; gap: 2px; white-space: normal; }
 .account-cell strong { font-weight: 600; }
 .account-cell span { color: var(--text-2); font-size: 0.875rem; font-weight: 400; }
 @media (max-width: 720px) { .data-table-wrap td.account-cell { display: grid; } }
-
-/* --------------------------------------------------------------------------
-   Friendly extras: welcome banner, countdown boxes, steps, status pills
-   -------------------------------------------------------------------------- */
 
 /* Dashboard header: a plain page title with a ruled line, no banner */
 .dash-hero {
@@ -1020,13 +983,13 @@ progress::-moz-progress-bar { border-radius: 4px; background: var(--exam-accent,
 #today-summary { border: 0; background: none; padding: 0; color: var(--text-3); font-size: 0.75rem; }
 
 .today-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
-.today-meta .dash-pill { border: 0; background: none; padding: 0; color: var(--text-3); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0; text-transform: none; }
+.today-meta .dash-pill { border: 0; background: none; padding: 0; color: var(--text-3); font-size: 0.75rem; letter-spacing: 0; text-transform: none; }
 .today-meta .dash-pill::before { content: "· "; }
 
-/* Countdown: plain monospaced figures with small unit labels */
+/* Countdown: figures with small unit labels */
 [data-countdown-style="blocks"] { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
 .cd-box { display: inline-flex; align-items: baseline; gap: 3px; line-height: 1; }
-.cd-box b { color: var(--text); font-family: var(--font-mono); font-size: 1.625rem; font-weight: 500; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.cd-box b { color: var(--text); font-size: 1.625rem; font-weight: 500; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .cd-box small { color: var(--text-3); font-size: 0.75rem; font-weight: 500; }
 .cd-box:last-child b { color: var(--text-3); }
 .dash-stats dd[data-countdown-style="blocks"] { gap: 2px 10px; margin: 8px 0 6px; font-family: var(--font); }
@@ -1038,12 +1001,12 @@ progress::-moz-progress-bar { border-radius: 4px; background: var(--exam-accent,
 
 /* Getting started: a numbered list, like notes in the margin */
 .getting-started { margin-bottom: 24px; padding: clamp(22px, 3vw, 32px); }
-.getting-started h2 { font-family: var(--font-display); font-size: 1.625rem; font-weight: 600; }
+.getting-started h2 { font-size: 1.625rem; font-weight: 600; }
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; margin: 20px 0 26px; padding: 0; list-style: none; }
 .steps li { display: flex; gap: 14px; padding: 16px 0 0; border-top: 2px solid var(--text); }
 .steps strong { display: block; margin-bottom: 4px; }
 .steps p { margin: 0; color: var(--text-2); font-size: 0.875rem; }
-.step-number { flex: none; color: var(--primary); font-family: var(--font-display); font-size: 2rem; font-weight: 600; line-height: 1; }
+.step-number { flex: none; color: var(--primary); font-size: 2rem; font-weight: 600; line-height: 1; }
 
 /* Status labels */
 .status-planned { border-color: transparent; background: var(--info-soft); color: var(--info-ink); }
@@ -1080,7 +1043,7 @@ tr.is-completed .pill-today { background: var(--primary); color: var(--on-primar
 .session-revision { min-width: 84px !important; }
 
 .progress-line { display: flex; justify-content: space-between; margin: 6px 0 -2px !important; color: var(--text-2); font-size: 0.8125rem; }
-.progress-line strong { color: var(--text); font-family: var(--font-mono); font-weight: 500; }
+.progress-line strong { color: var(--text); font-weight: 500; }
 .report-roadmap progress { display: block; max-width: 320px; margin: 10px 0 0; }
 
 @media (max-width: 900px) {
@@ -1093,9 +1056,7 @@ tr.is-completed .pill-today { background: var(--primary); color: var(--on-primar
   .dash-stats .stat-countdown { grid-column: 1 / -1; }
 }
 
-/* --------------------------------------------------------------------------
-   Public pages: home, sign in, register, reset
-   -------------------------------------------------------------------------- */
+/* Public pages: home, sign in, register, reset */
 
 .public-page { display: flex; flex-direction: column; }
 .public-page > header,
@@ -1104,7 +1065,7 @@ tr.is-completed .pill-today { background: var(--primary); color: var(--on-primar
 
 .public-page > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 20px; }
 
-.wordmark { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+.wordmark { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
 .wordmark:hover { color: var(--text); }
 .wordmark .brand-symbol { width: 30px; height: 30px; padding: 5px; border-radius: 5px; background: var(--primary); color: var(--on-primary); stroke-width: 2; }
 
@@ -1122,7 +1083,6 @@ tr.is-completed .pill-today { background: var(--primary); color: var(--on-primar
 .hero h1 { max-width: 13ch; margin-bottom: 22px; font-size: clamp(2.6rem, 5.6vw, 4.5rem); font-weight: 600; line-height: 1.02; letter-spacing: -0.02em; text-wrap: balance; }
 .hero h1 em { padding: 0 0.08em; background: linear-gradient(transparent 58%, var(--accent) 58%, var(--accent) 92%, transparent 92%); color: inherit; font-style: italic; }
 .hero-copy > p { max-width: 44ch; color: var(--text-2); font-size: 1.125rem; line-height: 1.65; }
-.home-brand-prefix { display: none; }
 .home-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
 .home-actions .primary-button, .home-actions .secondary-button { min-height: 52px; padding: 12px 24px; font-size: 1rem; }
 .home-actions svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -1130,7 +1090,7 @@ tr.is-completed .pill-today { background: var(--primary); color: var(--on-primar
 .home-photo img { display: block; width: 100%; height: clamp(320px, 42vw, 540px); object-fit: cover; object-position: 68% center; border-radius: var(--radius); }
 .home-photo-card { position: absolute; left: -24px; bottom: 32px; display: grid; gap: 4px; padding: 14px 18px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); }
 .home-photo-card span { color: var(--text-3); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-.home-photo-card strong { color: var(--text); font-family: var(--font-mono); font-size: 1.375rem; font-weight: 500; }
+.home-photo-card strong { color: var(--text); font-size: 1.375rem; font-weight: 500; }
 
 .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 36px; margin-top: clamp(48px, 7vw, 88px); padding: 0; list-style: none; }
 .features li { padding: 20px 0 0; border-top: 2px solid var(--text); }
@@ -1138,7 +1098,7 @@ tr.is-completed .pill-today { background: var(--primary); color: var(--on-primar
 
 
 .features .feature-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-.features h2 { margin-bottom: 6px; font-family: var(--font-display); font-size: 1.375rem; font-weight: 600; }
+.features h2 { margin-bottom: 6px; font-size: 1.375rem; font-weight: 600; }
 .features p { margin: 0; color: var(--text-2); font-size: 0.9375rem; }
 
 /* Sign in / register / reset */
@@ -1201,9 +1161,7 @@ tr.is-completed .pill-today { background: var(--primary); color: var(--on-primar
   .sign-in-visual blockquote { display: none; }
 }
 
-/* --------------------------------------------------------------------------
-   Responsive
-   -------------------------------------------------------------------------- */
+/* Responsive */
 
 @media (max-width: 1100px) {
   .dash-focus { grid-template-columns: minmax(0, 1fr); }
@@ -1253,9 +1211,7 @@ tr.is-completed .pill-today { background: var(--primary); color: var(--on-primar
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 
-/* --------------------------------------------------------------------------
-   Print (roadmap & report)
-   -------------------------------------------------------------------------- */
+/* Print (roadmap & report) */
 
 @media print {
   :root { --bg: #fff; --surface: #fff; --surface-2: #f4f4f4; --text: #000; --text-2: #333; --border: #ccc; color-scheme: light; }
