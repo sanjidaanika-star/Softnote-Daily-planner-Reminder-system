@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    { "source": "/", "destination": "/login.html" },
     { "source": "/online-exams", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/online-exams" },
     { "source": "/online-exams/:path*", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/online-exams/:path*" },
     { "source": "/reminders", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/reminders" },

@@ -56,7 +56,6 @@ import java.util.stream.Collectors;
 public final class ApiServer {
     private static final Map<String, String> ASSETS = Map.ofEntries(
             Map.entry("/assets/hero-study.jpg", "image/jpeg"),
-            Map.entry("/index.html", "text/html"),
             Map.entry("/admin.html", "text/html"), Map.entry("/js/admin.js", "text/javascript"),
             Map.entry("/online-exams.html", "text/html"), Map.entry("/js/online-exams.js", "text/javascript"),
             Map.entry("/reset-password.html", "text/html"), Map.entry("/js/reset.js", "text/javascript"),
@@ -219,7 +218,7 @@ public final class ApiServer {
         try (exchange) {
             String path = exchange.getRequestURI().getPath();
             if ("/".equals(path)) {
-                path = "/index.html";
+                path = "/login.html";
             }
             String contentType = ASSETS.getOrDefault(path == null ? "" : path, "");
             if (contentType.isEmpty()) {
