@@ -891,7 +891,7 @@ progress::-moz-progress-bar { border-radius: 4px; background: var(--exam-accent,
 #exam-form .chapter legend { padding: 0 6px; color: var(--text-2); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
 #exam-form .remove-chapter { min-height: 44px; padding: 8px 12px; border-color: transparent; background: transparent; color: var(--danger); font-size: 0.875rem; }
 #exam-form .remove-chapter:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger-ink); }
-#exam-form .remove-chapter:disabled { visibility: hidden; }
+#exam-form .remove-chapter:disabled { display: none; }
 #add-chapter { border-style: dashed; color: var(--primary-ink); }
 #exam-form > button[type="submit"] { width: 100%; min-height: 50px; font-size: 1rem; }
 .form-hint { margin: 6px 0 0; color: var(--text-2); font-size: 0.8125rem; font-weight: 450; }
