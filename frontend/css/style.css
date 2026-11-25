@@ -227,6 +227,11 @@ textarea:focus-visible {
 input:disabled, select:disabled { opacity: 0.6; cursor: not-allowed; }
 input[readonly] { background: var(--surface-2); }
 
+/* iOS Safari zooms the whole page in when a tapped field's text is under 16px. */
+@media (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 1rem; }
+}
+
 input[type="checkbox"], input[type="radio"] {
   width: 20px;
   height: 20px;
