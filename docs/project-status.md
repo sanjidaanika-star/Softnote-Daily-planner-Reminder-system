@@ -12,7 +12,14 @@ Softnote is a Java 17 / JDBC / MySQL application with a plain HTML, CSS and Java
 - Reminder preferences and inbox, timezone-aware scheduling, persistent delivery retries, browser push and Brevo HTTPS email delivery code. Optional SMTP delivery is also implemented.
 - Browser subscription reassignment when switching accounts. Explicit sign-out disconnects the device; expired authentication preserves the reminder subscription.
 
-## External activation still required
+## Hidden in the interface
+
+Gemini quizzes and email reminders are not being activated, so the frontend hides them. The backend code is unchanged.
+
+- **Notes & quizzes:** the links are removed from every page, and `quiz.html` redirects to the dashboard. To restore it, put back the `quiz.js` script in `quiz.html`, remove the redirect, and add the navigation links again.
+- **Email reminders:** the email option on `reminders.html` sits in a hidden block, and `reminders.js` always saves it as off. Browser push and the in-app inbox still work.
+
+## External activation (not planned)
 
 ### Email reminders
 

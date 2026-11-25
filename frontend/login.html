@@ -4,33 +4,41 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sign in | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=mobile-home-1">
-  <script type="module" src="/js/pages.js?v=role-home-1"></script>
+  <meta name="theme-color" content="#f6f3ec">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css?v=notebook-5">
+  <script type="module" src="/js/pages.js?v=notebook-5"></script>
 </head>
 <body class="public-page sign-in-page softnote-theme">
   <header>
     <a class="wordmark" href="/"><svg class="brand-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg>Softnote</a>
     <nav aria-label="Account navigation">
-      <a href="/login.html" aria-current="page">Sign in</a>
-      <a class="primary-button" href="/register.html">Create account</a>
+      <a href="/register.html">Create account</a>
     </nav>
   </header>
   <main>
-    <div class="sign-in-visual"></div>
+    <div class="sign-in-visual">
+      <blockquote>Small daily sessions add up to a finished syllabus.</blockquote>
+      <p>Your plan, countdowns and reminders are waiting.</p>
+    </div>
     <section class="sign-in-card" aria-labelledby="sign-in-heading">
-      <h1 id="sign-in-heading">Sign in</h1>
-      <p class="sign-in-intro">Pick up where you left off with your study plan.</p>
+      <h1 id="sign-in-heading">Welcome back</h1>
+      <p class="sign-in-intro">Sign in to pick up where you left off.</p>
       <p id="error" role="alert" hidden></p>
       <p id="notice" role="status" hidden></p>
       <form id="login-form" method="post">
-        <label>Email <input name="email" type="email" maxlength="254" autocomplete="email" required></label>
+        <label>Email <input name="email" type="email" maxlength="254" autocomplete="email" required placeholder="you@example.com"></label>
         <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
         <button type="submit">Sign in</button>
       </form>
-      <p><a href="/reset-password.html">Forgot your password?</a></p>
-      <p>New to Softnote? <a href="/register.html">Create an account</a></p>
+      <div class="sign-in-links">
+        <p><a href="/reset-password.html">Forgot your password?</a></p>
+        <p>New to Softnote? <a href="/register.html">Create an account</a></p>
+      </div>
     </section>
   </main>
-  <footer>Softnote : Daily planner &amp; Reminder system</footer>
+  <footer>Softnote · Daily planner &amp; reminder system</footer>
 </body>
 </html>

@@ -3,9 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Softnote : Daily planner &amp; Reminder system</title>
+  <title>Softnote · Daily planner &amp; reminder system</title>
+  <meta name="description" content="Softnote turns your chapters into a daily study plan, counts down to every exam, and reschedules the sessions you miss.">
   <link rel="preload" as="image" href="/assets/hero-study.jpg">
-  <link rel="stylesheet" href="/css/style.css?v=landing-layout-4">
+  <meta name="theme-color" content="#f6f3ec">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css?v=notebook-5">
   <script type="module" src="/js/home.js"></script>
 </head>
 <body class="public-page public-home softnote-theme">
@@ -19,13 +24,37 @@
   <main>
     <section class="hero" aria-labelledby="hero-heading">
       <div class="hero-copy">
-        <h1 id="hero-heading"><span class="home-brand-prefix">Softnote : </span>Daily planner &amp; Reminder system</h1>
-        <p>Split your chapters into daily sessions. Softnote reschedules the ones you miss.</p>
-        <div class="home-actions"><a class="primary-button" href="/register.html">Create account<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></div>
+        <span class="hero-badge">Daily planner &amp; reminder system</span>
+        <h1 id="hero-heading"><span class="home-brand-prefix">Softnote : </span>Study every chapter <em>before</em> exam day.</h1>
+        <p>Add your exam date and chapters. Softnote splits them into daily sessions by difficulty, counts down to every CT, Mid and Final, and reschedules anything you miss.</p>
+        <div class="home-actions">
+          <a class="primary-button" href="/register.html">Create a free account<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a>
+          <a class="secondary-button" href="/login.html">I already have an account</a>
+        </div>
       </div>
-      <div class="home-photo"><img id="home-study-photo" src="/assets/hero-study.jpg" width="1774" height="887" alt="An open study planner and handwritten notes on a desk" fetchpriority="high" decoding="async"></div>
+      <div class="home-photo">
+        <img id="home-study-photo" src="/assets/hero-study.jpg" width="1774" height="887" alt="An open study planner and handwritten notes on a desk" fetchpriority="high" decoding="async">
+        <div class="home-photo-card" aria-hidden="true"><span>Next exam in</span><strong>4d 11h 20m</strong></div>
+      </div>
     </section>
+    <ul class="features" aria-label="What Softnote does">
+      <li>
+        <span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4M8 14h3"/></svg></span>
+        <h2>A plan that fits your days</h2>
+        <p>Hard chapters get more time. Sessions never go past your daily limit or onto exam day.</p>
+      </li>
+      <li>
+        <span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg></span>
+        <h2>Missed a session? It moves</h2>
+        <p>Mark a session missed and the work is spread across the free time you have left.</p>
+      </li>
+      <li>
+        <span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>
+        <h2>Reminders at your time</h2>
+        <p>Get a daily nudge for unfinished study and a heads-up the day before each exam.</p>
+      </li>
+    </ul>
   </main>
-  <footer>Softnote : Daily planner &amp; Reminder system</footer>
+  <footer>Softnote · Daily planner &amp; reminder system</footer>
 </body>
 </html>

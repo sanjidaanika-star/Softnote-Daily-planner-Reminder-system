@@ -3,29 +3,50 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin panel | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=mobile-home-1"><script type="module" src="/js/admin.js"></script>
+  <meta name="theme-color" content="#f6f3ec">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css?v=notebook-5">
+  <script type="module" src="/js/admin.js?v=notebook-5"></script>
 </head>
 <body class="dashboard-page softnote-theme">
-  <aside class="dash-sidebar"><a class="dash-brand" href="/admin.html"><svg class="brand-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg>Softnote</a>
-    <nav aria-label="Administration navigation"><a href="/online-exams.html">Online exams</a><a href="/dashboard.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Study dashboard</a><a href="#users-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-3a8 8 0 0 1 16 0v3"/></svg>Accounts</a><a href="#reset-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/></svg>Password resets</a><a href="#audit-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8m-8 5h8m-8 5h5"/></svg>Activity log</a></nav>
-    <button id="sign-out" class="dash-secondary">Sign out</button>
+  <a class="dash-skip" href="#admin-main">Skip to content</a>
+  <aside class="dash-sidebar">
+    <div class="sidebar-head">
+      <a class="dash-brand" href="/admin.html"><svg class="brand-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg><span>Softnote</span></a>
+      <button type="button" id="workspace-menu-toggle" class="workspace-menu-toggle" aria-controls="workspace-nav" aria-expanded="false"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+    </div>
+    <nav id="workspace-nav" class="workspace-nav" aria-label="Administration navigation">
+      <p class="nav-label">Administration</p>
+      <a href="/admin.html" aria-current="page"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM9 12l2 2 4-4"/></svg>Overview</a>
+      <a href="#users-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-3a8 8 0 0 1 16 0v3"/></svg>Accounts</a>
+      <a href="#reset-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/></svg>Password resets</a>
+      <a href="#audit-heading"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>Activity log</a>
+      <a href="/online-exams.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg>Online exams</a>
+      <p class="nav-label">My study</p>
+      <a href="/dashboard.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Study dashboard</a>
+      <button id="sign-out" type="button"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg>Sign out</button>
+    </nav>
   </aside>
-  <main>
-    <div class="dash-top"><div><p class="dash-muted">Softnote · Administration</p><h1>Admin panel</h1></div><button id="refresh" class="dash-secondary">Refresh</button></div>
+  <main id="admin-main">
+    <div class="dash-top"><div><p class="eyebrow">Softnote · Administration</p><h1>Admin panel</h1></div><button id="refresh" class="dash-secondary" type="button"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>Refresh</button></div>
     <p id="message" role="status">Loading administration…</p><p id="error" role="alert" hidden></p>
     <div id="admin-content" hidden>
       <dl id="admin-stats" class="dash-stats"></dl>
       <section class="dash-card dash-section"><h2 id="users-heading">Registered accounts</h2>
-        <p class="dash-muted">Newest 1,000 accounts. Search by name or email. Disabling an account ends its active sessions.</p>
-        <label>Find an account <input id="account-search" type="search" placeholder="Name or email"></label>
-        <div class="data-table-wrap"><table><thead><tr><th>Name / email</th><th>Joined</th><th>Role</th><th>Exams / notes</th><th>Status</th><th>Action</th></tr></thead><tbody id="accounts"></tbody></table></div>
+        <p class="dash-muted">Newest 1,000 accounts. Disabling an account ends its active sessions straight away.</p>
+        <label>Find an account <input id="account-search" type="search" placeholder="Search by name or email"></label>
+        <div class="data-table-wrap"><table><thead><tr><th>Name / email</th><th>Joined</th><th>Role</th><th>Exams</th><th>Status</th><th>Action</th></tr></thead><tbody id="accounts"></tbody></table></div>
       </section>
       <section class="dash-card dash-section"><h2 id="reset-heading">Password reset requests</h2>
-        <p class="dash-muted">Verify the account owner's identity before issuing a link. Share it privately with that owner. Each link expires in 30 minutes and works once.</p>
+        <p class="dash-muted">Verify the account owner’s identity before issuing a link, then share it privately. Each link works once and expires in 30 minutes.</p>
         <p id="reset-result" role="status" hidden></p>
         <div class="data-table-wrap"><table><thead><tr><th>Account</th><th>Requested</th><th>Status</th><th>Action</th></tr></thead><tbody id="resets"></tbody></table></div>
       </section>
-      <section class="dash-card dash-section"><h2 id="audit-heading">Administration activity</h2><ul id="audit" class="dash-list"></ul></section>
+      <section class="dash-card dash-section"><h2 id="audit-heading">Administration activity</h2><p class="dash-muted">Most recent actions first.</p><ul id="audit" class="dash-list"></ul></section>
     </div>
   </main>
-</body></html>
+  <script type="module" src="/js/nav.js?v=notebook-5"></script>
+</body>
+</html>

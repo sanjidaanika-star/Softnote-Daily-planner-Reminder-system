@@ -1,4 +1,5 @@
 import { requireLogin, listExams, getPlan, getProgress } from './api.js';
+import { friendlyDate, relativeDay } from './countdown.js';
 const byId = (id) => document.getElementById(id);
 const node = (tag, text, className = '') => Object.assign(document.createElement(tag), { textContent: text, className });
 let exams = [];
@@ -15,16 +16,17 @@ function render() {
     const item = node('li', '');
     const next = exam.plan.sessions.filter((s) => s.status === 'planned').sort((a, b) => a.sessionDate.localeCompare(b.sessionDate))[0];
     const link = node('a', 'Open study plan'); link.href = '/plan.html?examId=' + exam.id;
-    const date = node('time', exam.examDate); date.dateTime = exam.examDate;
+    const date = node('time', friendlyDate(exam.examDate) + ' · ' + relativeDay(exam.examDate)); date.dateTime = exam.examDate;
+    const bar = document.createElement('progress'); bar.max = 100; bar.value = exam.progress.percentage; bar.setAttribute('aria-label', 'Completion for ' + exam.title);
     item.append(date, node('h3', exam.title), node('p', (exam.semester ? 'Semester ' + exam.semester : 'Unassigned semester') + ' · ' + exam.assessment, 'dash-muted'),
-      node('p', next ? 'Next study · ' + next.sessionDate + ' · ' + next.chapterName + ' · ' + next.plannedMinutes + ' min' : 'No planned session remaining.'),
-      node('p', Math.max(0, exam.progress.totalPlannedMinutes - exam.progress.completedMinutes) + ' min remaining · ' + exam.progress.percentage + '% complete'), link);
+      node('p', next ? 'Next up: ' + next.chapterName + ' on ' + friendlyDate(next.sessionDate) + ' (' + next.plannedMinutes + ' min)' : 'No planned session left.'),
+      node('p', Math.round(exam.progress.percentage) + '% done · ' + Math.max(0, exam.progress.totalPlannedMinutes - exam.progress.completedMinutes) + ' min to go', 'dash-muted'), bar, link);
     return item;
   }));
   byId('report-rows').replaceChildren(...selected.map((exam) => {
     const row = node('tr', '');
-    for (const value of [(exam.semester || 'Unassigned') + ' · ' + (exam.courseName || exam.title), exam.assessment, exam.examDate,
-      exam.progress.completedMinutes + ' / ' + exam.progress.totalPlannedMinutes, exam.progress.percentage + '%', exam.plan.unscheduled.reduce((sum, item) => sum + item.minutes, 0)]) row.append(node('td', value));
+    for (const value of [(exam.semester ? 'Sem ' + exam.semester : 'No semester') + ' · ' + (exam.courseName || exam.title), exam.assessment, friendlyDate(exam.examDate),
+      exam.progress.completedMinutes + ' / ' + exam.progress.totalPlannedMinutes, Math.round(exam.progress.percentage) + '%', exam.plan.unscheduled.reduce((sum, item) => sum + item.minutes, 0)]) row.append(node('td', value));
     return row;
   }));
   const labels = [...byId('report-rows').closest('table').querySelectorAll('th')].map((cell) => cell.textContent);

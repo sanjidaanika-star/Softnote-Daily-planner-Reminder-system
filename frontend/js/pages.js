@@ -2,7 +2,7 @@ import { endSession, createExam, deleteExam, getDisplayName, getExam, getHistory
 
 import { populateCourses } from "./courses.js";
 import { getMe } from "./api.js";
-import { countdownText, refreshCountdowns } from "./countdown.js";
+import { countdownText, friendlyDate, refreshCountdowns, renderCountdown } from "./countdown.js";
 
 const byId = (id) => document.getElementById(id);
 const error = byId("error");
@@ -81,7 +81,8 @@ function dashboardSvg(tag, attributes) {
   return shape;
 }
 
-function completionRing(percentage) {
+function completionRing(rawPercentage) {
+  const percentage = Math.round(rawPercentage);
   const ring = dashNode("div", null, "dash-ring");
   const svg = dashboardSvg("svg", { viewBox: "0 0 40 40", "aria-hidden": "true" });
   const track = dashboardSvg("circle", { cx: 20, cy: 20, r: 16, class: "ring-track" });
@@ -95,6 +96,16 @@ function completionRing(percentage) {
   return ring;
 }
 
+function progressLine(exam) {
+  const line = dashNode("p", null, "progress-line");
+  line.append(dashNode("span", "Progress"), dashNode("strong", Math.round(exam.progress.percentage) + "%"));
+  return line;
+}
+
+function statusPill(status) {
+  return dashNode("span", statusLabels[status] || status, "dash-pill status-" + status);
+}
+
 function examProgress(exam) {
   const bar = dashNode("progress");
   bar.max = 100;
@@ -105,14 +116,16 @@ function examProgress(exam) {
 
 function renderToday(exams, today) {
   const items = [];
+  let todayMinutes = 0, firstChapter = "";
   for (const exam of exams) {
     for (const session of exam.plan.sessions) {
       if (session.status !== "planned" || session.sessionDate !== today) continue;
       const item = dashNode("li", null, "dash-today-item");
       item.dataset.accent = exam.accent;
       const detail = dashNode("div");
-      detail.append(dashNode("strong", session.chapterName),
-        dashNode("span", exam.title + " · " + session.plannedMinutes + " min", "dash-muted"));
+      const meta = dashNode("span", null, "today-meta");
+      meta.append(dashNode("span", exam.title, "dash-muted"), dashNode("span", session.plannedMinutes + " min", "dash-pill"));
+      detail.append(dashNode("strong", session.chapterName), meta);
       const done = dashNode("button", "Done", "dash-secondary");
       done.type = "button";
       done.setAttribute("aria-label", "Done: " + session.chapterName + " (" + exam.title + "), "
@@ -135,9 +148,21 @@ function renderToday(exams, today) {
       });
       item.append(detail, done);
       items.push(item);
+      todayMinutes += session.plannedMinutes;
+      if (!firstChapter) firstChapter = session.chapterName;
     }
   }
-  populateList("today-sessions", items, "Nothing planned today.");
+  populateList("today-sessions", items, "Nothing planned for today. Take a break, or get ahead from This week on Study sessions.");
+  const summary = items.length
+    ? items.length + (items.length === 1 ? " session" : " sessions") + " · " + todayMinutes + " min of study today"
+    : "No study planned today";
+  if (byId("today-summary")) byId("today-summary").textContent = summary;
+  if (byId("hero-summary")) {
+    byId("hero-summary").textContent = items.length
+      ? "You have " + items.length + (items.length === 1 ? " study session" : " study sessions") + " today ("
+        + todayMinutes + " min). Start with " + firstChapter + "."
+      : exams.length ? "Nothing is planned for today. You’re on track." : "Add your first exam and Softnote will plan every study day for you.";
+  }
 }
 
 function renderWeek(exams, now) {
@@ -195,7 +220,7 @@ function renderCatchUp(exams, history) {
     const item = dashNode("li");
     item.append(dashNode("span", "Missed", "dash-pill dash-missed"),
       dashNode("strong", session.chapterName), dashNode("span", exam.title + " · "
-        + session.sessionDate + " · " + session.plannedMinutes + " min", "dash-muted"),
+        + friendlyDate(session.sessionDate) + " · " + session.plannedMinutes + " min", "dash-muted"),
       examLink(exam, "/plan.html", "Open plan"));
     items.push(item);
   }
@@ -210,9 +235,11 @@ function renderCatchUp(exams, history) {
       items.push(item);
     }
   }
-  byId("catch-count").textContent = missedCount + " missed · " + missedMinutes
-    + " min originally planned | " + unscheduledCount + " unscheduled · " + unscheduledMinutes + " min left";
-  populateList("catch-list", items, "You’re all caught up.");
+  byId("catch-count").textContent = missedCount || unscheduledCount
+    ? "Missed sessions: " + missedCount + " (" + missedMinutes + " min) · Didn’t fit before the exam: "
+      + unscheduledCount + " (" + unscheduledMinutes + " min)"
+    : "Sessions you miss, and work that doesn’t fit before an exam, show up here.";
+  populateList("catch-list", items, "You’re all caught up. Nothing missed.");
 }
 
 function renderOverview(exams, now) {
@@ -225,14 +252,19 @@ function renderOverview(exams, now) {
   byId("exam-total").textContent = exams.length;
   byId("exam-upcoming").textContent = exams.filter((exam) => exam.examDate >= today && exam.examDate <= horizon).length;
   byId("exam-completion").textContent = (planned ? Math.round(100 * completed / planned) : 0) + "%";
-  byId("overall-minutes").textContent = completed + " of " + planned + " min";
+  byId("overall-minutes").textContent = completed.toLocaleString() + " of " + planned.toLocaleString() + " min studied";
   const nextCountdown = byId("exam-countdown");
   delete nextCountdown.dataset.countdownDate;
-  nextCountdown.textContent = "—";
+  nextCountdown.textContent = "No exam yet";
+  nextCountdown.removeAttribute("aria-label");
   if (next) {
     nextCountdown.dataset.countdownDate = next.examDate;
-    nextCountdown.textContent = countdownText(next.examDate, now);
+    renderCountdown(nextCountdown, next.examDate, now);
   }
+  const nextLabel = byId("next-exam-label");
+  if (nextLabel) nextLabel.textContent = next ? next.title + " · " + friendlyDate(next.examDate) : "Add an exam to start a countdown";
+  nextCountdown.closest(".dash-card")?.classList.toggle("stat-urgent",
+    Boolean(next) && (Date.parse(next.examDate) - Date.parse(today)) / DAY <= 7);
 
   renderAnalytics(exams);
 }
@@ -244,8 +276,8 @@ function renderNextExam(exams, now) {
   nextCard.replaceChildren();
   if (next) {
     const details = dashNode("div");
-    details.append(dashNode("h3", next.title), dashNode("p", next.examDate + " · " + daysLeft(next.examDate, today),
-      "dash-muted"), examLink(next, "/plan.html", "Open plan"));
+    details.append(dashNode("h3", next.title), dashNode("p", friendlyDate(next.examDate) + " · " + daysLeft(next.examDate, today),
+      "dash-muted"), examLink(next, "/plan.html", "Open study plan →"));
     nextCard.append(details, completionRing(next.progress.percentage));
   } else {
     nextCard.append(dashNode("p", "No upcoming exam.", "dash-muted"));
@@ -260,18 +292,18 @@ function renderExamList(exams, now) {
     const item = dashNode("li", null, "dash-card dash-exam");
     item.dataset.accent = exam.accent;
     const actions = dashNode("div", null, "dash-actions");
-    actions.append(examLink(exam, "/plan.html", "Study plan", "dash-primary"),
-      examLink(exam, "/progress.html", "Progress & history"),
-      examLink(exam, "/new-exam.html", "Edit exam"));
+    actions.append(examLink(exam, "/plan.html", "Open plan", "dash-primary"),
+      examLink(exam, "/progress.html", "History"),
+      examLink(exam, "/new-exam.html", "Edit"));
     const remove = dashNode("button", "Delete", "dash-secondary dash-danger");
     remove.type = "button";
     remove.setAttribute("aria-label", "Delete exam for " + exam.title);
     remove.addEventListener("click", () => openDeleteExam(exam, remove));
     actions.append(remove);
     item.append(dashNode("span", academicLabel(exam), "dash-pill"), dashNode("h3", exam.title),
-      dashNode("p", exam.examDate + " · " + daysLeft(exam.examDate, today)
-        + " · " + exam.dailyMinutes + " min/day", "dash-muted"),
-      countdownNode(exam), dashNode("p", exam.progress.percentage + "% complete", "dash-muted"), examProgress(exam), actions);
+      dashNode("p", friendlyDate(exam.examDate) + " · " + daysLeft(exam.examDate, today)
+        + " · " + exam.dailyMinutes + " min a day", "dash-muted"),
+      countdownNode(exam), progressLine(exam), examProgress(exam), actions);
     return item;
   }));
 }
@@ -336,7 +368,7 @@ function renderSemesterCourses(exams) {
     const links = dashNode("div", null, "dash-actions");
     for (const exam of assessments.sort((a, b) => a.examDate.localeCompare(b.examDate))) {
       const assessment = dashNode("div", null, "assessment-countdown");
-      assessment.append(examLink(exam, "/plan.html", exam.assessment + " · " + exam.examDate), countdownNode(exam));
+      assessment.append(examLink(exam, "/plan.html", exam.assessment + " · " + friendlyDate(exam.examDate)), countdownNode(exam));
       links.append(assessment);
     }
     item.append(links);
@@ -362,20 +394,30 @@ function renderDashboard(exams, history, now) {
       break;
     default:
       renderOverview(exams, now);
+      if (byId("getting-started")) {
+        byId("getting-started").hidden = exams.length > 0;
+        byId("dashboard-insights").hidden = exams.length === 0;
+      }
+      if (byId("today-sessions")) renderToday(exams, dateKey(now));
+      if (byId("next-exam")) renderNextExam(exams, now);
   }
+}
+
+function chartColour(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
 function renderAnalytics(exams) {
   const sessions = exams.flatMap((exam) => exam.plan.sessions);
   const chapters = exams.flatMap((exam) => exam.plan.chapters || []);
   renderPie("session-chart", [
-    { label: "Completed", value: sessions.filter((session) => session.status === "completed").length, colour: "#285a42" },
-    { label: "Planned", value: sessions.filter((session) => session.status === "planned").length, colour: "#a5bda0" },
-    { label: "Missed", value: sessions.filter((session) => session.status === "missed").length, colour: "#b67559" },
+    { label: "Done", value: sessions.filter((session) => session.status === "completed").length, colour: chartColour("--chart-1") },
+    { label: "To do", value: sessions.filter((session) => session.status === "planned").length, colour: chartColour("--chart-2") },
+    { label: "Missed", value: sessions.filter((session) => session.status === "missed").length, colour: chartColour("--chart-3") },
   ], "No study sessions yet.");
   renderPie("chapter-chart", [
-    { label: "Completed", value: chapters.filter((chapter) => chapter.completed).length, colour: "#285a42" },
-    { label: "In progress", value: chapters.filter((chapter) => !chapter.completed).length, colour: "#c6ba99" },
+    { label: "Finished", value: chapters.filter((chapter) => chapter.completed).length, colour: chartColour("--chart-1") },
+    { label: "In progress", value: chapters.filter((chapter) => !chapter.completed).length, colour: chartColour("--chart-4") },
   ], "No chapters yet.");
 }
 
@@ -404,6 +446,10 @@ function renderPie(id, segments, emptyMessage) {
     }
     angle = end;
   }
+  svg.append(dashboardSvg("circle", { cx: 60, cy: 60, r: 33, class: "pie-hole" }));
+  const totalLabel = dashboardSvg("text", { x: 60, y: 66, "text-anchor": "middle", class: "pie-total" });
+  totalLabel.textContent = String(total);
+  svg.append(totalLabel);
   const legend = dashNode("ul", null, "pie-legend");
   for (const segment of segments) {
     const item = dashNode("li");
@@ -443,9 +489,14 @@ function renderChapterGroups(container, exams, completed) {
     const list = dashNode("ul", null, "dash-list");
     for (const { chapter, exam } of course.chapters) {
       const item = dashNode("li");
+      const bar = dashNode("progress");
+      bar.max = Math.max(1, chapter.requiredMinutes);
+      bar.value = Math.min(chapter.completedMinutes, bar.max);
+      bar.setAttribute("aria-label", chapter.name + " study progress");
       item.append(dashNode("strong", chapter.name), dashNode("span", (exam.assessment || "OTHER") + " · " + exam.title, "dash-muted"),
-        dashNode("span", chapter.completedMinutes + " / " + chapter.requiredMinutes + " study min · "
-          + chapter.revisionCompletedMinutes + " revision min completed", "dash-muted"),
+        bar,
+        dashNode("span", chapter.completedMinutes + " of " + chapter.requiredMinutes + " min studied"
+          + (chapter.revisionCompletedMinutes ? " · " + chapter.revisionCompletedMinutes + " min revision" : ""), "dash-muted"),
         examLink(exam, "/plan.html", completed ? "View study history" : "Open study plan"));
       list.append(item);
     }
@@ -548,6 +599,10 @@ async function setupExam(form) {
     for (const button of chapters.querySelectorAll(".remove-chapter")) {
       button.disabled = chapters.children.length === 1;
     }
+    [...chapters.children].forEach((row, index) => {
+      row.querySelector("legend").textContent = "Chapter " + (index + 1);
+      row.querySelector(".remove-chapter").setAttribute("aria-label", "Remove chapter " + (index + 1));
+    });
   }
 
   function addChapter(focus, chapter) {
@@ -571,6 +626,10 @@ async function setupExam(form) {
   if (editing) {
     form.hidden = true;
     document.querySelector("main h1").textContent = "Edit exam";
+    const eyebrow = document.querySelector("main .eyebrow");
+    if (eyebrow) eyebrow.textContent = "Editing";
+    const intro = document.querySelector("main .page-intro");
+    if (intro) intro.textContent = "Change any detail, then press Save changes.";
     document.title = "Edit exam | Softnote";
     try {
       examId = selectedExam();
@@ -627,60 +686,46 @@ function addCells(row, values) {
 
 const statusLabels = { planned: "Planned", completed: "Completed", missed: "Missed" };
 
-function addSessionEditor(revisionCell, actions, session, table, pending) {
-  const form = document.createElement("form");
-  form.className = "session-editor";
-  form.id = "session-editor-" + session.id;
-  form.dataset.sessionId = session.id;
-  const select = document.createElement("select");
-  select.setAttribute("aria-label", "Status for " + session.chapterName + " on " + session.sessionDate);
-  for (const [value, label] of Object.entries(statusLabels)) {
-    select.add(new Option(label, value));
-  }
-  select.name = "status";
-  select.value = pending?.status ?? session.status;
-
+/** One click per planned session: Done, or Missed (which reschedules the work). Revision saves on change. */
+function addSessionEditor(revisionCell, actions, session, table) {
+  const when = friendlyDate(session.sessionDate);
   const revision = document.createElement("select");
   revision.className = "session-revision";
-  revision.name = "revision";
-  revision.setAttribute("form", form.id);
-  revision.setAttribute("aria-label", "Revision for " + session.chapterName + " on " + session.sessionDate);
+  revision.setAttribute("aria-label", "Is " + session.chapterName + " on " + when + " a revision session?");
   revision.add(new Option("Yes", "true"));
   revision.add(new Option("No", "false"));
-  revision.value = pending?.revision ?? String(session.isRevision);
+  revision.value = String(session.isRevision);
 
-  const save = document.createElement("button");
-  save.type = "submit";
-  save.textContent = "Save";
-  const updateSave = () => {
-    save.disabled = select.value === session.status && revision.value === String(session.isRevision);
-  };
-  select.addEventListener("change", updateSave);
-  revision.addEventListener("change", updateSave);
-  updateSave();
+  const editor = dashNode("div", null, "session-editor");
+  const done = dashNode("button", "Done", "session-done");
+  done.type = "button";
+  done.setAttribute("aria-label", "Mark " + session.chapterName + " on " + when + " as done");
+  const missed = dashNode("button", "Missed", "session-missed");
+  missed.type = "button";
+  missed.setAttribute("aria-label", "Mark " + session.chapterName + " on " + when + " as missed");
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (save.disabled) return;
+  async function save(changes) {
     error.hidden = true;
-    const changes = {};
-    if (select.value !== session.status) changes.status = select.value;
-    if (revision.value !== String(session.isRevision)) changes.isRevision = revision.value === "true";
-    const controls = Array.from(table.querySelectorAll(
-      ".session-editor :is(select, button):enabled, .session-revision:enabled"));
+    const controls = Array.from(table.querySelectorAll(".session-editor button:enabled, .session-revision:enabled"));
     controls.forEach((control) => { control.disabled = true; });
     try {
       await updateSession(session.id, changes);
       await loadPlan(session.id);
     } catch (failure) {
       showError(failure);
-    } finally {
+      revision.value = String(session.isRevision);
       controls.forEach((control) => { control.disabled = false; });
     }
+  }
+  revision.addEventListener("change", () => save({ isRevision: revision.value === "true" }));
+  done.addEventListener("click", () => save({ status: "completed" }));
+  missed.addEventListener("click", () => {
+    if (confirm("Mark " + session.chapterName + " (" + when + ") as missed?\n\nSoftnote will move its "
+      + session.plannedMinutes + " minutes to your free days before the exam.")) save({ status: "missed" });
   });
-  form.append(select, save);
+  editor.append(done, missed);
   revisionCell.append(revision);
-  actions.append(form);
+  actions.append(editor);
 }
 
 async function loadPlan(focusSessionId) {
@@ -691,8 +736,15 @@ async function loadPlan(focusSessionId) {
     byId("progress-link").href = "/progress.html?examId=" + encodeURIComponent(examId);
     const [plan, exam] = await Promise.all([getPlan(examId), getExam(examId)]);
     const { sessions, unscheduled } = plan;
+    if (byId("plan-title")) {
+      byId("plan-title").textContent = exam.title;
+      document.title = exam.title + " · Study plan | Softnote";
+    }
     const countdown = byId("plan-countdown");
-    countdown.replaceChildren(dashNode("strong", exam.title + " · " + exam.assessment + " · " + exam.examDate), countdownNode(exam));
+    const blocks = countdownNode(exam);
+    blocks.dataset.countdownStyle = "blocks";
+    renderCountdown(blocks, exam.examDate);
+    countdown.replaceChildren(dashNode("span", "Exam " + friendlyDate(exam.examDate) + " · " + (exam.assessment || "OTHER"), "plan-countdown-label"), blocks);
     renderChapterGroups(byId("plan-active-chapters"), [{ ...exam, plan }], false);
     renderChapterGroups(byId("plan-completed-chapters"), [{ ...exam, plan }], true);
     const editLink = byId("edit-exam-link");
@@ -701,12 +753,6 @@ async function loadPlan(focusSessionId) {
     status.textContent = sessions.length === 0 ? "There are no study sessions for this exam."
       : focusSessionId == null ? "" : "Session changes saved.";
     const rows = table.tBodies[0];
-    const pendingEdits = new Map(Array.from(rows.querySelectorAll(".session-editor"), (form) => [
-      form.dataset.sessionId, {
-        status: form.elements.namedItem("status").value,
-        revision: form.elements.namedItem("revision").value,
-      },
-    ]));
     rows.replaceChildren();
     const list = byId("unscheduled-list");
     list.replaceChildren();
@@ -717,14 +763,22 @@ async function loadPlan(focusSessionId) {
     }
     byId("unscheduled-status").textContent = unscheduled.length ? "" : "All work is scheduled.";
 
+    const todayKey = dateKey(new Date());
     for (const session of sessions) {
       const row = rows.insertRow();
-      addCells(row, [session.sessionDate, session.chapterName, session.plannedMinutes,
-        statusLabels[session.status]]);
+      const dateCell = row.insertCell();
+      dateCell.append(dashNode("span", friendlyDate(session.sessionDate)));
+      if (session.sessionDate === todayKey) {
+        row.classList.add("is-today");
+        dateCell.append(dashNode("span", "Today", "dash-pill pill-today"));
+      }
+      addCells(row, [session.chapterName, session.plannedMinutes + " min"]);
+      row.insertCell().append(statusPill(session.status));
+      row.classList.toggle("is-completed", session.status === "completed");
       const revisionCell = row.insertCell();
       const actions = row.insertCell();
       if (session.status === "planned") {
-        addSessionEditor(revisionCell, actions, session, table, pendingEdits.get(String(session.id)));
+        addSessionEditor(revisionCell, actions, session, table);
       } else {
         revisionCell.textContent = session.isRevision ? "Yes" : "No";
         actions.textContent = "—";
@@ -748,12 +802,15 @@ async function loadProgress() {
     back.href = "/plan.html?examId=" + encodeURIComponent(examId);
     back.textContent = "Back to plan";
     const [progress, history] = await Promise.all([getProgress(examId), getHistory()]);
-    progressStatus.textContent = progress.percentage + "% complete (" + progress.completedMinutes
-      + " of " + progress.totalPlannedMinutes + " min)";
+    progressStatus.textContent = Math.round(progress.percentage) + "% done · " + progress.completedMinutes
+      + " of " + progress.totalPlannedMinutes + " min";
     const table = byId("history-table");
     for (const session of history) {
-      addCells(table.tBodies[0].insertRow(), [session.sessionDate, session.examTitle,
-        session.chapterName, session.plannedMinutes, session.status]);
+      const row = table.tBodies[0].insertRow();
+      addCells(row, [friendlyDate(session.sessionDate), session.examTitle,
+        session.chapterName, session.plannedMinutes + " min"]);
+      row.insertCell().append(statusPill(session.status));
+      row.classList.toggle("is-completed", session.status === "completed");
     }
     table.hidden = history.length === 0;
     labelTableRows(table);
@@ -773,10 +830,7 @@ function labelTableRows(table) {
 
 const signOut = byId("sign-out");
 if (signOut && requireLogin()) {
-  signOut.addEventListener("click", async () => {
-    await endSession();
-    location.replace("/login.html");
-  });
+  // Sign-out and the phone menu are handled by nav.js.
   window.addEventListener("pageshow", (event) => {
     if (event.persisted && requireLogin()) {
       if (byId("dashboard-retry")) loadDashboard();
@@ -835,14 +889,6 @@ function setupCoursePicker() {
     event.preventDefault();
     const parameters = new URLSearchParams(new FormData(courseForm));
     location.assign("/new-exam.html?" + parameters.toString());
-  });
-}
-
-const menuButton = byId("workspace-menu-toggle");
-if (menuButton) {
-  menuButton.addEventListener("click", () => {
-    const open = byId("workspace-nav").classList.toggle("is-open");
-    menuButton.setAttribute("aria-expanded", String(open));
   });
 }
 

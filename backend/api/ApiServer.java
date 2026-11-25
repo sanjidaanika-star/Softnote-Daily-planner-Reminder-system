@@ -63,7 +63,7 @@ public final class ApiServer {
             Map.entry("/reset-password.html", "text/html"), Map.entry("/js/reset.js", "text/javascript"),
             Map.entry("/report.html", "text/html"), Map.entry("/js/report.js", "text/javascript"),
             Map.entry("/quiz.html", "text/html"), Map.entry("/js/quiz.js", "text/javascript"),
-            Map.entry("/js/courses.js", "text/javascript"),
+            Map.entry("/js/courses.js", "text/javascript"), Map.entry("/js/nav.js", "text/javascript"),
             Map.entry("/js/countdown.js", "text/javascript"),
             Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
             Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),

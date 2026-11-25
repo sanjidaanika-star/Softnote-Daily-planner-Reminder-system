@@ -2,12 +2,23 @@ import { requireLogin, getMe, adminGet, setAccountActive, issueReset, endSession
 const byId = (id) => document.getElementById(id);
 const node = (tag, text) => Object.assign(document.createElement(tag), { textContent: text });
 let users = [];
+function pill(text, extra) { const span = node('span', text); span.className = 'dash-pill' + (extra ? ' ' + extra : ''); return span; }
+/** "2026-11-25 12:35:12.0" → "25 Nov 2026, 12:35" in the viewer's locale. */
+function friendlyDateTime(value) {
+  const date = new Date(String(value).replace(' ', 'T').replace(/\.\d+$/, ''));
+  if (Number.isNaN(date.getTime())) return value ?? '';
+  return new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date);
+}
 function fail(error) { byId('error').textContent = error.message; byId('error').hidden = false; }
 function renderUsers() {
   const search = byId('account-search').value.trim().toLowerCase();
   const rows = users.filter((u) => (u.name + ' ' + u.email).toLowerCase().includes(search)).map((user) => {
     const row = document.createElement('tr');
-    for (const text of [user.name + '\n' + user.email, user.created_at, user.role, user.exams + ' / ' + user.notes, user.active ? 'Active' : 'Disabled']) row.append(node('td', text));
+    const who = node('td', ''); who.className = 'account-cell';
+    who.append(node('strong', user.name), node('span', user.email));
+    const role = node('td', ''); role.append(pill(user.role === 'admin' ? 'Admin' : 'Student', user.role === 'admin' ? 'status-planned' : ''));
+    const status = node('td', ''); status.append(pill(user.active ? 'Active' : 'Disabled', user.active ? 'status-completed' : 'status-missed'));
+    row.append(who, node('td', friendlyDateTime(user.created_at)), role, node('td', user.exams), status);
     const action = node('td', '');
     if (user.role !== 'admin') {
       const button = node('button', user.active ? 'Disable account' : 'Enable account');
@@ -39,14 +50,15 @@ async function load() {
     if (me.role !== 'admin') throw new Error('Administrator access is required. Use the study dashboard for your account.');
     const [summary, accounts, resets, audit] = await Promise.all(['summary', 'users', 'resets', 'audit'].map(adminGet));
     users = accounts;
-    byId('admin-stats').replaceChildren(...[['Accounts', summary.users], ['Active accounts', summary.active], ['Exams', summary.exams], ['Notes', summary.notes], ['Quizzes', summary.quizzes], ['Failed quizzes', summary.failedQuizzes], ['Pending resets', summary.pendingResets]].map(([label, value], i) => {
+    byId('admin-stats').replaceChildren(...[['Accounts', summary.users], ['Active accounts', summary.active], ['Exams', summary.exams], ['Pending resets', summary.pendingResets]].map(([label, value], i) => {
       const card = node('div', ''); card.className = 'dash-card'; card.dataset.accent = i % 6;
       card.append(node('dt', label), node('dd', value)); return card;
     }));
     renderUsers();
     byId('resets').replaceChildren(...resets.map((request) => {
       const row = node('tr', '');
-      for (const text of [request.email, request.requested_at, request.status]) row.append(node('td', text));
+      const state = node('td', ''); state.append(pill(request.status.charAt(0).toUpperCase() + request.status.slice(1), request.status === 'pending' ? 'status-planned' : ''));
+      row.append(node('td', request.email), node('td', friendlyDateTime(request.requested_at)), state);
       const action = node('td', '');
       if (['pending', 'issued'].includes(request.status)) {
         const button = node('button', request.status === 'issued' ? 'Replace reset link' : 'Issue reset link');
@@ -65,7 +77,7 @@ async function load() {
     }));
     if (!resets.length) { const row = node('tr', ''); const cell = node('td', 'No reset requests.'); cell.colSpan = 4; row.append(cell); byId('resets').append(row); }
     labelCells('resets');
-    byId('audit').replaceChildren(...audit.map((entry) => node('li', entry.created_at + ' · ' + entry.actor + ' · ' + entry.action + ' · ' + entry.target)));
+    byId('audit').replaceChildren(...audit.map((entry) => node('li', friendlyDateTime(entry.created_at) + ' · ' + entry.actor + ' · ' + entry.action + ' · ' + entry.target)));
     if (!audit.length) byId('audit').append(node('li', 'No administration actions yet.'));
     byId('admin-content').hidden = false; byId('message').textContent = 'Updated ' + new Date().toLocaleTimeString();
   } catch (error) { fail(error); byId('message').textContent = ''; }

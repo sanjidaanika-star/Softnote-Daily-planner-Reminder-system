@@ -4,28 +4,40 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Create an account | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=mobile-home-1">
-  <script type="module" src="/js/pages.js?v=exam-save-1"></script>
+  <meta name="theme-color" content="#f6f3ec">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css?v=notebook-5">
+  <script type="module" src="/js/pages.js?v=notebook-5"></script>
 </head>
-<body class="public-page workspace-page registration-page softnote-theme">
+<body class="public-page sign-in-page registration-page softnote-theme">
   <header>
     <a class="wordmark" href="/"><svg class="brand-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg>Softnote</a>
     <nav aria-label="Account navigation">
       <a href="/login.html">Sign in</a>
-      <a class="primary-button" href="/register.html">Create account</a>
     </nav>
   </header>
   <main>
-    <div class="workspace-banner"><h1>Create an account</h1></div>
-    <p id="error" role="alert" hidden></p>
-    <form id="register-form" method="post">
-      <label>Name <input name="name" autocomplete="name" maxlength="255" required></label>
-      <label>Email <input name="email" type="email" maxlength="254" autocomplete="email" required></label>
-      <label>Password <input name="password" type="password" autocomplete="new-password" required></label>
-      <button type="submit">Register</button>
-    </form>
-    <p><a href="/login.html">Back to sign in</a></p>
+    <div class="sign-in-visual">
+      <blockquote>Add an exam, list its chapters, and get a day-by-day plan.</blockquote>
+      <p>Free to use. Your plan stays private to your account.</p>
+    </div>
+    <section class="sign-in-card" aria-labelledby="register-heading">
+      <h1 id="register-heading">Create your account</h1>
+      <p class="sign-in-intro">It takes less than a minute.</p>
+      <p id="error" role="alert" hidden></p>
+      <form id="register-form" method="post">
+        <label>Name <input name="name" autocomplete="name" maxlength="255" required placeholder="Your name"></label>
+        <label>Email <input name="email" type="email" maxlength="254" autocomplete="email" required placeholder="you@example.com"></label>
+        <label>Password <input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required><span class="field-hint">Use at least 8 characters.</span></label>
+        <button type="submit">Create account</button>
+      </form>
+      <div class="sign-in-links">
+        <p>Already have an account? <a href="/login.html">Sign in</a></p>
+      </div>
+    </section>
   </main>
-  <footer>Softnote : Daily planner &amp; Reminder system</footer>
+  <footer>Softnote · Daily planner &amp; reminder system</footer>
 </body>
 </html>

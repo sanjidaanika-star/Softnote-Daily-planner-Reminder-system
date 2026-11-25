@@ -37,6 +37,8 @@ async function load(fill = true) {
     byId("sender-state").textContent = data.emailAvailable
       ? "Email sender is connected. Delivery status appears below after sending."
       : "Email delivery is waiting for the administrator to connect the email service. In-app reminders work independently.";
+    // Email delivery is hidden in the UI, so never keep an old email opt-in turned on.
+    byId("emailEnabled").checked = false;
   }
   const items = byId("reminder-items"); items.replaceChildren();
   byId("inbox-count").textContent = data.unread + " unread";
@@ -46,7 +48,6 @@ async function load(fill = true) {
     item.append(node("h3", reminder.title), node("p", reminder.message), node("small",
       new Date(reminder.createdAtEpoch * 1000).toLocaleString(undefined, { timeZone: data.settings.timeZone }), "dash-muted"));
     const delivery = [];
-    if (reminder.emailStatus) delivery.push("Email: " + reminder.emailStatus + (reminder.emailFailure ? " — " + reminder.emailFailure : ""));
     if (reminder.pushStatus) delivery.push("Browser: " + reminder.pushStatus);
     if (delivery.length) item.append(node("p", delivery.join(" · "), "dash-muted"));
     const actions = node("div", null, "dash-actions");
@@ -63,7 +64,7 @@ async function load(fill = true) {
 }
 async function browserStatus() {
   if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
-    byId("browser-state").textContent = "Push notifications are unavailable in this browser. You can use email and the reminder inbox.";
+    byId("browser-state").textContent = "Push notifications are unavailable in this browser. You can use the reminder inbox.";
     return;
   }
   const registration = await navigator.serviceWorker.getRegistration("/");
@@ -110,11 +111,7 @@ if (requireLogin()) {
     status((await testReminder()).message); await load(false);
   }));
   byId("reminder-refresh").addEventListener("click", () => action(() => load(false)));
-  byId("sign-out").addEventListener("click", async () => { await endSession(); location.replace("/login.html"); });
-  byId("workspace-menu-toggle").addEventListener("click", () => {
-    const open = byId("workspace-nav").classList.toggle("is-open");
-    byId("workspace-menu-toggle").setAttribute("aria-expanded", String(open));
-  });
+  // Sign-out and the phone menu are handled by nav.js.
   // Only refresh the inbox; never overwrite settings the user is currently editing.
   setInterval(() => { if (!document.hidden && !loading) action(() => load(false)); }, 30000);
 }

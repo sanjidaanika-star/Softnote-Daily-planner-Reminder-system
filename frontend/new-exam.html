@@ -4,54 +4,80 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Add an exam | Softnote</title>
-  <link rel="stylesheet" href="/css/style.css?v=mobile-home-1">
-  <script type="module" src="/js/pages.js?v=course-actions-1"></script>
+  <meta name="theme-color" content="#f6f3ec">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css?v=notebook-5">
+  <script type="module" src="/js/pages.js?v=notebook-5"></script>
 </head>
-<body class="public-page workspace-page softnote-theme">
-  <header>
-    <a class="wordmark" href="/dashboard.html"><svg class="brand-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg>Softnote</a>
-    <button type="button" id="sign-out">Sign out</button>
-  </header>
-  <main>
-    <div class="workspace-banner"><h1>Add an exam</h1></div>
+<body class="dashboard-page softnote-theme" data-view="new-exam">
+  <a class="dash-skip" href="#exam-main">Skip to content</a>
+  <aside class="dash-sidebar">
+    <div class="sidebar-head">
+      <a class="dash-brand" href="/dashboard.html"><svg class="brand-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg><span>Softnote</span></a>
+      <button type="button" id="workspace-menu-toggle" class="workspace-menu-toggle" aria-controls="workspace-nav" aria-expanded="false"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+    </div>
+    <nav id="workspace-nav" class="workspace-nav" aria-label="Study navigation">
+      <p class="nav-label">Plan</p>
+      <a href="/dashboard.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Dashboard</a>
+      <a href="/exams.html" aria-current="page"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4m8-4v4"/></svg>My exams</a>
+      <a href="/study.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>Study sessions</a>
+      <p class="nav-label">Track</p>
+      <a href="/chapters.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 8l2 2 4-4"/></svg>Chapters</a>
+      <a href="/report.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg>Roadmap &amp; report</a>
+      <a href="/online-exams.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg>Online exams</a>
+      <a href="/reminders.html"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>Reminders</a>
+      <a href="/admin.html" id="admin-link" hidden><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM9 12l2 2 4-4"/></svg>Administration</a>
+      <button type="button" id="sign-out" data-nav-signout><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg>Sign out</button>
+    </nav>
+  </aside>
+  <main id="exam-main">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/exams.html">My exams</a><span aria-hidden="true">/</span><span>Exam details</span></nav>
+    <div class="dash-top">
+      <div><p class="eyebrow">New exam</p><h1>Add an exam</h1><p class="page-intro">Fill this in once. Softnote then builds your daily study plan.</p></div>
+    </div>
     <p id="error" role="alert" hidden></p>
-    <form id="exam-form" method="post">
-      <div class="academic-fields">
-        <label>Semester <select name="semester" id="exam-semester"><option value="0">Not assigned</option></select></label>
-        <label>Assessment <select name="assessment"><option value="CT">CT</option><option value="MID">Mid</option><option value="FINAL">Final</option><option value="OTHER" selected>Other</option></select></label>
-      </div>
-      <label class="exam-wide-field">Course <select id="exam-course" name="courseName"><option value="">Choose a course (optional)</option></select></label>
-      <label class="exam-wide-field">Exam title <input name="title" maxlength="255" required></label>
-      <label>Exam date <input name="examDate" type="date" required></label>
-      <label>Daily minutes <input name="dailyMinutes" type="number" min="1" max="2147483647" required></label>
-      <fieldset>
-        <legend>Chapters</legend>
-        <div id="chapters"></div>
-        <button type="button" id="add-chapter">Add chapter</button>
-      </fieldset>
-      <button type="submit">Save exam</button>
-    </form>
-    <p id="exam-cancel"><a href="/dashboard.html">Cancel</a></p>
-    <section id="exam-save-result" class="exam-save-result" hidden aria-label="Exam saved">
-      <p id="exam-save-message" role="status"></p>
-      <div class="exam-save-actions">
-        <a class="primary-button" href="/new-exam.html">Add another exam</a>
-        <a class="secondary-button" href="/dashboard.html">Go to dashboard</a>
-      </div>
+    <section class="dash-card">
+      <form id="exam-form" method="post">
+        <div class="academic-fields">
+          <label>Semester <select name="semester" id="exam-semester"><option value="0">Not assigned</option></select></label>
+          <label>Assessment <select name="assessment"><option value="CT">CT</option><option value="MID">Mid</option><option value="FINAL">Final</option><option value="OTHER" selected>Other</option></select></label>
+        </div>
+        <label class="exam-wide-field">Course <select id="exam-course" name="courseName"><option value="">Choose a course (optional)</option></select></label>
+        <label class="exam-wide-field">Exam title <input name="title" maxlength="255" required placeholder="e.g. Data Structures Mid"></label>
+        <label>Exam date <input name="examDate" type="date" required></label>
+        <label>Study minutes per day <input name="dailyMinutes" type="number" min="1" max="2147483647" required placeholder="e.g. 90"><span class="form-hint">How long you can study for this exam each day.</span></label>
+        <fieldset>
+          <legend>Chapters</legend>
+          <div id="chapters"></div>
+          <button type="button" id="add-chapter"><svg class="nav-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add chapter</button>
+        </fieldset>
+        <button type="submit">Save exam and build plan</button>
+      </form>
+      <p id="exam-cancel"><a href="/exams.html">Cancel</a></p>
+      <section id="exam-save-result" class="exam-save-result" hidden aria-label="Exam saved">
+        <p id="exam-save-message" role="status"></p>
+        <div class="exam-save-actions">
+          <a class="primary-button" href="/exams.html">View my exams</a>
+          <a class="secondary-button" href="/new-exam.html">Add another exam</a>
+        </div>
+      </section>
     </section>
     <template id="chapter-template">
       <fieldset class="chapter">
         <legend>Chapter</legend>
-        <label>Chapter name <input name="chapterName" maxlength="255" required></label>
+        <label>Chapter name <input name="chapterName" maxlength="255" required placeholder="e.g. Trees and BST"></label>
         <label>Difficulty <select name="difficulty">
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
         </select></label>
-        <label>Estimated minutes <input name="estimatedMinutes" type="number" min="1" max="2147483647" required></label>
-        <button type="button" class="remove-chapter">Remove chapter</button>
+        <label>Estimated minutes <input name="estimatedMinutes" type="number" min="1" max="2147483647" required placeholder="60"></label>
+        <button type="button" class="remove-chapter">Remove</button>
       </fieldset>
     </template>
   </main>
+  <script type="module" src="/js/nav.js?v=notebook-5"></script>
 </body>
 </html>

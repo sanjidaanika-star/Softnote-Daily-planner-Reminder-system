@@ -9,6 +9,7 @@ bin/
 /config/database.test.properties
 /config/gemini.properties
 /config/reminders.properties
+/config/local-test-account.properties
 
 # Local proposal documents and generated reports/screenshots
 /Softnote_Project_Proposal*.docx

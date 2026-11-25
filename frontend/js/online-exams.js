@@ -150,8 +150,10 @@ if(requireLogin()){
   try{
     const me=await getMe();admin=me.role==='admin';byId('publisher').hidden=!admin;
     byId('workspace-role').textContent=admin?'Admin workspace':'Student workspace';
+    const intro=document.querySelector('main .page-intro');
+    if(intro)intro.textContent=admin?'Publish timed multiple-choice exams and see who has submitted.':'Timed multiple-choice exams published by your administrator.';
     if(admin)document.title='Admin · Online exams | Softnote';
-    byId('account-home').href=byId('back-home').href=admin?'/admin.html':'/dashboard.html';byId('back-home').textContent=admin?'Admin panel':'Dashboard';
+    byId('account-home').href=byId('back-home').href=admin?'/admin.html':'/dashboard.html';byId('back-home').querySelector('span').textContent=admin?'Admin panel':'Dashboard';
     byId('exam-list-heading').textContent=admin?'Published exams':'Your online exams';
     for(let i=1;i<=12;i++)byId('online-semester').add(new Option('Semester '+i,i));
     byId('publish-form').elements.opensAt.value=localInput(new Date(Date.now()+5*60000));byId('publish-form').elements.closesAt.value=localInput(new Date(Date.now()+65*60000));
