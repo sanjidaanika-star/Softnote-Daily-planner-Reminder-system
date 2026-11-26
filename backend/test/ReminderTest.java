@@ -36,7 +36,7 @@ public final class ReminderTest {
         long user=0,other=0,exam=0;
         var date=LocalDate.now(ZoneId.of("Asia/Dhaka"));
         Clock clock=Clock.fixed(date.atTime(20,30).atZone(ZoneId.of("Asia/Dhaka")).toInstant(),ZoneOffset.UTC);
-        ApiServer server=new ApiServer(db,18103,clock,(text,count)->"{}");
+        ApiServer server=new ApiServer(db,18103,clock);
         server.start();
         try {
             String email="reminder-"+UUID.randomUUID()+"@example.test";

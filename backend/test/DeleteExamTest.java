@@ -19,8 +19,8 @@ public final class DeleteExamTest {
     public static void main(String[] args) throws Exception {
         db = new DBConnection(args.length == 0 ? Path.of("config/database.test.properties") : Path.of(args[0]));
         check(count("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=DATABASE() AND schema_name=?", "softnote_test") == 1, "Use softnote_test only");
-        long user = 0, stranger = 0, exam = 0, kept = 0, note = 0, quiz = 0;
-        ApiServer api = new ApiServer(db, 18105, Clock.systemUTC(), (text, amount) -> "{}");
+        long user = 0, stranger = 0, exam = 0, kept = 0;
+        ApiServer api = new ApiServer(db, 18105, Clock.systemUTC());
         api.start();
         try {
             String email = "delete-" + UUID.randomUUID() + "@example.test";
@@ -33,8 +33,6 @@ public final class DeleteExamTest {
             // Ensure history and overflow are also removed, not only future planned rows.
             execute("UPDATE study_sessions SET status=? WHERE id=?", "missed", session);
             execute("INSERT INTO unscheduled_sessions(session_id,minutes) VALUES(?,?)", session, 15);
-            note = insert("INSERT INTO notes(user_id,title,extracted_text) VALUES(?,?,?)", user, "Keep notes", "Algorithms notes");
-            quiz = insert("INSERT INTO quizzes(user_id,note_id,status,requested_count) VALUES(?,?,?,?)", user, note, "ready", 15);
             ReminderDAO reminders = new ReminderDAO(db);
             long reminder = reminders.enqueue(reminders.account(user), "delete-test", "Exam reminder", "Disposable exam", "/plan.html?examId=" + exam);
             execute("INSERT INTO reminder_deliveries(reminder_id,channel,target_id) VALUES(?,?,?)", reminder, "email", 0);
@@ -67,15 +65,11 @@ public final class DeleteExamTest {
             check(count("SELECT COUNT(*) FROM reminders WHERE id=?", reminder) == 0, "Exam reminder deleted");
             check(count("SELECT COUNT(*) FROM reminder_deliveries WHERE reminder_id=?", reminder) == 0, "Reminder delivery deleted");
             call("GET", "/exams/" + kept, token, null, 200);
-            check(count("SELECT COUNT(*) FROM notes WHERE id=?", note) == 1 && count("SELECT COUNT(*) FROM quizzes WHERE id=?", quiz) == 1, "Notes and quizzes preserved");
-            System.out.println("PASS exam, plan, history, overflow and exam reminders removed; other exam, notes and quizzes preserved");
+            System.out.println("PASS exam, plan, history and overflow removed; other exam preserved");
             System.out.println("DeleteExamTest: ALL PASSED");
         } finally {
             api.stop();
             execute("DROP TABLE IF EXISTS exam_delete_test_guard");
-            execute("DELETE FROM quiz_attempts WHERE quiz_id=?", quiz);
-            execute("DELETE FROM quizzes WHERE id=?", quiz);
-            execute("DELETE FROM notes WHERE id=?", note);
             for (long id : new long[]{exam, kept}) {
                 execute("DELETE FROM unscheduled_sessions WHERE session_id IN (SELECT id FROM study_sessions WHERE exam_id=?)", id);
                 execute("DELETE FROM study_sessions WHERE exam_id=?", id);

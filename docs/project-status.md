@@ -4,20 +4,20 @@ Softnote is a Java 17 / JDBC / MySQL application with a plain HTML, CSS and Java
 
 ## Implemented
 
-- Registration, salted password hashing, bearer sessions, owner-only exam/plan/note/quiz access and a separate administrator role.
+- Registration, salted password hashing, bearer sessions, owner-only exam/plan access and a separate administrator role.
 - Administrator-published timed MCQ exams, notification fan-out to currently active students, automatic answer saving, server-side auto-submit, one final submission and administrator score reports. Apply `database/add_online_exams.sql` before deploying to an existing database.
 - Semester/course/assessment selection, exam creation/editing/deletion, difficulty-weighted plans, revisions, missed-session rescheduling and visible unscheduled work.
 - Dashboard analytics and navigation, today's study, weekly planner, completed chapters, progress/history and roadmap/report pages.
-- PDF text extraction, asynchronous Gemini quiz generation, response validation, hidden answers until submission and saved scores.
 - Reminder preferences and inbox, timezone-aware scheduling, persistent delivery retries, browser push and Brevo HTTPS email delivery code. Optional SMTP delivery is also implemented.
 - Browser subscription reassignment when switching accounts. Explicit sign-out disconnects the device; expired authentication preserves the reminder subscription.
 
 ## Hidden in the interface
 
-Gemini quizzes and email reminders are not being activated, so the frontend hides them. The backend code is unchanged.
+Email reminders are not being activated, so the frontend hides the email option. The backend code is unchanged.
 
-- **Notes & quizzes:** the links are removed from every page, and `quiz.html` redirects to the dashboard. To restore it, put back the `quiz.js` script in `quiz.html`, remove the redirect, and add the navigation links again.
 - **Email reminders:** the email option on `reminders.html` sits in a hidden block, and `reminders.js` always saves it as off. Browser push and the in-app inbox still work.
+
+PDF-upload quiz generation (Google Gemini) was removed entirely rather than hidden: there is no backend code, database table, route or frontend page for it anymore.
 
 ## External activation (not planned)
 
@@ -39,12 +39,8 @@ SOFTNOTE_BREVO_APIKEY=<private Brevo API key>
 
 Brevo may require transactional sending activation. Provider approval and actual recipient delivery cannot be replaced by automated tests. Browser push is configured separately and requires each browser's permission.
 
-### Gemini
-
-The server supports an ignored local properties file or environment-only deployment. Set `SOFTNOTE_GEMINI_API_KEY`, `SOFTNOTE_GEMINI_MODEL` and `SOFTNOTE_GEMINI_TIMEOUT_SECONDS=45`. Select a JSON-output-capable model available in the owner's Google AI Studio project and check its current quota. A real generation check remains dependent on a valid key and quota; automated quiz tests use a fake generator and never call Gemini.
-
 ## Verification
 
-Run `scripts/test.ps1` as documented in the README. It compiles all backend sources and runs nine Java test programs plus five frontend session tests. Integration tests use dedicated test databases, never the live development/production data. Tests cover scheduling, overflow, authentication, administrator access, quiz ownership, reminder scheduling/retries, browser subscription reassignment, transactional exam deletion/rollback and timed online exam publication/submission.
+Run `scripts/test.ps1` as documented in the README. It compiles all backend sources and runs seven Java test programs plus five frontend session tests. Integration tests use a dedicated test database, never the live development/production data. Tests cover scheduling, overflow, authentication, administrator access, reminder scheduling/retries, browser subscription reassignment, transactional exam deletion/rollback and timed online exam publication/submission.
 
 The editable system diagram is `docs/architecture.drawio`.

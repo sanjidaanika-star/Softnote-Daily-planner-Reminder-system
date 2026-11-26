@@ -14,7 +14,7 @@ Live site: <https://softnote-daily-planner-reminder-sys.vercel.app>
 - **Online exams:** administrators publish timed MCQ exams; students answer with autosave, the server auto-submits at the deadline, and administrators see a score report.
 - **Administration:** account list, enable or disable accounts, password-reset links and an activity log.
 
-Two features are built but hidden in the interface because they need outside services: Notes & quizzes (Google Gemini) and email reminders (Brevo or SMTP). See [Optional features](#optional-features).
+One feature is built but hidden in the interface because it needs an outside service: email reminders (Brevo or SMTP). See [Optional features](#optional-features).
 
 ## Tech stack
 
@@ -28,7 +28,7 @@ Two features are built but hidden in the interface because they need outside ser
 ## Project structure
 
 ```text
-backend/    Java source: api, db, model, scheduler, reminder, ai, service, test
+backend/    Java source: api, db, model, scheduler, reminder, service, test
 frontend/   HTML pages, css/style.css and js/ modules
 database/   schema.sql for new databases and add_*.sql migrations
 config/     *.example files; real config files are git-ignored
@@ -77,7 +77,6 @@ New databases get everything from `schema.sql`. For an older database, apply the
 | Migration | Adds |
 | --- | --- |
 | `add_unscheduled_sessions.sql` | Work that does not fit before the exam |
-| `add_notes_and_quizzes.sql` | Notes and quiz tables |
 | `add_reminders.sql` | Reminder settings, inbox, browser subscriptions and deliveries |
 | `add_admin_and_course_metadata.sql` | Roles, semester, course and assessment fields |
 | `add_online_exams.sql` | Online exams and attempts |
@@ -136,21 +135,19 @@ Keep keys in Railway variables or git-ignored files. Never commit them.
 
 ## Optional features
 
-These are implemented in the backend but hidden in the interface. To turn one back on, configure it and undo the matching change described in [docs/project-status.md](docs/project-status.md).
-
-**Notes & quizzes (Google Gemini).** Users upload a text-based PDF (up to 8 MB) and get a 15–20 question quiz. Set `SOFTNOTE_GEMINI_API_KEY`, `SOFTNOTE_GEMINI_MODEL` (a JSON-output-capable model) and `SOFTNOTE_GEMINI_TIMEOUT_SECONDS=45`, or copy `config/gemini.properties.example` to `config/gemini.properties`. Without a key, the rest of Softnote works normally.
+This is implemented in the backend but hidden in the interface. To turn it back on, configure it and undo the matching change described in [docs/project-status.md](docs/project-status.md).
 
 **Email reminders.** Set `SOFTNOTE_MAIL_PROVIDER=brevo`, `SOFTNOTE_MAIL_FROM` (a verified sender) and `SOFTNOTE_BREVO_APIKEY`. SMTP is also supported (`SOFTNOTE_MAIL_PROVIDER=smtp` with `SOFTNOTE_SMTP_USER`, `SOFTNOTE_SMTP_FROM` and `SOFTNOTE_SMTP_PASSWORD`), but Railway's Free, Trial and Hobby plans block outbound SMTP. See `config/reminders.properties.example`.
 
 ## Tests
 
-Create two separate test databases, `softnote_test` and `softnote_quiz_test`, from `database/schema.sql`, and point git-ignored properties files at them. Never point tests at a real database; the integration tests check the database name before changing data.
+Create a test database, `softnote_test`, from `database/schema.sql`, and point a git-ignored properties file at it. Never point tests at a real database; the integration tests check the database name before changing data.
 
 ```powershell
-./scripts/test.ps1 -ConnectorJar C:\path\to\mysql-connector-j.jar -TestConfig config/database.test.properties -QuizConfig C:\path\to\quiz-test.properties
+./scripts/test.ps1 -ConnectorJar C:\path\to\mysql-connector-j.jar -TestConfig config/database.test.properties
 ```
 
-This compiles the backend with Java 17, runs the nine Java test programs (scheduling, rescheduling, configuration, authentication, administration, reminders, exam deletion, online exams and quizzes) and runs the Node frontend session tests. Tests use fake email, push and Gemini clients, so nothing is sent.
+This compiles the backend with Java 17, runs the seven Java test programs (scheduling, rescheduling, authentication, administration, reminders, exam deletion and online exams) and runs the Node frontend session tests. Tests use fake email and push clients, so nothing is sent.
 
 ## More documentation
 

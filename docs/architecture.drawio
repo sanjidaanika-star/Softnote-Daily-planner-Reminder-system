@@ -28,7 +28,7 @@
         <mxCell id="planner" value="Study Planner" style="rounded=1;arcSize=16;whiteSpace=wrap;html=0;fillColor=#eef5f1;strokeColor=#b9cdc5;strokeWidth=1.5;fontColor=#14324f;fontSize=24;fontFamily=Segoe UI;fontStyle=1;fillColor=#ffffff;fontSize=23;" vertex="1" parent="services">
           <mxGeometry x="30" y="140" width="300" height="65" as="geometry" />
         </mxCell>
-        <mxCell id="quizzes" value="Notes &amp; Quizzes" style="rounded=1;arcSize=16;whiteSpace=wrap;html=0;fillColor=#eef5f1;strokeColor=#b9cdc5;strokeWidth=1.5;fontColor=#14324f;fontSize=24;fontFamily=Segoe UI;fontStyle=1;fillColor=#ffffff;fontSize=23;" vertex="1" parent="services">
+        <mxCell id="progress" value="Progress &amp; Reports" style="rounded=1;arcSize=16;whiteSpace=wrap;html=0;fillColor=#eef5f1;strokeColor=#b9cdc5;strokeWidth=1.5;fontColor=#14324f;fontSize=24;fontFamily=Segoe UI;fontStyle=1;fillColor=#ffffff;fontSize=23;" vertex="1" parent="services">
           <mxGeometry x="400" y="140" width="320" height="65" as="geometry" />
         </mxCell>
         <mxCell id="online-exams" value="Online Exams" style="rounded=1;arcSize=16;whiteSpace=wrap;html=0;fillColor=#eef5f1;strokeColor=#b9cdc5;strokeWidth=1.5;fontColor=#14324f;fontSize=24;fontFamily=Segoe UI;fontStyle=1;fillColor=#ffffff;fontSize=23;" vertex="1" parent="services">
@@ -43,11 +43,8 @@
         <mxCell id="database" value="MySQL Database" style="shape=cylinder3;whiteSpace=wrap;html=0;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#eef5f1;strokeColor=#b9cdc5;strokeWidth=1.5;fontColor=#14324f;fontSize=25;fontFamily=Segoe UI;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="420" y="980" width="410" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="gemini" value="Gemini API" style="rounded=1;arcSize=16;whiteSpace=wrap;html=0;fillColor=#eef5f1;strokeColor=#b9cdc5;strokeWidth=1.5;fontColor=#14324f;fontSize=24;fontFamily=Segoe UI;fontStyle=1;fillColor=#f7faf8;fontSize=23;" vertex="1" parent="1">
-          <mxGeometry x="1140" y="500" width="260" height="85" as="geometry" />
-        </mxCell>
         <mxCell id="notifications" value="Notifications&#10;Email / Browser Push" style="rounded=1;arcSize=16;whiteSpace=wrap;html=0;fillColor=#eef5f1;strokeColor=#b9cdc5;strokeWidth=1.5;fontColor=#14324f;fontSize=24;fontFamily=Segoe UI;fontStyle=1;fillColor=#f7faf8;fontSize=23;" vertex="1" parent="1">
-          <mxGeometry x="1140" y="590" width="260" height="85" as="geometry" />
+          <mxGeometry x="1140" y="545" width="260" height="85" as="geometry" />
         </mxCell>
         <mxCell id="http-label" value="HTTP / JSON" style="text;whiteSpace=wrap;html=0;strokeColor=none;fillColor=none;fontColor=#657b79;fontFamily=Segoe UI;fontSize=19;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="555" y="133" width="140" height="26" as="geometry" />
@@ -78,9 +75,6 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="database-call" edge="1" parent="1" source="dao" target="database" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;strokeColor=#236d59;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;startArrow=block;startFill=1;">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="quiz-call" edge="1" parent="1" source="quizzes" target="gemini" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;strokeColor=#236d59;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;startArrow=block;startFill=1;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="notification-call" edge="1" parent="1" source="reminders" target="notifications" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;strokeColor=#236d59;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">

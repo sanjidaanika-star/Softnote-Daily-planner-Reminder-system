@@ -28,7 +28,7 @@ public final class OnlineExamTest {
         db=new DBConnection(args.length==0?Path.of("config/database.test.properties"):Path.of(args[0]));
         check(count("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=DATABASE() AND schema_name=?","softnote_test")==1,"Only softnote_test is allowed");
         int port;try(var socket=new ServerSocket(0)){port=socket.getLocalPort();}origin="http://127.0.0.1:"+port;
-        Time clock=new Time();var api=new ApiServer(db,port,clock,(text,n)->"{}");
+        Time clock=new Time();var api=new ApiServer(db,port,clock);
         List<Long> accounts=new ArrayList<>(),papers=new ArrayList<>();
         api.start();
         try{

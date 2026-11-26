@@ -17,8 +17,7 @@ public final class AdminDAO {
     public List<Map<String, Object>> users() {
         return query("""
                 SELECT u.id, u.name, u.email, u.role, u.active, u.created_at,
-                  (SELECT COUNT(*) FROM exams e WHERE e.user_id = u.id) AS exams,
-                  (SELECT COUNT(*) FROM notes n WHERE n.user_id = u.id) AS notes
+                  (SELECT COUNT(*) FROM exams e WHERE e.user_id = u.id) AS exams
                 FROM users u ORDER BY u.created_at DESC, u.id DESC LIMIT 1000
                 """);
     }
@@ -27,9 +26,7 @@ public final class AdminDAO {
         return query("""
                 SELECT (SELECT COUNT(*) FROM users) AS users,
                   (SELECT COUNT(*) FROM users WHERE active = TRUE) AS active,
-                  (SELECT COUNT(*) FROM exams) AS exams, (SELECT COUNT(*) FROM notes) AS notes,
-                  (SELECT COUNT(*) FROM quizzes) AS quizzes,
-                  (SELECT COUNT(*) FROM quizzes WHERE status = 'failed') AS failedQuizzes,
+                  (SELECT COUNT(*) FROM exams) AS exams,
                   (SELECT COUNT(*) FROM password_reset_requests WHERE status = 'pending') AS pendingResets
                 """);
     }

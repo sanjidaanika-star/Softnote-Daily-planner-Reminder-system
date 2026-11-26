@@ -32,7 +32,7 @@ public final class AdminIntegrationTest {
         String prefix = UUID.randomUUID().toString();
         String adminEmail = prefix + "-admin@example.test", userEmail = prefix + "@example.test";
         long admin = 0, user = 0, exam = 0;
-        ApiServer api = new ApiServer(database, 18091, Clock.systemUTC(), (text, count) -> "{}");
+        ApiServer api = new ApiServer(database, 18091, Clock.systemUTC());
         api.start();
         try {
             admin = register(adminEmail);

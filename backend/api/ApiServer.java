@@ -1,9 +1,5 @@
 package backend.api;
 
-import backend.ai.GeminiClient;
-import backend.ai.QuestionGenerator;
-import backend.ai.QuizService;
-import backend.db.QuizDAO;
 import backend.db.ChapterDAO;
 import backend.db.DBConnection;
 import backend.db.DataAccessException;
@@ -60,7 +56,6 @@ public final class ApiServer {
             Map.entry("/online-exams.html", "text/html"), Map.entry("/js/online-exams.js", "text/javascript"),
             Map.entry("/reset-password.html", "text/html"), Map.entry("/js/reset.js", "text/javascript"),
             Map.entry("/report.html", "text/html"), Map.entry("/js/report.js", "text/javascript"),
-            Map.entry("/quiz.html", "text/html"), Map.entry("/js/quiz.js", "text/javascript"),
             Map.entry("/js/courses.js", "text/javascript"), Map.entry("/js/nav.js", "text/javascript"),
             Map.entry("/js/countdown.js", "text/javascript"),
             Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
@@ -91,14 +86,10 @@ public final class ApiServer {
     private final LinkedHashMap<String, LoginSession> loginSessions = new LinkedHashMap<>();
 
     public ApiServer(DBConnection database, int port, Clock clock) throws IOException {
-        this(database, port, clock, new GeminiClient(Path.of("config", "gemini.properties")));
+        this(database, new InetSocketAddress("127.0.0.1", port), clock);
     }
 
-    public ApiServer(DBConnection database, int port, Clock clock, QuestionGenerator generator) throws IOException {
-        this(database, new InetSocketAddress("127.0.0.1", port), clock, generator);
-    }
-
-    private ApiServer(DBConnection database, InetSocketAddress address, Clock clock, QuestionGenerator generator)
+    private ApiServer(DBConnection database, InetSocketAddress address, Clock clock)
             throws IOException {
         this.clock = clock;
         server = HttpServer.create(address, 0);
@@ -132,11 +123,6 @@ public final class ApiServer {
         sessions = new SessionDAO(database);
         plans = new PlanService(sessions,
                 new DifficultyPlanStrategy(), clock);
-        QuizDAO quizDao = new QuizDAO(database);
-        QuizRoutes quizzes = new QuizRoutes(quizDao, new QuizService(quizDao, generator, plans::executeBackground));
-        route("/notes", "GET, POST", exchange -> quizzes.notes(exchange, requireUser(exchange)));
-        route("/notes/", "POST", exchange -> quizzes.start(exchange, requireUser(exchange)));
-        route("/quizzes/", "GET, POST", exchange -> quizzes.quiz(exchange, requireUser(exchange)));
         route("/register", "POST", this::register);
         route("/login", "POST", this::login);
         route("/exams", "GET, POST", this::handleExams);
@@ -153,8 +139,7 @@ public final class ApiServer {
         int port = Integer.parseInt(args.length == 0 ? System.getenv().getOrDefault("PORT", "8080") : args[0]);
         String host = System.getenv().getOrDefault("SOFTNOTE_BIND_HOST", "127.0.0.1");
         DBConnection database = args.length < 2 ? new DBConnection() : new DBConnection(Path.of(args[1]));
-        ApiServer api = new ApiServer(database, new InetSocketAddress(host, port), Clock.systemDefaultZone(),
-                new GeminiClient(Path.of("config", "gemini.properties")));
+        ApiServer api = new ApiServer(database, new InetSocketAddress(host, port), Clock.systemDefaultZone());
         Runtime.getRuntime().addShutdownHook(new Thread(api::stop));
         api.start();
         System.out.println("Softnote API listening on " + api.server.getAddress());

@@ -16,9 +16,6 @@
     { "source": "/plan", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/plan" },
     { "source": "/progress", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/progress" },
     { "source": "/history", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/history" },
-    { "source": "/sessions/:path*", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/sessions/:path*" },
-    { "source": "/notes", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/notes" },
-    { "source": "/notes/:path*", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/notes/:path*" },
-    { "source": "/quizzes/:path*", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/quizzes/:path*" }
+    { "source": "/sessions/:path*", "destination": "https://softnote-daily-planner-reminder-system-production.up.railway.app/sessions/:path*" }
   ]
 }

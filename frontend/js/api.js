@@ -63,7 +63,7 @@ function responseErrorMessage(data, status) {
   return "The request failed. Try again.";
 }
 
-async function request(path, { method = "GET", body, protectedCall = false, raw, noteTitle, signal } = {}) {
+async function request(path, { method = "GET", body, protectedCall = false, signal } = {}) {
   const headers = { Accept: "application/json" };
   if (protectedCall) {
     const token = getToken();
@@ -74,14 +74,10 @@ async function request(path, { method = "GET", body, protectedCall = false, raw,
     headers.Authorization = "Bearer " + token;
   }
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (raw) {
-    headers["Content-Type"] = "application/pdf";
-    headers["X-Note-Title"] = encodeURIComponent(noteTitle);
-  }
 
   let response;
   try {
-    response = await fetch(path, { method, headers, body: raw ?? JSON.stringify(body), signal });
+    response = await fetch(path, { method, headers, body: JSON.stringify(body), signal });
   } catch {
     throw new Error("Could not reach Softnote. Try again.");
   }
@@ -132,30 +128,6 @@ export function confirmPasswordReset(token, password) {
 
 export function listNotes() {
   return request("/notes", { protectedCall: true });
-}
-
-export function uploadNote(file, course = "") {
-  const filename = file.name.replace(/\.pdf$/i, "").trim() || "PDF note";
-  const title = course ? course + " — " + filename : filename;
-  return request("/notes", { method: "POST", protectedCall: true, raw: file, noteTitle: title });
-}
-
-export function createQuiz(noteId, count) {
-  return request("/notes/" + encodeURIComponent(noteId) + "/quizzes",
-    { method: "POST", body: { count }, protectedCall: true });
-}
-
-export function getQuiz(id, signal) {
-  return request("/quizzes/" + encodeURIComponent(id), { protectedCall: true, signal });
-}
-
-export function answerQuestion(id, questionId, chosenIndex) {
-  return request("/quizzes/" + encodeURIComponent(id) + "/questions/" + encodeURIComponent(questionId) + "/answer",
-    { method: "POST", body: { chosenIndex }, protectedCall: true });
-}
-
-export function getQuizScore(id) {
-  return request("/quizzes/" + encodeURIComponent(id) + "/score", { protectedCall: true });
 }
 
 export function register(details) {
