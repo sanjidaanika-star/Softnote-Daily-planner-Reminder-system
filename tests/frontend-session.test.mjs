@@ -38,7 +38,7 @@ test("expired token clears login but keeps browser reminders subscribed", async 
   await assert.rejects(() => fixture.api.getMe(), /Sign in again/);
   assert.equal(fixture.values.has("softnote.token"), false);
   assert.equal(fixture.unsubscribed, 0);
-  assert.match(fixture.redirects[0], /expired=1/);
+  assert.equal(fixture.redirects[0], "https://softnote.test/index.html?expired=1");
 });
 
 test("login rebinds the existing subscription with the new account token", async t => {

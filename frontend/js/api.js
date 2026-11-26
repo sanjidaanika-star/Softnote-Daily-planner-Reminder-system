@@ -51,7 +51,7 @@ export async function endSession() {
 
 export function requireLogin() {
   if (getToken()) return true;
-  location.replace("/login.html");
+  location.replace("/index.html");
   return false;
 }
 
@@ -68,7 +68,7 @@ async function request(path, { method = "GET", body, protectedCall = false, sign
   if (protectedCall) {
     const token = getToken();
     if (!token) {
-      location.replace("/login.html");
+      location.replace("/index.html");
       throw new Error("Sign in to continue.");
     }
     headers.Authorization = "Bearer " + token;
@@ -86,7 +86,7 @@ async function request(path, { method = "GET", body, protectedCall = false, sign
     if (protectedCall && response.status === 401) {
       // An expired login does not opt the user out of their scheduled reminders.
       clearToken({ disconnectBrowser: false });
-      const destination = new URL("/login.html", location.origin);
+      const destination = new URL("/index.html", location.origin);
       destination.searchParams.set("expired", "1");
       location.replace(destination);
     }

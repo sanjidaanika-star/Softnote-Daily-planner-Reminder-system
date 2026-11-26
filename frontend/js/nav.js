@@ -24,7 +24,7 @@ const signOut = document.querySelector("#sign-out[data-nav-signout]");
 if (signOut) {
   signOut.addEventListener("click", async () => {
     await endSession();
-    location.replace("/login.html");
+    location.replace("/index.html");
   });
 }
 

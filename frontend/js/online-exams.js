@@ -133,7 +133,7 @@ byId('refresh-exams').addEventListener('click',load);
 byId('retry-save').addEventListener('click',queueSave);
 byId('answer-form').addEventListener('submit',event=>{event.preventDefault();submit();});
 byId('start-exam').addEventListener('click',async()=>{byId('start-exam').disabled=true;try{render(await startOnlineExam(paper.id));await load();}catch(error){fail(error);tick();}});
-byId('sign-out').addEventListener('click',async()=>{if(paper?.startedAt && !paper.submittedAt && !await confirmAction('Sign out? The exam timer keeps running.'))return;await saveQueue;await endSession();location.replace('/login.html');});
+byId('sign-out').addEventListener('click',async()=>{if(paper?.startedAt && !paper.submittedAt && !await confirmAction('Sign out? The exam timer keeps running.'))return;await saveQueue;await endSession();location.replace('/index.html');});
 byId('publish-form').addEventListener('submit',async event=>{
   event.preventDefault();clearError();const form=event.currentTarget,button=byId('publish-exam');
   const values=Object.fromEntries(new FormData(form));

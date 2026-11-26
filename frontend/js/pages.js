@@ -868,7 +868,7 @@ if (byId("dashboard-retry") || byId("plan-countdown")) {
 if (byId("register-form")) {
   handleSubmit(byId("register-form"), async (details) => {
     await register(details);
-    location.replace("/login.html?registered=1");
+    location.replace("/index.html?registered=1");
   });
 }
 

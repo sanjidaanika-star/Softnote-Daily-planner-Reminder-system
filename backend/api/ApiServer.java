@@ -59,12 +59,13 @@ public final class ApiServer {
             Map.entry("/report.html", "text/html"), Map.entry("/js/report.js", "text/javascript"),
             Map.entry("/js/courses.js", "text/javascript"), Map.entry("/js/nav.js", "text/javascript"),
             Map.entry("/js/countdown.js", "text/javascript"),
-            Map.entry("/login.html", "text/html"), Map.entry("/register.html", "text/html"),
+            Map.entry("/register.html", "text/html"),
             Map.entry("/dashboard.html", "text/html"), Map.entry("/new-exam.html", "text/html"),
             Map.entry("/exams.html", "text/html"), Map.entry("/study.html", "text/html"),
             Map.entry("/chapters.html", "text/html"),
             Map.entry("/reminders.html", "text/html"), Map.entry("/js/reminders.js", "text/javascript"),
             Map.entry("/sw.js", "text/javascript"),
+            Map.entry("/js/sw.js", "text/javascript"),
             Map.entry("/plan.html", "text/html"), Map.entry("/progress.html", "text/html"), Map.entry("/css/style.css", "text/css"),
             Map.entry("/js/api.js", "text/javascript"), Map.entry("/js/pages.js", "text/javascript"));
     private static final int MAX_BODY_BYTES = 65_536;
@@ -203,8 +204,11 @@ public final class ApiServer {
     private void serveFrontend(HttpExchange exchange) throws IOException {
         try (exchange) {
             String path = exchange.getRequestURI().getPath();
-            if ("/".equals(path) || "/login.html".equals(path)) {
+            if ("/".equals(path)) {
                 path = "/index.html";
+            }
+            if ("/sw.js".equals(path)) {
+                path = "/js/sw.js";
             }
             String contentType = ASSETS.getOrDefault(path == null ? "" : path, "");
             if (contentType.isEmpty()) {

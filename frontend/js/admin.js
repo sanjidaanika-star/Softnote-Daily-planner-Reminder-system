@@ -85,5 +85,5 @@ async function load() {
 }
 byId('refresh').addEventListener('click', load);
 byId('account-search').addEventListener('input', renderUsers);
-byId('sign-out').addEventListener('click', async () => { await endSession(); location.replace('/login.html'); });
+byId('sign-out').addEventListener('click', async () => { await endSession(); location.replace('/index.html'); });
 if (requireLogin()) load();
