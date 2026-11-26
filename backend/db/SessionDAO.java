@@ -1,6 +1,7 @@
 package backend.db;
 
 import backend.model.Exam;
+import backend.model.Chapter;
 import backend.model.StudySession;
 import backend.scheduler.Rescheduler;
 import backend.scheduler.SchedulingStrategy;
@@ -12,6 +13,8 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
@@ -178,7 +181,7 @@ public final class SessionDAO {
 
     public Plan readPlan(long examId) {
         String sql = """
-                SELECT c.name, u.minutes FROM unscheduled_sessions u
+                SELECT c.id AS chapter_id, c.name, u.minutes, s.is_revision FROM unscheduled_sessions u
                 JOIN study_sessions s ON s.id = u.session_id
                 JOIN chapters c ON c.id = s.chapter_id
                 WHERE s.exam_id = ? ORDER BY s.id
@@ -188,12 +191,37 @@ public final class SessionDAO {
             connection.setAutoCommit(false);
             List<StudySession> sessions = findByExamId(connection, examId);
             List<Unscheduled> unscheduled = new ArrayList<>();
+            Map<Long, Long> accounted = new HashMap<>();
+            for (StudySession session : sessions) {
+                if (!session.isRevision() && session.getStatus() != StudySession.Status.MISSED) {
+                    accounted.merge(session.getChapterId(), (long) session.getPlannedMinutes(), Long::sum);
+                }
+            }
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setLong(1, examId);
                 try (ResultSet rows = statement.executeQuery()) {
                     while (rows.next()) {
                         unscheduled.add(new Unscheduled(rows.getString("name"), rows.getInt("minutes")));
+                        if (!rows.getBoolean("is_revision")) {
+                            accounted.merge(rows.getLong("chapter_id"), rows.getLong("minutes"), Long::sum);
+                        }
                     }
+                }
+            }
+            // Saved chapter targets also retain work that did not fit the initial plan.
+            // Include only the deficit not already represented by sessions or missed-work overflow.
+            for (Chapter chapter : ChapterDAO.findByExamId(connection, examId)) {
+                int weight = switch (chapter.getDifficulty()) {
+                    case EASY -> 1;
+                    case MEDIUM -> 2;
+                    case HARD -> 3;
+                };
+                long deficit = (long) chapter.getEstimatedMinutes() * weight
+                        - accounted.getOrDefault(chapter.getId(), 0L);
+                while (deficit > 0) {
+                    int minutes = (int) Math.min(Integer.MAX_VALUE, deficit);
+                    unscheduled.add(new Unscheduled(chapter.getName(), minutes));
+                    deficit -= minutes;
                 }
             }
             connection.commit();

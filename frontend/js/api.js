@@ -126,10 +126,6 @@ export function confirmPasswordReset(token, password) {
   return request("/password-reset/confirm", { method: "POST", body: { token, password } });
 }
 
-export function listNotes() {
-  return request("/notes", { protectedCall: true });
-}
-
 export function register(details) {
   return request("/register", { method: "POST", body: details });
 }

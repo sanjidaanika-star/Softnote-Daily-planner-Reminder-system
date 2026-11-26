@@ -19,7 +19,7 @@ public final class DeleteExamTest {
     public static void main(String[] args) throws Exception {
         db = new DBConnection(args.length == 0 ? Path.of("config/database.test.properties") : Path.of(args[0]));
         check(count("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=DATABASE() AND schema_name=?", "softnote_test") == 1, "Use softnote_test only");
-        long user = 0, stranger = 0, exam = 0, kept = 0;
+        long user = 0, stranger = 0, exam = 0, kept = 0, limited = 0;
         ApiServer api = new ApiServer(db, 18105, Clock.systemUTC());
         api.start();
         try {
@@ -27,6 +27,23 @@ public final class DeleteExamTest {
             String otherEmail = "delete-other-" + UUID.randomUUID() + "@example.test";
             user = register(email); stranger = register(otherEmail);
             String token = login(email), otherToken = login(otherEmail);
+            limited = call("POST", "/exams", token, JSON.toJson(Map.of("title", "Capacity check",
+                    "examDate", LocalDate.now(ZoneOffset.UTC).plusDays(1).toString(), "dailyMinutes", 30,
+                    "chapters", List.of(Map.of("name", "Trees", "difficulty", "hard", "estimatedMinutes", 60)))),
+                    201).get("id").getAsLong();
+            var limitedPlan = call("GET", "/plan?examId=" + limited, token, null, 200);
+            check(limitedPlan.getAsJsonArray("unscheduled").get(0).getAsJsonObject().get("minutes").getAsInt() == 150,
+                    "Initial plan must expose all 150 minutes that did not fit");
+            long limitedSession = limitedPlan.getAsJsonArray("sessions").get(0).getAsJsonObject().get("id").getAsLong();
+            call("PATCH", "/sessions/" + limitedSession + "/status", token, "{\"status\":\"completed\"}", 200);
+            var progress = call("GET", "/progress?examId=" + limited, token, null, 200);
+            check(progress.get("totalPlannedMinutes").getAsLong() == 180
+                    && progress.get("completedMinutes").getAsLong() == 30
+                    && progress.get("percentage").getAsDouble() == 16.67, "Overflow must remain in progress denominator");
+            var reloaded = new backend.db.SessionDAO(db).readPlan(limited);
+            check(reloaded.unscheduled().stream().mapToLong(backend.db.SessionDAO.Unscheduled::minutes).sum() == 150,
+                    "Reload must retain initial overflow without duplicating it");
+            System.out.println("PASS initial capacity overflow, persisted reload and minute-based progress");
             exam = create(token, "Disposable exam"); kept = create(token, "Keep this exam");
             var plan = call("GET", "/plan?examId=" + exam, token, null, 200);
             long session = plan.getAsJsonArray("sessions").get(0).getAsJsonObject().get("id").getAsLong();
@@ -70,7 +87,7 @@ public final class DeleteExamTest {
         } finally {
             api.stop();
             execute("DROP TABLE IF EXISTS exam_delete_test_guard");
-            for (long id : new long[]{exam, kept}) {
+            for (long id : new long[]{exam, kept, limited}) {
                 execute("DELETE FROM unscheduled_sessions WHERE session_id IN (SELECT id FROM study_sessions WHERE exam_id=?)", id);
                 execute("DELETE FROM study_sessions WHERE exam_id=?", id);
                 execute("DELETE FROM chapters WHERE exam_id=?", id);

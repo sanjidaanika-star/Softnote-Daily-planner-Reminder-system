@@ -7,12 +7,15 @@ Live site: <https://softnote-daily-planner-reminder-sys.vercel.app>
 ## Features
 
 - **Study plans:** difficulty-weighted daily sessions, revision sessions, one-click Done / Missed, automatic rescheduling of missed work, and a list of work that does not fit before the exam.
+
 - **Dashboard:** today's sessions, the closest exam, overall progress and simple charts. New users see a three-step getting-started guide.
 - **Exams and courses:** semester (1–12), course and assessment type (CT, Mid, Final, Other) for every exam, with a live countdown.
 - **Chapters, history and report:** finished and remaining chapters per course, a study history, and a printable roadmap and report.
 - **Reminders:** a daily reminder for unfinished sessions and a reminder the day before each exam, in an in-app inbox and as browser push notifications.
 - **Online exams:** administrators publish timed MCQ exams; students answer with autosave, the server auto-submits at the deadline, and administrators see a score report.
 - **Administration:** account list, enable or disable accounts, password-reset links and an activity log.
+
+Unscheduled work includes minutes that do not fit the first plan, as well as missed-session overflow. Initial shortfalls are calculated from saved chapter targets and sessions, so they survive reloads without duplicate overflow records and remain included in progress totals.
 
 One feature is built but hidden in the interface because it needs an outside service: email reminders (Brevo or SMTP). See [Optional features](#optional-features).
 
@@ -32,7 +35,7 @@ backend/    Java source: api, db, model, scheduler, reminder, service, test
 frontend/   HTML pages, css/style.css and js/ modules
 database/   schema.sql for new databases and add_*.sql migrations
 config/     *.example files; real config files are git-ignored
-lib/        Bundled jars (Gson, PDFBox, web push, mail)
+lib/        Bundled jars (Gson, web push, mail)
 scripts/    test.ps1 runs every test
 docs/       Project status, dependency notes and the architecture diagram
 ```
